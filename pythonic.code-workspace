@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	], 
+	"settings": {
+		"python.pythonPath": "..\\venv3\\Scripts\\python.exe",
+		"python.dataScience.jupyterServerURI": "local",
+		"jupyter.jupyterServerType": "local"
+	}
+}
