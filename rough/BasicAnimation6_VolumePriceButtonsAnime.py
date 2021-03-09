@@ -1,3 +1,4 @@
+import os
 from datetime import date, datetime, time, timedelta
 
 import matplotlib.animation as animation
@@ -9,7 +10,7 @@ import seaborn as sns
 import yfinance as yf
 from market_profile import MarketProfile
 from matplotlib.widgets import Button
-import os 
+from scipy import signal, stats
 
 # Class to simulate getting more data from API:
 
@@ -181,8 +182,31 @@ def animate(forward=True, interval=7):
 
     # WORKING ------------------- Plot hist of Up and Down volumes with KDE Peaks
     sns.kdeplot(data=df[-lookback_period:], y=Closetype, hue="PriceUp", weights=df[-lookback_period:].Volume.astype(
-        np.float64), palette=customPalette,  alpha=0.2, bw_method=kde_factor, fill=True, legend=False, ax=ax1)  # normalize Y
+        np.float64), palette=customPalette,  alpha=0.2, bw_method=kde_factor, fill=False, legend=False, ax=ax1)  # normalize Y
     ax1.autoscale()
+
+    # Working => KED PEAKS and S/R line 
+
+    greenLinex = ax1.lines[0].get_xdata()
+    greenLiney = ax1.lines[0].get_ydata()
+    peaks,_ = signal.find_peaks(greenLinex)
+    gkx = greenLinex[peaks]
+    gky = greenLiney[peaks]
+    greenLinex = ax1.lines[1].get_xdata()
+    greenLiney = ax1.lines[1].get_ydata()
+    peaks,_ = signal.find_peaks(greenLinex)
+    rkx = greenLinex[peaks]
+    rky = greenLiney[peaks]
+    # plot on chart : labbs 
+    for x,y in zip(gkx,gky): 
+        ax1.plot( x, y, 'bo', ms=5, color='g') # add dot to vol chart 
+        # ax1.axhline(y, ls='--', color='g') # add hline to main chart 
+    # for x,y in zip(rkx,rky): 
+    #     ax1.plot( x, y, 'bo', ms=5, color='r') # add dot to vol chart 
+    #     # ax1.axhline(y, ls='--', color='g') # add hline to main chart 
+
+
+
 
     # sns.histplot(data=df[-lookback_period:], y='Close', hue="PriceUp", weights=df[-lookback_period:].Volume.astype(np.float64), bins=100, stat="density", palette=customPalette,  alpha=1, kde=True, kde_kws={'bw_method': kde_factor}, ax=ax2) # normalize Y
 

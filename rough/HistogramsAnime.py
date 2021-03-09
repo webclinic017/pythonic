@@ -96,7 +96,7 @@ plt.title(symbol)
 ###############################    SNS PLOTTING FIGURES TEST FUNCTIONS      ###################################
 
 # d = df5.reset_index()
- d=df5.copy()
+d=df5.copy()
 
 # WRONG - SINGLE VARIATE distribution of PRICE Close : 
 ax = sns.displot( d.Volume,  x=d.Close, bins=50) # Wrong - need 2nd variable - BIVARIATE Distribution
@@ -225,17 +225,60 @@ ax = sns.histplot(data=d, x='Close', weights=d.Volume.astype(np.float64), bins=1
 ax = sns.histplot(data=d, y='Close', weights=d.Volume.astype(np.float64), bins=100, stat="density", palette=customPalette,  alpha=0.2, kde=True, kde_kws={'bw_method': kde_factor}) # normalize Y # add :  hue="PriceUp" for split +/- 
 
 
-# flip to right y axis 
+# flip to right y axis === NOT WORKING (IGNORE)
 fig,ax = plt.subplots()
 ax21 = ax.twiny()
 # ax21 = fig.add_subplot(111, sharey=ax, frameon=False)
 ax21.yaxis.tick_right()
-sns.histplot(data=d, y='Close', weights=d.Volume.astype(np.float64), bins=100, stat="density", palette=customPalette,  alpha=0.2, kde=True, kde_kws={'bw_method': kde_factor}, ax=ax21) # normalize Y # add :  hue="PriceUp" for split +/- 
+sns.histplot(data=d, y='Close', weights=d.Volume.astype(np.float64),  bins=100, stat="density", palette=customPalette,  alpha=0.2, kde=True, kde_kws={'bw_method': kde_factor}, ax=ax21) # normalize Y # add :  hue="PriceUp" for split +/- 
 
 
+
+# Define Fig and Axes
+fig = plt.figure(figsize=(12,6))
+ax = fig.add_axes ([0, 0.1, 0.65, 0.9])
 
 ######## Plot KDE with weight s
-ax = sns.kdeplot(data=d, y='Close', hue="PriceUp", weights=d.Volume.astype(np.float64), palette=customPalette,  alpha=0.2, bw_method=kde_factor, fill=True) # normalize Y 
+sns.kdeplot(data=d, x='Close', hue="PriceUp", weights=d.Volume.astype(np.float64), palette=customPalette,  alpha=0.2, bw_method=kde_factor, fill=False, ax=ax) # normalize Y 
+
+# PLOTTING the MAX Value from Chart KDE data 
+# https://stackoverflow.com/questions/54099435/draw-a-point-at-the-mean-peak-of-a-distplot-or-kdeplot-in-seaborn\
+# to get_lines() => fill=False o=> only then works 
+# plt.plot(ax.lines[0].get_xdata(), ax.lines[0].get_ydata())  # test plots
+# plt.plot(ax.lines[1].get_xdata(), ax.lines[1].get_ydata()) # test plots
+
+greenLinex = ax.lines[1].get_xdata()
+greenLiney = ax.lines[1].get_ydata()
+
+from scipy import stats, signal
+peaks,_ = signal.find_peaks(greenLiney)
+pkx = greenLinex[peaks]
+pky = greenLiney[peaks]
+
+# plot on chart : labbs 
+for x,y in zip(pkx,pky): 
+    ax.plot( x, y, 'bo', ms=10)
+
+
+
+
+
+# # Manual method - REDO KDE manually 
+# kde = stats.gaussian_kde(x) # Compute the Gaussian KDE
+# idx = np.argmax(kde.pdf(x)) # Get the index of the maximum
+# plt.axvline(x[idx], color='red') # Plot a vertical line at corresponding x
+
+# also read: https://seaborn.pydata.org/generated/seaborn.kdeplot.html
+
+
+
+
+
+###################         2D Contour : plot trajectory 
+# Read this: https://stackoverflow.com/questions/61326642/minimum-maximum-in-a-bi-variate-kde-plot
+sns.kdeplot(data=d, x='Close', y='Volume', cmap='Blues',shade=True, cbar=True)
+
+
 
 
 ######### Draw price line and Annotate 
