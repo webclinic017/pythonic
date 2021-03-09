@@ -46,7 +46,7 @@ class RealTimeAPI():
 
 
 ##########      DOWNLOAD YAHOO DATA     #############
-symbol = 'AMZN'
+symbol = 'AMD'
 sd = datetime(2020, 1, 1)  # sd = datetime(2019, 4, 1)
 ed = datetime(2021, 2, 28)
 # dfdata = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
