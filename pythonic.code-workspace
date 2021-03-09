@@ -5,8 +5,8 @@
 		}
 	],
 	"settings": {
-		"python.pythonPath": "/home/towshif/venv/bin/python",
-		"python.dataScience.jupyterServerURI": "local",
-		"jupyter.jupyterServerType": "local"
+		"python.pythonPath": "/home/towshif/venv3/bin/python",
+		// "python.dataScience.jupyterServerURI": "local",
+		// "jupyter.jupyterServerType": "local"
 	}
 }
