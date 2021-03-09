@@ -51,7 +51,8 @@ ed = datetime(2021, 2, 28)
 # dfdata = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
 # dfdata.to_pickle(symbol+'.pickle')
 # dfdata = pd.read_csv('h:/WorkSpace_Python/AppPy/rough/'+symbol+'.csv', index_col='Datetime', parse_dates=True)
-dfdata = pd.read_pickle('/home/towshif/code/python/pythonic/rough/'+symbol+'.pickle')
+if os.name == 'nt': dfdata = pd.read_pickle('h:/WorkSpace_Python/pythonic/rough/'+symbol+'.pickle')
+else: dfdata = pd.read_pickle('/home/towshif/code/python/pythonic/rough/'+symbol+'.pickle')
 # dfdata = pd.read_pickle('h:/WorkSpace_Python/AppPy/rough/'+symbol+'.pickle')
 
 dfdata = dfdata.iloc[500:]
