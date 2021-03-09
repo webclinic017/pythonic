@@ -3,9 +3,9 @@
 		{
 			"path": "."
 		}
-	], 
+	],
 	"settings": {
-		"python.pythonPath": "..\\venv3\\Scripts\\python.exe",
+		"python.pythonPath": "/home/towshif/venv/bin/python",
 		"python.dataScience.jupyterServerURI": "local",
 		"jupyter.jupyterServerType": "local"
 	}
