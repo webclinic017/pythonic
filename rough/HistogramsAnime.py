@@ -196,7 +196,7 @@ ax = fig.add_axes ([0, 0.1, 0.65, 0.9])
 sns.histplot(data=d, x='Close',  weights=d.VolumeR, bins = 100, ax=ax) # hist
 
 # get hist data 
-bars = [patch.get_height() for patch in ax.patches]
+bars = [patch.get_height() for patch in ax.patches] # change to get_width and get
 ticks = [patch.get_x() for patch in ax.patches]
 for item in zip (ticks, bars) : print (item)
 # [(x,y) if x>120 else 0 for x,y in zip (ticks,bars)] # test filter operations
