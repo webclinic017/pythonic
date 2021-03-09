@@ -189,11 +189,14 @@ def animate(forward=True, interval=7):
                  fill=False, alpha=1, kde=True, kde_kws={'bw_method': kde_factor}, line_kws={'color': 'purple'}, ax=ax2)  # normalize Y and need fill-false
 
     # WORKING -------------------  Plot hist of volume differences
-    sns.histplot(data=df[-lookback_period:], y='Close', weights=df.VolumeR.astype(
-        np.float64), bins=100, fill=False, hue=df.PriceUp, ax=ax3, legend=False)  # hist
+    sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False, ax=ax3, legend=False)  # hist with differences 
+
+    # WORKING -------------------  Plot hist of volume +/- on same different axes
+    # sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False,  hue=df[-lookback_period:].PriceUp, ax=ax3, legend=False)  # hist with fills 
+    # sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False, kde=True, kde_kws={'bw_method': kde_factor}, hue=df[-lookback_period:].PriceUp, ax=ax3, legend=False)  # hist
     # sns.displot(df.Volume, y=df.Close, weights=df.VolumeR.astype(np.float64), bins = 50, hue=df.PriceUp, ax=ax3)
-    # sns.histplot(data=df[-lookback_period:], y='Close',  weights=df.Volume[-lookback_period:].astype(np.float64), ax=ax2, fill=False, bins=100) # hist
-    # sns.kdeplot(data=df[-lookback_period:], y='Close', weights=df.Volume.astype(np.float64), palette=customPalette, fill=False, alpha=0.2, bw_method=kde_factor, ax=ax2) # normalize Y
+    # sns.histplot(data=df[-lookback_period:], y='Close',  weights=df.Volume[-lookback_period:].astype(np.float64), ax=ax3, fill=False, bins=100) # hist
+    # sns.kdeplot(data=df[-lookback_period:], y='Close', weights=df.VolumeR.astype(np.float64), palette=customPalette, fill=False, alpha=0.2, bw_method=kde_factor, ax=ax3) # normalize Y
 
     ax2.autoscale()
 
