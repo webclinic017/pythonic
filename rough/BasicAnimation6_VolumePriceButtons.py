@@ -25,7 +25,7 @@ class RealTimeAPI():
         self.data_pointer += interval
         if self.data_pointer >= self.df_len:
             return None
-        print(r1,  self.data_pointer)
+        # print(r1,  self.data_pointer)
         return self.data_frame.iloc[r1:self.data_pointer, :]
 
     def fetch_prev(self, interval=1):
@@ -33,7 +33,7 @@ class RealTimeAPI():
         self.data_pointer -= interval
         # if self.data_pointer >= self.df_len:
         #     return None
-        print(r1,  self.data_pointer)
+        # print(r1,  self.data_pointer)
         return self.data_frame.iloc[r1:self.data_pointer, :]
 
     def initial_fetch(self):
@@ -86,8 +86,7 @@ rs = df.copy()
 # ax = axes[0]
 
 fig = plt.figure(figsize=(18, 9))
-fig.suptitle(symbol, fontsize=16, horizontalalignment='left',
-             verticalalignment='top')
+fig.suptitle(symbol, x=0.01, y=.99, fontsize=20, fontweight='bold', horizontalalignment='left')
 
 
 # ax = sns.distplot(d.Volume, x=d.Close,hist_kws={'weights':d.Volume}, bins = 100)
@@ -100,6 +99,7 @@ ax1 = fig.add_axes([0.7, 0.1, 0.10, 0.9], sharey=ax0)
 ax2 = fig.add_axes([0.8, 0.1, 0.10, 0.9], sharey=ax0)
 ax3 = fig.add_axes([0.9, 0.1, 0.10, 0.9], sharey=ax0)
 
+ax0.set_title(symbol + " analysis")
 ax0.set_ylabel('')
 ax1.get_yaxis().set_visible(False)
 ax2.get_yaxis().set_visible(False)
