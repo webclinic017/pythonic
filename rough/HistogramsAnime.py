@@ -95,8 +95,8 @@ plt.title(symbol)
 
 ###############################    SNS PLOTTING FIGURES TEST FUNCTIONS      ###################################
 
-d = df5.reset_index()
-
+# d = df5.reset_index()
+ d=df5.copy()
 
 # WRONG - SINGLE VARIATE distribution of PRICE Close : 
 ax = sns.displot( d.Volume,  x=d.Close, bins=50) # Wrong - need 2nd variable - BIVARIATE Distribution
@@ -105,9 +105,7 @@ ax = sns.displot( d.Volume,  x=d.Close, bins=50) # Wrong - need 2nd variable - B
 ax = sns.displot( d.Volume,  x=d.Close, weights=d.Volume, bins=50) # CORRECT- need 2nd variable 
 ax = sns.displot( d.Volume,  x=d.Close, weights=d.VolumeR, bins=50, hue=d.PriceUp) # CORRECT- need 2nd variable 
 
-ax = sns.kdeplot( d,  x=d.Close) # CORRECT- need 2nd variable 
-
-
+ax = sns.kdeplot(data=d, x="Close") # CORRECT- need 2nd variable 
 # PLOTTING the MAX Value 
 x = ax.lines[0].get_xdata() # Get the x data of the distribution
 y = ax.lines[0].get_ydata() # Get the y data of the distribution
@@ -183,12 +181,32 @@ ax = sns.displot(d.Volume, x=d.Close, weights=d.VolumeR, bins = 150)
 ########## Plot dist with weights ###################################
 ax = sns.distplot(d.Volume, x=d.Close,hist_kws={'weights':d.Volume}, bins = 100) # can make kde=False 
 ax = sns.distplot(d.VolumeR, x=d.Close,hist_kws={'weights':d.VolumeR}, bins = 100) # can make kde=False 
+ax = sns.distplot(d.VolumeR, x=d.Close,hist_kws={'weights':d.VolumeR}, bins = 100) # can make kde=False 
 
 ########## Plot hist with weight #################################
 ax = sns.histplot(data=d, x='Close', hue="PriceUp", weights=d.Volume, bins = 100)
 
 ax = sns.histplot(data=d, x='Close', y='Volume', hue="PriceUp", weights=d.Volume, bins = 100) # 2D Scatter hist 
-ax = sns.histplot(data=d, x='Close',  weights=d.VolumeR, bins = 100) # hist 
+sns.histplot(data=d, x='Close',  weights=d.VolumeR, bins = 100) # hist 
+
+# PLOTTING the MAX Value 
+fig = plt.figure(figsize=(12,6))
+ax = fig.add_axes ([0, 0.1, 0.65, 0.9])
+
+sns.histplot(data=d, x='Close',  weights=d.VolumeR, bins = 100, ax=ax) # hist
+
+# get hist data 
+bars = [patch.get_height() for patch in ax.patches]
+ticks = [patch.get_x() for patch in ax.patches]
+for item in zip (ticks, bars) : print (item)
+# [(x,y) if x>120 else 0 for x,y in zip (ticks,bars)] # test filter operations
+sum([y if x>120 and x<130 else 0 for x,y in zip (ticks,bars)]) # sum of all hist bars bw[120,130]
+
+# x = ax.lines[0].get_xdata() # Get the x data of the distribution
+# y = ax.lines[0].get_ydata() # Get the y data of the distribution
+# maxid = np.argmax(y) # The id of the peak (maximum of y data)
+# plt.plot(x[maxid],y[maxid], 'bo', ms=10)
+
 
 # Create an array with the colors you want to use
 colors = ["#ff3061", "#00b061"]# Set your custom color palette

@@ -191,6 +191,19 @@ def animate(forward=True, interval=7):
     # WORKING -------------------  Plot hist of volume differences
     sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False, ax=ax3, legend=False)  # hist with differences 
 
+    # Calculate summ of differences 
+    close = float(df[-1:].Close)
+
+    bars = [patch.get_height() for patch in ax3.patches]
+    ticks = [patch.get_y() for patch in ax3.patches]
+    for item in zip (ticks, bars) : print (item)
+    # [(x,y) if x>120 else 0 for x,y in zip (ticks,bars)] # test filter operations
+    sumVolumeAbove = sum([y if x>close else 0 for x,y in zip (ticks,bars)])
+
+    # if sumVolumeAbove > 0 : 
+    ax3.text(y=close*1.0005, x=ax3.get_xlim()[1]*0.1, s=sumVolumeAbove, alpha=0.7, color='b')
+
+
     # WORKING -------------------  Plot hist of volume +/- on same different axes
     # sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False,  hue=df[-lookback_period:].PriceUp, ax=ax3, legend=False)  # hist with fills 
     # sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False, kde=True, kde_kws={'bw_method': kde_factor}, hue=df[-lookback_period:].PriceUp, ax=ax3, legend=False)  # hist
@@ -208,8 +221,7 @@ def animate(forward=True, interval=7):
     ax2.axhline(close, ls='--', color='b')
     ax3.axhline(close, ls='--', color='b')
 
-    ax0.text(y=close*1.0005, x=ax0.get_xlim()
-             [1]*1.01, s="{:.2f}".format(close), alpha=0.7, color='b')
+    ax0.text(y=close*1.0005, x=ax0.get_xlim()[1]*1.01, s="{:.2f}".format(close), alpha=0.7, color='b')
 
     # ax = sns.displot(df.Volume, x=df.Close, weights=df.Volume, bins = 50, hue=df.PriceUp) # weight Volume
 
