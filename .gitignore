@@ -142,6 +142,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# dont update workspace file 
+# dont update workspace file - should update this before 1st commit
 *.code-workspace
 
+# 
