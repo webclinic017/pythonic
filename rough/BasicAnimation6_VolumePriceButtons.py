@@ -68,7 +68,10 @@ df = dfdata.copy()
 ###########  PREPROCESSINNG DF ###############
 df['PriceUp'] = df['Close'].gt(df['Open'])
 df['VolumeR'] = np.where(df['PriceUp'] == True, df['Volume'], -1*df['Volume'])
+# df['CloseP'] = 0.5 * (df['Open'] + df['Close']) # typical price 
+df['CloseP'] = (df['High'] + df['Low'] + df['Close'])/3  # typical price TP = (High + Low + Close)/3 # seems more accurate peaks 
 
+df.rename(columns = {'Adj Close':'CloseAdj'}, inplace = True) 
 
 # pd.show_versions()
 
@@ -117,8 +120,8 @@ customPalette = sns.set_palette(sns.color_palette(colors))
 "Kernel Density Estimator"
 kde_factor = 0.05
 num_samples = 500
-lookback_period = 500
-display_period = 200
+lookback_period = 1000
+display_period = 1000
 
 
 def animate(forward=True, interval=7):
@@ -174,7 +177,7 @@ def animate(forward=True, interval=7):
     # #####  [TESTING PARAMS] KDE only with last 150
 
     # WORKING ------------------- Plot hist of Up and Down volumes with KDE Peaks
-    sns.kdeplot(data=df[-lookback_period:], y='Close', hue="PriceUp", weights=df[-lookback_period:].Volume.astype(
+    sns.kdeplot(data=df[-lookback_period:], y='CloseP', hue="PriceUp", weights=df[-lookback_period:].Volume.astype(
         np.float64), palette=customPalette,  alpha=0.2, bw_method=kde_factor, fill=True, legend=False, ax=ax1)  # normalize Y
     ax1.autoscale()
 
@@ -185,23 +188,30 @@ def animate(forward=True, interval=7):
     # sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].Volume.astype(np.float64), bins=100, stat="density", palette=customPalette, fill=False, alpha=1, kde=True, kde_kws={'bw_method': kde_factor}, ax=ax2) # normalize Y
 
     # WORKING ------------------- Plot hist of volume Sum histograms with KDE peaks
-    sns.histplot(data=df[-lookback_period:], y='Close', weights=df.Volume.astype(np.float64), bins=100, stat="density",  color='black',
-                 fill=False, alpha=1, kde=True, kde_kws={'bw_method': kde_factor}, line_kws={'color': 'purple'}, ax=ax2)  # normalize Y and need fill-false
+    sns.histplot(data=df[-lookback_period:], y='CloseP', weights=df.Volume.astype(np.float64), bins=100, stat="density",  color='black', fill=False, alpha=1, kde=True, kde_kws={'bw_method': kde_factor}, line_kws={'color': 'purple'}, ax=ax2)  # normalize Y and need fill-false
 
     # WORKING -------------------  Plot hist of volume differences
-    sns.histplot(data=df[-lookback_period:], y='Close', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False, ax=ax3, legend=False)  # hist with differences 
+    sns.histplot(data=df[-lookback_period:], y='CloseP', weights=df[-lookback_period:].VolumeR.astype(np.float64), bins=100, fill=False, ax=ax3, legend=False)  # hist with differences 
 
     # Calculate summ of differences 
     close = float(df[-1:].Close)
 
-    bars = [patch.get_height() for patch in ax3.patches]
+    bars = [patch.get_width() for patch in ax3.patches]
     ticks = [patch.get_y() for patch in ax3.patches]
-    for item in zip (ticks, bars) : print (item)
+    # for item in zip (ticks, bars) : print (item)
     # [(x,y) if x>120 else 0 for x,y in zip (ticks,bars)] # test filter operations
-    sumVolumeAbove = sum([y if x>close else 0 for x,y in zip (ticks,bars)])
+    sumVolAboveAbove = sum([y*x if x>close else 0 for x,y in zip (ticks,bars)])
+    sumVolAbovePos = sum([y*x if x>close and y>0 else 0 for x,y in zip (ticks,bars)])
+    sumVolAboveNeg = sum([y*x if x>close and y<0 else 0 for x,y in zip (ticks,bars)])
+    sumVolBelowPos = sum([y*x if x<close and y>0 else 0 for x,y in zip (ticks,bars)])
+    sumVolbelowNeg = sum([y*x if x<close and y<0 else 0 for x,y in zip (ticks,bars)])
+    volRatioAbove = -1* sumVolAboveNeg/sumVolAbovePos 
+    volRatioBelow = -1* sumVolbelowNeg/sumVolBelowPos 
 
     # if sumVolumeAbove > 0 : 
-    ax3.text(y=close*1.0005, x=ax3.get_xlim()[1]*0.1, s=sumVolumeAbove, alpha=0.7, color='b')
+    ax3.text(y=close*1.0010, x=ax3.get_xlim()[0]*0.9, s="{:.2f}".format(volRatioAbove), alpha=0.7, color='b')
+    ax3.text(y=close*0.995, x=ax3.get_xlim()[0]*0.9, s="{:.2f}".format(volRatioBelow), alpha=0.7, color='b')
+    ax3.text(y=close*1.0010, x=ax3.get_xlim()[1]*0.5, s="{:.2f}".format(volRatioBelow-volRatioAbove), alpha=0.7, color='b',)
 
 
     # WORKING -------------------  Plot hist of volume +/- on same different axes
