@@ -9,6 +9,7 @@ import seaborn as sns
 import yfinance as yf
 from market_profile import MarketProfile
 from matplotlib.widgets import Button
+import os 
 
 # Class to simulate getting more data from API:
 
