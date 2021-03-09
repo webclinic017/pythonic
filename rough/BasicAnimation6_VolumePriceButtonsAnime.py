@@ -241,71 +241,71 @@ def animate(forward=True, interval=7):
     # ax0.autoscale()
 
 
-# #####################  CODE FOR ANIMATION VIEW      #################
-# # animation object
-# ani = animation.FuncAnimation(fig, animate, interval=5)
-# pause = False
-# # function to play pause
-# def onClick(event):
-#     global pause
+#####################  CODE FOR ANIMATION VIEW      #################
+# animation object
+ani = animation.FuncAnimation(fig, animate, interval=5)
+pause = False
+# function to play pause
+def onClick(event):
+    global pause
 
-#     if pause:
-#         pause = False
-#         ani.event_source.start()
-#         print ("Button clicked:  RESUME")
-#     else :
-#         pause = True
-#         ani.event_source.stop()
-#         print ("Button clicked : PAUSED")
+    if pause:
+        pause = False
+        ani.event_source.start()
+        print ("Button clicked:  RESUME")
+    else :
+        pause = True
+        ani.event_source.stop()
+        print ("Button clicked : PAUSED")
 
-# fig.canvas.mpl_connect('button_press_event', onClick)
-
-
-
-####################  CODE FOR MANUAL BUTTON CONTROL VIEW      #################
+fig.canvas.mpl_connect('button_press_event', onClick)
 
 
-# BUTTON PANELS and MANUAL CONTROL
-class Index:
-    ind = 0
 
-    def __init__(self):
-        animate(forward=True, interval=2)
-        plt.draw()
-
-    def next(self, event):
-        animate(forward=True, interval=2)
-        plt.draw()
-
-    def nextfast(self, event):
-        animate(forward=True, interval=35)  # 1 week = 49
-        plt.draw()
-
-    def prevfast(self, event):
-        animate(forward=False, interval=35)  # 1 week = 49
-        plt.draw()
-
-    def prev(self, event):
-        animate(forward=False, interval=2)
-        plt.draw()
+#####################  CODE FOR MANUAL BUTTON CONTROL VIEW      #################
 
 
-callback = Index()
+# # BUTTON PANELS and MANUAL CONTROL
+# class Index:
+#     ind = 0
 
-# add buttons to UI
-axprev = fig.add_axes([0.8, 0.001, 0.045, 0.05])
-axnext = fig.add_axes([0.85, 0.001, 0.045, 0.05])
-axprevfwd = fig.add_axes([0.9, 0.001, 0.045, 0.05])
-axnextfwd = fig.add_axes([0.95, 0.001, 0.045, 0.05])
+#     def __init__(self):
+#         animate(forward=True, interval=2)
+#         plt.draw()
 
-bnext = Button(axnext, 'Next >')
-bnext.on_clicked(callback.next)
-bprev = Button(axprev, '< Prev')
-bprev.on_clicked(callback.prev)
-bnextfast = Button(axnextfwd, '1 week >')
-bnextfast.on_clicked(callback.nextfast)
-bprevfast = Button(axprevfwd, '< 1 week')
-bprevfast.on_clicked(callback.prevfast)
+#     def next(self, event):
+#         animate(forward=True, interval=2)
+#         plt.draw()
+
+#     def nextfast(self, event):
+#         animate(forward=True, interval=35)  # 1 week = 49
+#         plt.draw()
+
+#     def prevfast(self, event):
+#         animate(forward=False, interval=35)  # 1 week = 49
+#         plt.draw()
+
+#     def prev(self, event):
+#         animate(forward=False, interval=2)
+#         plt.draw()
+
+
+# callback = Index()
+
+# # add buttons to UI
+# axprev = fig.add_axes([0.8, 0.001, 0.045, 0.05])
+# axnext = fig.add_axes([0.85, 0.001, 0.045, 0.05])
+# axprevfwd = fig.add_axes([0.9, 0.001, 0.045, 0.05])
+# axnextfwd = fig.add_axes([0.95, 0.001, 0.045, 0.05])
+
+# bnext = Button(axnext, 'Next >')
+# bnext.on_clicked(callback.next)
+# bprev = Button(axprev, '< Prev')
+# bprev.on_clicked(callback.prev)
+# bnextfast = Button(axnextfwd, '1 week >')
+# bnextfast.on_clicked(callback.nextfast)
+# bprevfast = Button(axprevfwd, '< 1 week')
+# bprevfast.on_clicked(callback.prevfast)
 
 
 # always enable at the end 
