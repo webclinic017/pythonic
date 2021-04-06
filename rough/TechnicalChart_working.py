@@ -194,4 +194,4 @@ mpf.plot(mpfdf,hlines=dict( hlines=[390,440], colors=['b','b'], linestyle='dashe
 #     show_nontrading=mpfchart["non_trading"],
 #     vlines=vlines_,
 #     addplot=taplots
-)
+# )
