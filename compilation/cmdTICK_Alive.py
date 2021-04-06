@@ -1,13 +1,19 @@
 import sys
 from yflive import QuoteStreamer
 
-# Get symbol from arguments 
-TICK = sys.argv[1]
+print("Enter TICKERS are arguments list AAPL AMZN FB.")
 
-TICKERS = (str(sys.argv))
+# Get symbol from arguments
+TICKSTRING = sys.argv
 
-print ("TICKs :", TICKERS, len(TICKERS))
+TICKERS = TICKSTRING[1:]
 
+#print (TICKSTRING[0], TICKSTRING[1], TICKSTRING[2])
+#print (TICKSTRING[1], TICKSTRING[2])
+
+#print (TICKSTRING[1:])
+
+print (TICKSTRING, " => TICKs :", TICKERS, len(TICKERS))
 
 
 # Get QuoteStreamer singleton

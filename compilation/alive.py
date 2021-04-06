@@ -10,7 +10,7 @@ full_cmd_arguments = sys.argv
 # Keep all but the first
 TICKERS = full_cmd_arguments[1:]
 
-# Get symbol from arguments 
+# Get symbol from arguments
 #TICK = sys.argv[1]
 
 #TICKERS = (str(sys.argv))
