@@ -100,7 +100,7 @@ poc=mp_slice.poc_price
 data = mp_slice.profile
 data.plot(kind='barh')
 
-"Plot candles with mplfinance with Volume profice
+"Plot candles with mplfinance with Volume profice"
 mpf.plot(df2, style='yahoo', type='candle', hlines=dict( hlines=[vah, val, poc], colors=['g','r','b'], linestyle='dashed', linewidths=0.5) )
 
 
