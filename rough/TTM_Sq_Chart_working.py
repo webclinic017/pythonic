@@ -1,4 +1,5 @@
 import datetime as dt
+import os
 import random as rnd
 from datetime import date, datetime, time, timedelta
 
@@ -7,19 +8,20 @@ import mplfinance as mpf
 import numpy as np
 import pandas as pd
 import pandas_ta as ta
-import yfinance as yf
 import plotly.graph_objects as go
-import os
+import yfinance as yf
 
 
-symbol = 'PTON'
+
+symbol = 'AAL'
 sd = datetime(2020, 1, 1)
 ed = datetime(2021, 4, 7)
+interval = "1d"
 
 # df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
 # df = yf.download(tickers=symbol, start=sd, interval="60m")
 # df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
-df = yf.download(tickers=symbol, start=sd, interval="1d")
+df = yf.download(tickers=symbol, start=sd, interval=interval)
 
 
 # symbol = 'AAPL'
@@ -82,7 +84,7 @@ df['squeeze_off'] = df.apply(out_squeeze, axis=1)
 mpfdf_columns = list(df.columns)
 
 
-############    PLOT TTM SQUEEZE 
+###################################    PLOT TTM SQUEEZE & EMA21     ###################################
 
 
 # taplots = [] 
@@ -120,8 +122,7 @@ apsq = [
 
 from matplotlib.ticker import MultipleLocator
 
-
-fig, axlist = mpf.plot(mpfdf,type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze', style='yahoo',volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
+fig, axlist = mpf.plot(mpfdf,type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze :'+interval, style='yahoo',volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
 
 axlist[0].xaxis.set_minor_locator(MultipleLocator(1))
 plt.show()
