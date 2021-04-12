@@ -90,6 +90,8 @@ mpfdf_columns = list(df.columns)
 # taplots = [] 
 # taplots += 
 # Lets start with a simple chart 
+
+
 mpfdf = df[-150:]
 
 apsq = [
