@@ -3,7 +3,7 @@
 import sched, time, datetime
 s = sched.scheduler(time.time, time.sleep)
 
-def do_something(sc): 
+def do_something(sc):
     print("Doing stuff...", datetime.datetime.now())
     # do your stuff
     s.enter(2, 1, do_something, (sc,))

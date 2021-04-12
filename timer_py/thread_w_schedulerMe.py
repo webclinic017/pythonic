@@ -13,18 +13,22 @@ import datetime
 
 
 def job():  # 1st job that needs execution
-	print("[JOB1] I'm running on thread %s" % threading.current_thread())
-	time.sleep( 5 )
-	print ("[JOB1] Exiting thread %s" % threading.current_thread())
+    print("[JOB1] I'm running on thread %s" % threading.current_thread())
+    time.sleep(5)
+    print("[JOB1] Exiting thread %s" % threading.current_thread())
 
-def job2(): # 2nd job that needs execution
-	print (">>>>>> [JOB2] I am just another job unction on thread %s" % threading.current_thread())
-	time.sleep( 7 )
-	print (">>>>>> [JOB2] Exiting thread %s" % threading.current_thread())
+
+def job2():  # 2nd job that needs execution
+    print(
+        ">>>>>> [JOB2] I am just another job unction on thread %s"
+        % threading.current_thread()
+    )
+    time.sleep(7)
+    print(">>>>>> [JOB2] Exiting thread %s" % threading.current_thread())
 
 
 # each job above needs its own thread to ensure parallel execution
-def run_threaded(job_func): # the thread for the job
+def run_threaded(job_func):  # the thread for the job
     job_thread = threading.Thread(target=job_func)
     job_thread.start()
 
