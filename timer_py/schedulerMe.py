@@ -8,7 +8,7 @@ import datetime
 
 # Functions setup
 def sudo_placement():
-    print("Get ready for Sudo Placement at Geeksforgeeks")
+    print("Get ready for Sudo Placement at Geeksforgeeks Examples")
 
 def good_luck():
     print("Good Luck for Test")
@@ -20,7 +20,7 @@ def bedtime():
     print("It is bed time go rest")
 
 def geeks():
-    print("Towshif says Geeksforgeeks", datetime.datetime.now())
+    print("Towshif says Geeksforgeeks Examples", datetime.datetime.now())
 
 # Task scheduling
 
