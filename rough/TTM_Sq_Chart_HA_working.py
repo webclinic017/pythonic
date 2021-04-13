@@ -13,17 +13,31 @@ import yfinance as yf
 
 
 
-symbol = 'AAL'
+symbol = 'AAPL'
 sd = datetime(2020, 1, 1)
-ed = datetime(2021, 4, 7)
+ed = datetime(2021, 4, 12)
 # interval = "1d"
 interval = "60m"
 
 # df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
 # df = yf.download(tickers=symbol, start=sd, interval="60m")
 # df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
-df = yf.download(tickers=symbol, start=sd, interval=interval)
+# dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
+dfd = yf.download(tickers=symbol, start=sd, interval=interval)
+df = dfd
 
+
+# # Enable if 4H reampling is True 
+# dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
+# df = dfd
+# # Resampling Code 
+# ## Resample to 4H timefeame 
+# aggregation = {'Open'  :'first',
+#                'High'  :'max',
+#                'Low'   :'min',
+#                'Close' :'last',
+#                'Volume':'sum'}
+# df = dfd.resample('4H').agg(aggregation).dropna()
 
 # symbol = 'AAPL'
 # sd = datetime(2020, 1, 1)
@@ -64,6 +78,9 @@ rsi_SMA = df['RSI_20_SMA'] = ta.sma(rsi, length=20, append=True)
 rsx = df.ta.rsx(length=20, append=True)
 rsx_SMA = df['RSX_20_SMA'] = ta.sma(rsx, length=20, append=True)
 
+ha = df.ta.ha(append=True)
+df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
+# ema21HA = df['EMA_21HA'] = ta.ema( df.HA_close, length=21, append=True)
 
 ema21 = df.ta.ema(length=21, append=True)
 ema50 = df.ta.ema(length=50, append=True)
@@ -87,17 +104,18 @@ mpfdf_columns = list(df.columns)
 
 ###################################    PLOT TTM SQUEEZE & EMA21     ###################################
 
-
 # taplots = [] 
 # taplots += 
 # Lets start with a simple chart 
 
-
+# mpfdf = df[-500:-450]
 mpfdf = df[-100:]
 
 apsq = [
         # EMA21 ref
-        mpf.make_addplot(mpfdf['EMA_21'], color='pink'),  # uses panel 0 by default
+        mpf.make_addplot(mpfdf['EMA_21'], type = "scatter", color='blue', markersize=2),  # uses panel 0 by default
+        # mpf.make_addplot(mpfdf['EMA_21HA'], color='blue'),  # uses panel 0 by default
+
         # scatter=True, markersize=3, marker='o',
 
         # make same as TOS colors 
@@ -112,7 +130,9 @@ apsq = [
 
         # squeeze metrics 
         mpf.make_addplot(mpfdf[squeezes.columns[2]].apply(lambda x: 0 if x==1 else None ) , scatter=True, markersize=20,marker='o',color="lime",  panel=1),
+        
         mpf.make_addplot(mpfdf[squeezes.columns[1]].apply(lambda x: 0 if x==1 else None), scatter=True, markersize=20,marker='o', color="red",  panel=1),
+        
         mpf.make_addplot(mpfdf['squeeze_on'], scatter=True,markersize=2,marker='o', color="black",  panel=1),
         # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
 
@@ -121,13 +141,48 @@ apsq = [
         ]
 # mpfchart["plot_ratios"] += common_plot_ratio # Required to add a new Panel
 
+final_df = mpfdf # placeholder 
+
+# If HA HeikinAski Charts Enabled ; else remove section
+## Generate the HA columns and rename to OHLC
+final_df = mpfdf[['HA_open', 'HA_high', 'HA_low', 'HA_close']].copy()
+final_df.columns = ['open', 'high', 'low', 'close']
+# mpf.plot(df2, type='candle', style='yahoo')
 
 
-from matplotlib.ticker import MultipleLocator
+import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
+from matplotlib.ticker import AutoLocator, MultipleLocator
 
-fig, axlist = mpf.plot(mpfdf,type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+interval, style='yahoo',volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
+# fig.tight_layout(h_pad= -1.6)
 
-axlist[0].xaxis.set_minor_locator(MultipleLocator(1))
+# fig, axlist = mpf.plot(final_df, type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
+
+
+fig, axlist = mpf.plot(final_df, type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True)
+
+ax1 = axlist[1]
+
+ax1.minorticks_on()
+# ax1.tick_params(axis='x',which='minor',direction='out',color='b',labelsize=3,labelcolor='g')
+ax1.xaxis.set_minor_locator(MultipleLocator(1))
+# ax1.xaxis.set_major_locator(MultipleLocator(2))
+
+# plt.rcParams['xtick.major.size'] = 8
+# plt.rcParams['xtick.minor.size'] = 4
+# plt.rcParams['xtick.label.size'] = 4
+# ax1.tick_params(axis='x', which='both',labelbottom= False, labeltop=False )
+# ax1.tick_params(axis='x', which='minor', pad = 2)
+# ax1.grid(which='major',color='k')
+# ax1.grid(which='minor',color='gray')
+
+# base = len(final_df)
+
+# ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+# # ax1.xaxis.set_major_locator(mticker.IndexLocator(base=base/10, offset=0))
+# ax1.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
+# ax1.xaxis.set_minor_locator(AutoMinorLocator())
+
+# mpf.plot(mpfdf, type='candle', figscale=1, style='blueskies')
 plt.show()
-
-print (df[-1:][['open', 'high', 'low', 'close']])
+# print (df[-1:][['open', 'high', 'low', 'close']])
