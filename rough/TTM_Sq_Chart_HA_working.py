@@ -13,11 +13,11 @@ import yfinance as yf
 
 
 
-symbol = 'AAPL'
+symbol = 'AAL'
 sd = datetime(2020, 1, 1)
 ed = datetime(2021, 4, 12)
-# interval = "1d"
-interval = "60m"
+interval = "1d"
+# interval = "60m"
 
 # df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
 # df = yf.download(tickers=symbol, start=sd, interval="60m")
@@ -27,17 +27,19 @@ dfd = yf.download(tickers=symbol, start=sd, interval=interval)
 df = dfd
 
 
-# # Enable if 4H reampling is True 
+# Enable if 4H reampling is True 
 # dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
-# df = dfd
-# # Resampling Code 
-# ## Resample to 4H timefeame 
-# aggregation = {'Open'  :'first',
-#                'High'  :'max',
-#                'Low'   :'min',
-#                'Close' :'last',
-#                'Volume':'sum'}
-# df = dfd.resample('4H').agg(aggregation).dropna()
+dfd = yf.download(tickers=symbol, start=sd, interval=interval)
+df = dfd
+interval = "4h"
+# Resampling Code 
+## Resample to 4H timefeame 
+aggregation = {'Open'  :'first',
+               'High'  :'max',
+               'Low'   :'min',
+               'Close' :'last',
+               'Volume':'sum'}
+df = dfd.resample('4H').agg(aggregation).dropna()
 
 # symbol = 'AAPL'
 # sd = datetime(2020, 1, 1)
@@ -124,7 +126,7 @@ apsq = [
         mpf.make_addplot(mpfdf[squeezes.columns[-2]], type="bar", color="red", alpha=0.65, panel=1),
         mpf.make_addplot(mpfdf[squeezes.columns[-1]], type="bar", color="yellow", alpha=0.65, panel=1),
         # mpf.make_addplot(mpfdf['close'], color="black", panel=1),
-        mpf.make_addplot(mpfdf[squeezes.columns[4]], ylabel="TTM Squeeze", color="green",alpha=0.7, panel=1),
+        mpf.make_addplot(mpfdf[squeezes.columns[4]], color="green",alpha=0.7, panel=1),
         mpf.make_addplot(mpfdf[squeezes.columns[5]], color="red", alpha=0.7,  panel=1),
 
 
@@ -164,7 +166,7 @@ fig, axlist = mpf.plot(final_df, type='candle', addplot=apsq, figscale=1, figrat
 ax1 = axlist[1]
 
 ax1.minorticks_on()
-# ax1.tick_params(axis='x',which='minor',direction='out',color='b',labelsize=3,labelcolor='g')
+ax1.tick_params(axis='x',which='minor',direction='out',color='b',labelsize=3,labelcolor='g')
 ax1.xaxis.set_minor_locator(MultipleLocator(1))
 # ax1.xaxis.set_major_locator(MultipleLocator(2))
 
@@ -185,4 +187,4 @@ ax1.xaxis.set_minor_locator(MultipleLocator(1))
 
 # mpf.plot(mpfdf, type='candle', figscale=1, style='blueskies')
 plt.show()
-# print (df[-1:][['open', 'high', 'low', 'close']])
+print (df[-1:][['open', 'high', 'low', 'close']])
