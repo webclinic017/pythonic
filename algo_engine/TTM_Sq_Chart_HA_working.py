@@ -13,7 +13,7 @@ import yfinance as yf
 
 
 
-symbol = 'AAPL'
+symbol = 'AAL'
 sd = datetime(2020, 1, 1)
 ed = datetime(2021, 4, 12)
 # interval = "1d"
@@ -89,6 +89,7 @@ df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
 # ema21HA = df['EMA_21HA'] = ta.ema( df.HA_close, length=21, append=True)
 ema9 = df.ta.ema(length=9, append=True)
 ema21 = df.ta.ema(length=21, append=True)
+ema42 = df.ta.ema(length=42, append=True)
 ema50 = df.ta.ema(length=50, append=True)
 ema100 = df.ta.ema(length=100, append=True)
 ema150 = df.ta.ema(length=150, append=True)
@@ -107,7 +108,7 @@ df['squeeze_off'] = df.apply(out_squeeze, axis=1)
 
 mpfdf_columns = list(df.columns)
 
-################################################################################
+#################################  MAIN AlGO and SIGNAL GENERATION  #####################################
 
 # define stack EMA Extreme:  +1: positive bullish, 0:undecided, -1:negative bearish
 df['StackEMA'] = np.where(
@@ -132,6 +133,8 @@ df[ (df.signal == 1) | (df.signal == -1)] [['signal', 'close']]
 
 # df['signal'] =   ((df['StackEMA'] == 1) & (df['StackEMA'].shift(2) == 0) & (df['StackEMA'].shift(1) == 1)) # return on DF bool 
 
+
+###########################  BACK TEST  ###########################
 
 ## >>>>>>>>>>   Run a Back Test and Display results : 
 def BackTester_Long (df, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
@@ -188,17 +191,33 @@ def BackTester_Long (df, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
 BackTester_Long(df, 'signal')
 
 
-###########################  BACK TEST  ###########################
-
-
-
-
-
-
-
 
 
 ###################################    PLOT TTM SQUEEZE & EMA21     ###################################
+
+
+def long_signal_entry(signal_series, price):
+    import numpy as np
+    signal   = []
+    previous = 2
+    for date,value in signal_series.iteritems():
+        if value == 1: # buy
+            signal.append(price[date]*0.99) # Put marker below 
+        else:
+            signal.append(np.nan)
+    return signal
+
+def long_signal_exit(signal_series, price):
+    import numpy as np
+    signal   = []
+    previous = 2
+    for date,value in signal_series.iteritems():
+        if value == -1: # buy
+            signal.append(price[date]*1.01) # Put marker below 
+        else:
+            signal.append(np.nan)
+    return signal
+
 
 def plot (df, addSignal=False) : 
 
@@ -207,12 +226,24 @@ def plot (df, addSignal=False) :
     # Lets start with a simple chart 
 
     # mpfdf = df[-500:-450]
-    mpfdf = df[-100:]
+    mpfdf = df[-200:-100]
 
     apsq = [
 
+             # add algos if addAlgo = True 
+
+
+
+            # add trade if addTrade = True 
+
+
+
+
+            ######### ADD Indicators ##########
+
             # EMA21 ref
             mpf.make_addplot(mpfdf['EMA_21'], type = "scatter", color='blue', markersize=2),  # uses panel 0 by default
+            # mpf.make_addplot(mpfdf['EMA_42'], type = "scatter", color='skyblue', markersize=2),  # 1D 21 EMA uses panel 0 by default
             # mpf.make_addplot(mpfdf['EMA_21HA'], color='blue'),  # uses panel 0 by default
 
             # scatter=True, markersize=3, marker='o',
@@ -236,7 +267,17 @@ def plot (df, addSignal=False) :
             # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
 
             # mpf.make_addplot(mpfdf['squeeze_on'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="black",  panel=1),
-            # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),        
+            # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),    
+
+            # add signal if addSignal = True 
+
+            # add long entry 
+            mpf.make_addplot(long_signal_entry(mpfdf.signal, mpfdf.low) ,type='scatter', color='purple', markersize=15, marker='^'),
+            # add long exit 
+            mpf.make_addplot(long_signal_exit(mpfdf.signal, mpfdf.high) ,type='scatter', color='magenta', markersize=15, marker='v'),
+
+
+
             ]
     # mpfchart["plot_ratios"] += common_plot_ratio # Required to add a new Panel
 
@@ -258,7 +299,7 @@ def plot (df, addSignal=False) :
     # fig, axlist = mpf.plot(final_df, type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
 
 
-    fig, axlist = mpf.plot(final_df, type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True)
+    fig, axlist = mpf.plot(final_df, type='ohlc', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True)
 
     ax1 = axlist[1]
 
