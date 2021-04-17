@@ -227,10 +227,10 @@ def long_signal_exit(signal_series, price):
 
 def get_sessions_long(analysisDF, df):
     sessions   = []
-    print ('received range', df.index[0], df.index[-1])
+    print ('received range', df.index[0], df.index[-1:])
     print ('df length', len(df))
 
-    dfRange = df.index[0], df.index[-1]
+    dfRange = df.index[0], df.index[-1:]
 
     for i in analysisDF.itertuples():
         # Examaple seq of points 
@@ -246,6 +246,7 @@ def get_sessions_long(analysisDF, df):
             
             sessions.append([(en, value), (ex,value)])
             print (en,ex,ret, value)
+
     
     # for date,value in signal_series.iteritems():
     #     if value == -1: # buy
@@ -254,8 +255,6 @@ def get_sessions_long(analysisDF, df):
     #         signal.append(np.nan)
 
     return sessions
-
-
 
 def plot (df, analysis=None, addSignal=False, session=False) : 
 
@@ -270,64 +269,43 @@ def plot (df, analysis=None, addSignal=False, session=False) :
 
     ######### ADD Indicators ##########
     apsq = [        
-            # EMA42 ref
-            mpf.make_addplot(mpfdf['EMA_42'], type = "scatter", color='skyblue', markersize=2),  # 1D 21 EMA uses panel 0 by default
-
-            # EMA21 ref            
+            # EMA21 ref
             mpf.make_addplot(mpfdf['EMA_21'], type = "scatter", color='blue', markersize=2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['EMA_42'], type = "scatter", color='skyblue', markersize=2),  # 1D 21 EMA uses panel 0 by default
             # mpf.make_addplot(mpfdf['EMA_21HA'], color='blue'),  # uses panel 0 by default
     ]
-    
-    # Squeeze plots 
-    # make same as TOS colors # order is important
-    data = []
-    alpha = []
-    for i in [-3, -4, -2, -1, 4, 5 ] : # maintain order
-        d = mpfdf[squeezes.columns[i]]
-        if np.isnan(np.sum(d)) : 
-            # d = d.fillna(0)
-            alpha += [0.1]
-            print (squeezes.columns[i], 'modified')
-        else : 
-            alpha += [0.5]
 
-        # alpha += [0.5]
-        data += [d]
-        
     apsq += [
-                       
-            mpf.make_addplot(data[0], type="bar", color="blue", alpha=alpha[0], panel=1),
-            mpf.make_addplot(data[1], type="bar", color="deepskyblue", alpha=alpha[1], panel=1),
-            mpf.make_addplot(data[2], type="bar", color="red", alpha=alpha[2], panel=1),
-            mpf.make_addplot(data[3], type="bar", color="yellow", alpha=alpha[3], panel=1),
+            # scatter=True, markersize=3, marker='o',
+
+            # make same as TOS colors # order is important
+            mpf.make_addplot(mpfdf[squeezes.columns[-3]], type="bar", color="blue", alpha=0.50, panel=1),
+            mpf.make_addplot(mpfdf[squeezes.columns[-4]], type="bar", color="deepskyblue", alpha=0.50, panel=1),
+            mpf.make_addplot(mpfdf[squeezes.columns[-2]], type="bar", color="red", alpha=0.50, panel=1),
+            mpf.make_addplot(mpfdf[squeezes.columns[-1]], type="bar", color="yellow", alpha=0.50, panel=1),
 
             # mpf.make_addplot(mpfdf['close'], color="black", panel=1),
-            mpf.make_addplot(data[5], color="green",alpha=0.7, panel=1),
-            mpf.make_addplot(data[4], color="red", alpha=0.7,  panel=1)
-    ]
+            mpf.make_addplot(mpfdf[squeezes.columns[4]], color="green",alpha=0.7, panel=1),
+            mpf.make_addplot(mpfdf[squeezes.columns[5]], color="red", alpha=0.7,  panel=1),
 
+            # squeeze metrics 
+            mpf.make_addplot(mpfdf[squeezes.columns[2]].apply(lambda x: 0 if x==1 else np.nan), scatter=True, markersize=20, marker='o',color="lime",  panel=1),
+            
+            mpf.make_addplot(mpfdf[squeezes.columns[1]].apply(lambda x: 0 if x==1 else np.nan), scatter=True, markersize=20, marker='o', color="red",  panel=1),
+            
+            mpf.make_addplot(mpfdf['squeeze_on'], scatter=True,markersize=2,marker='o', color="black",  panel=1),
+            # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
 
-    # squeeze metrics original flavor
-    d = mpfdf['SQZ_OFF'].apply(lambda x: 0 if x==1 else np.nan)
-    if not np.isnan(np.sum(d)) : 
-        apsq += [mpf.make_addplot(d , scatter=True, markersize=20, marker='o',color="lime",  panel=1)]
-    
-    d = mpfdf['SQZ_ON'].apply(lambda x: 0 if x==1 else np.nan)
-    if not np.isnan(np.sum(d)) : 
-         apsq += [mpf.make_addplot(d, scatter=True, markersize=20, marker='o', color="red",  panel=1)]
-    
-    d = mpfdf['squeeze_on']
-    if not np.isnan(np.sum(d)) : 
-         apsq += [mpf.make_addplot(d, scatter=True, markersize=2, marker='o', color="black",  panel=1)]
-    # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
+            # mpf.make_addplot(mpfdf['squeeze_on'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="black",  panel=1),
+            # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),   
+            
 
-    # mpf.make_addplot(mpfdf['squeeze_on'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="black",  panel=1),
-    # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),   
-    
+            # mpf.make_addplot(long_signal_entry(mpfdf.signal, mpfdf.low) ,type='scatter', color='purple', markersize=15, marker='^'),
+            # # add long exit 
+            # mpf.make_addplot(long_signal_exit(mpfdf.signal, mpfdf.high) ,type='scatter', color='magenta', markersize=15, marker='v'), 
 
-    # mpf.make_addplot(long_signal_entry(mpfdf.signal, mpfdf.low) ,type='scatter', color='purple', markersize=15, marker='^'),
-    # # add long exit 
-    # mpf.make_addplot(long_signal_exit(mpfdf.signal, mpfdf.high) ,type='scatter', color='magenta', markersize=15, marker='v'), 
+            ]
+
 
 
     # # add signal if addSignal = True 
@@ -335,8 +313,8 @@ def plot (df, analysis=None, addSignal=False, session=False) :
     longEntry = long_signal_entry(mpfdf.signal, mpfdf.low)
     longExit = long_signal_exit(mpfdf.signal, mpfdf.high)
 
-    # print ('Long Entry  : ', longEntry)
-    # print ('Long Exit   : ', longExit)
+    # print (longEntry)
+    # print (longExit)
 
     if ( longEntry and longExit) :         
         apsq += [ 
