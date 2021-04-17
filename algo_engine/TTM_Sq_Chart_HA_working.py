@@ -199,7 +199,7 @@ analysisDF = BackTester_Long(df, 'signal')
 
 def long_signal_entry(signal_series, price):
 
-    if np.isnan(np.sum(signal_series)) : return [] 
+    if signal_series.isnull().values.all() or (1 not in list(signal_series))  : return [] 
 
     signal   = []
     for date,value in signal_series.iteritems():
@@ -212,7 +212,7 @@ def long_signal_entry(signal_series, price):
 
 def long_signal_exit(signal_series, price):
 
-    if np.isnan(np.sum(signal_series)) : return [] 
+    if signal_series.isnull().values.all() or (-1 not in list(signal_series)) : return [] 
     
     signal   = []
     print ("Signal Series", len(signal_series))
@@ -257,24 +257,25 @@ def get_sessions_long(analysisDF, df):
 
 
 
-def plot (df, analysis=None, addSignal=False, session=False) : 
+def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False, session=False, ha=False) : 
 
     # taplots = [] 
     # taplots += 
     # Lets start with a simple chart 
 
     # mpfdf = df[-500:-450]
-    mpfdf = df[-100:]
+    mpfdf = df[start:end]
 
     apsq = []
 
     ######### ADD Indicators ##########
+    markersize = 2 if len(mpfdf) > 50 else 5
     apsq = [        
             # EMA42 ref
-            mpf.make_addplot(mpfdf['EMA_42'], type = "scatter", color='skyblue', markersize=2),  # 1D 21 EMA uses panel 0 by default
+            mpf.make_addplot(mpfdf['EMA_42'], type = "scatter", color='skyblue', markersize=markersize),  # 1D 21 EMA uses panel 0 by default
 
             # EMA21 ref            
-            mpf.make_addplot(mpfdf['EMA_21'], type = "scatter", color='blue', markersize=2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['EMA_21'], type = "scatter", color='blue', markersize=markersize),  # uses panel 0 by default
             # mpf.make_addplot(mpfdf['EMA_21HA'], color='blue'),  # uses panel 0 by default
     ]
     
@@ -284,8 +285,10 @@ def plot (df, analysis=None, addSignal=False, session=False) :
     alpha = []
     for i in [-3, -4, -2, -1, 4, 5 ] : # maintain order
         d = mpfdf[squeezes.columns[i]]
-        if np.isnan(np.sum(d)) : 
-            # d = d.fillna(0)
+        # if np.isnan(np.sum(np.asarray(d))) : 
+        if d.isnull().values.all() : 
+            d = d.fillna(0)
+            print ("All Null/NAN : ", squeezes.columns[i])
             alpha += [0.1]
             print (squeezes.columns[i], 'modified')
         else : 
@@ -293,32 +296,38 @@ def plot (df, analysis=None, addSignal=False, session=False) :
 
         # alpha += [0.5]
         data += [d]
+        # print (d)
+        # print ("isnull", squeezes.columns[i], d.isnull().values.all())
         
+
     apsq += [
-                       
+            # Note order is important here    
             mpf.make_addplot(data[0], type="bar", color="blue", alpha=alpha[0], panel=1),
             mpf.make_addplot(data[1], type="bar", color="deepskyblue", alpha=alpha[1], panel=1),
             mpf.make_addplot(data[2], type="bar", color="red", alpha=alpha[2], panel=1),
             mpf.make_addplot(data[3], type="bar", color="yellow", alpha=alpha[3], panel=1),
-
+            
             # mpf.make_addplot(mpfdf['close'], color="black", panel=1),
-            mpf.make_addplot(data[5], color="green",alpha=0.7, panel=1),
-            mpf.make_addplot(data[4], color="red", alpha=0.7,  panel=1)
+            mpf.make_addplot(data[4], color="green",alpha=0.7, panel=1),
+            mpf.make_addplot(data[5], color="red", alpha=0.7,  panel=1)
     ]
 
 
     # squeeze metrics original flavor
     d = mpfdf['SQZ_OFF'].apply(lambda x: 0 if x==1 else np.nan)
-    if not np.isnan(np.sum(d)) : 
+    if not d.isnull().values.all() : 
+        # print (d)
         apsq += [mpf.make_addplot(d , scatter=True, markersize=20, marker='o',color="lime",  panel=1)]
     
     d = mpfdf['SQZ_ON'].apply(lambda x: 0 if x==1 else np.nan)
-    if not np.isnan(np.sum(d)) : 
-         apsq += [mpf.make_addplot(d, scatter=True, markersize=20, marker='o', color="red",  panel=1)]
+    if not d.isnull().values.all() : 
+        # print (d)
+        apsq += [mpf.make_addplot(d, scatter=True, markersize=20, marker='o', color="red",  panel=1)]
     
     d = mpfdf['squeeze_on']
-    if not np.isnan(np.sum(d)) : 
-         apsq += [mpf.make_addplot(d, scatter=True, markersize=2, marker='o', color="black",  panel=1)]
+    if not d.isnull().values.all() : 
+        # print (d)
+        apsq += [mpf.make_addplot(d, scatter=True, markersize=2, marker='o', color="black",  panel=1)]
     # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
 
     # mpf.make_addplot(mpfdf['squeeze_on'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="black",  panel=1),
@@ -335,8 +344,8 @@ def plot (df, analysis=None, addSignal=False, session=False) :
     longEntry = long_signal_entry(mpfdf.signal, mpfdf.low)
     longExit = long_signal_exit(mpfdf.signal, mpfdf.high)
 
-    # print ('Long Entry  : ', longEntry)
-    # print ('Long Exit   : ', longExit)
+    print ('Long Entry  : ', longEntry)
+    print ('Long Exit   : ', longExit)
 
     if ( longEntry and longExit) :         
         apsq += [ 
@@ -351,18 +360,19 @@ def plot (df, analysis=None, addSignal=False, session=False) :
     # seq_of_points=[('2021-03-22',25),('2021-03-29',25)] # test 
     seq_of_points = get_sessions_long(analysisDF, mpfdf) # draw session lines
     # mpf.plot(df,alines=dict(alines=seq_of_points)) # test 
+    print (seq_of_points)
 
 
     # mpfchart["plot_ratios"] += common_plot_ratio # Required to add a new Panel
 
     final_df = mpfdf # placeholder 
 
-    # If HA HeikinAski Charts Enabled ; else remove section
-    ## Generate the HA columns and rename to OHLC
-    final_df = mpfdf[['HA_open', 'HA_high', 'HA_low', 'HA_close']].copy()
-    final_df.columns = ['open', 'high', 'low', 'close']
-    # mpf.plot(df2, type='candle', style='yahoo')
-
+    if ha : 
+        # If HA HeikinAski Charts Enabled ; else remove section
+        ## Generate the HA columns and rename to OHLC
+        final_df = mpfdf[['HA_open', 'HA_high', 'HA_low', 'HA_close']].copy()
+        final_df.columns = ['open', 'high', 'low', 'close']
+        # mpf.plot(df2, type='candle', style='yahoo')
 
     import matplotlib.dates as mdates
     import matplotlib.ticker as mticker
@@ -370,19 +380,20 @@ def plot (df, analysis=None, addSignal=False, session=False) :
 
     # fig.tight_layout(h_pad= -1.6)
 
-    # fig, axlist = mpf.plot(final_df, type='candle', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
+    # fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False,panel_ratios=(6,2), datetime_format=' %m/%d',xrotation=45, returnfig=True)
 
 
-    # fig, axlist = mpf.plot(final_df, type='ohlc', figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo',)
-    # mpf.plot(final_df, type='ohlc',addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo',)
+    # fig, axlist = mpf.plot(final_df, type=ctype, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo',datetime_format=' %b-%d',xrotation=90, returnfig=True, alines=dict(alines=seq_of_points))
 
-    fig, axlist = mpf.plot(final_df, type='ohlc', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True, alines=dict(alines=seq_of_points))
+    # mpf.plot(final_df, type=ctype,addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo',)
+
+    # fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True, alines=dict(alines=seq_of_points))
     
-    # fig, axlist = mpf.plot(final_df, type='ohlc', addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True)
+    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True)
 
 
     ax1 = axlist[1]
-    ax2 = axlist[2]
+    # ax2 = axlist[2]
     # ax2.set_ylim(-500, +500)
     ax1.minorticks_on()
     ax1.tick_params(axis='x',which='minor',direction='out',color='b',labelsize=3,labelcolor='g')
@@ -408,4 +419,5 @@ def plot (df, analysis=None, addSignal=False, session=False) :
     plt.show()
     print (df[-1:][['open', 'high', 'low', 'close']])
 
-plot (df)
+# plot (df, start=-50, ctype='ohlc')
+plot (df, start=-200, end=-160, ctype='candle', ha=True)

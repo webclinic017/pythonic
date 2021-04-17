@@ -202,6 +202,8 @@ def long_signal_entry(signal_series, price):
     if np.isnan(np.sum(signal_series)) : return [] 
 
     signal   = []
+    print ("Signal Series Entry: \n Signal length", len(signal_series))
+
     for date,value in signal_series.iteritems():
         if value == 1: # buy
             signal.append(price[date]*0.99) # Put marker below 
@@ -215,7 +217,7 @@ def long_signal_exit(signal_series, price):
     if np.isnan(np.sum(signal_series)) : return [] 
     
     signal   = []
-    print ("Signal Series", len(signal_series))
+    print ("Signal Series Exit: \n Signal Length", len(signal_series))
     
     for date,value in signal_series.iteritems():
         if value == -1: # exit
@@ -227,10 +229,10 @@ def long_signal_exit(signal_series, price):
 
 def get_sessions_long(analysisDF, df):
     sessions   = []
-    print ('received range', df.index[0], df.index[-1:])
+    print ('Session fetcher: \nReceived range', df.index[0], df.index[-1])
     print ('df length', len(df))
 
-    dfRange = df.index[0], df.index[-1:]
+    dfRange = df.index[0], df.index[-1]
 
     for i in analysisDF.itertuples():
         # Examaple seq of points 
@@ -263,7 +265,7 @@ def plot (df, analysis=None, addSignal=False, session=False) :
     # Lets start with a simple chart 
 
     # mpfdf = df[-500:-450]
-    mpfdf = df[-100:]
+    mpfdf = df[-100:] # smaller range has NaN errors in plotting; need fix
 
     apsq = []
 
