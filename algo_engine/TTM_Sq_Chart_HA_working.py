@@ -13,7 +13,7 @@ import yfinance as yf
 
 
 
-symbol = 'AAPL'
+symbol = 'AMD'
 sd = datetime(2020, 1, 1)
 ed = datetime(2021, 4, 12)
 # interval = "1d"
@@ -110,7 +110,7 @@ mpfdf_columns = list(df.columns)
 
 #################################  MAIN AlGO and SIGNAL GENERATION  #####################################
 
-# define stack EMA Extreme:  +1: positive bullish, 0:undecided, -1:negative bearish
+# define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
 df['signal_StackEMA'] = np.where(
     (df.EMA_9 > df.EMA_21) & 
     (df.EMA_21 > df.EMA_50) & 
@@ -118,6 +118,18 @@ df['signal_StackEMA'] = np.where(
     (df.EMA_100 > df.EMA_150)      
     ,1, np.where(
     (df.EMA_9 < df.EMA_21) & 
+    (df.EMA_21 < df.EMA_50) & 
+    (df.EMA_50 < df.EMA_100) &
+    (df.EMA_100 < df.EMA_150), -1, 0))
+
+# define stack EMA Softer:base=21 :: +1: positive bullish, 0:undecided, -1:negative bearish
+df['signal_StackEMA21'] = np.where(
+    # (df.EMA_9 > df.EMA_21) & 
+    (df.EMA_21 > df.EMA_50) & 
+    (df.EMA_50 > df.EMA_100) &
+    (df.EMA_100 > df.EMA_150)      
+    ,1, np.where(
+    # (df.EMA_9 < df.EMA_21) & 
     (df.EMA_21 < df.EMA_50) & 
     (df.EMA_50 < df.EMA_100) &
     (df.EMA_100 < df.EMA_150), -1, 0))
@@ -287,7 +299,7 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
 
     apsq = []
 
-    #### >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>       ADD Indicators  (panel0)     ####################################
+    #### >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>       ADD Indicators  (Panel 0)     ####################################
     
     
     markersize = 2 if len(mpfdf) > 50 else 5
@@ -302,7 +314,7 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
     
 
     
-    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD signal if addSignal = True  (panel0)     ###############      >>>>>>>>>>>>>>>>>>>>>>>
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD signal if addSignal = True  (Panel 0)     ###############      >>>>>>>>>>>>>>>>>>>>>>>
     
     longEntry = long_signal_entry(mpfdf[signal], mpfdf)
     longExit = long_signal_exit(mpfdf[signal], mpfdf)
@@ -319,7 +331,7 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
         ]
 
 
-    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD TRADE SESSIONS  (panel0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD TRADE SESSIONS  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
 
     # add sessions if addsession = True 
     # seq_of_points=[('2021-03-22',25),('2021-03-29',25)] # test 
@@ -338,7 +350,7 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
 
 
 
-    #######################     Squeeze plots  (Panel 1) #############################
+    #########################     Squeeze plots  (Panel 1) default #############################
 
     # make same as TOS colors # order is important
     data = []
