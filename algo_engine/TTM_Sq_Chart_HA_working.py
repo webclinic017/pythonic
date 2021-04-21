@@ -73,8 +73,7 @@ df = dfd.resample('4H').agg(aggregation).dropna()
 
 ############    ADD some INDICATORS 
 # squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
-squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True)
-
+squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True
 bollingers = df.ta.bbands(append=True) # 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0' 
 macd = df.ta.macd(append=True) # 'MACD_12_26_9', 'MACDh_12_26_9','MACDs_12_26_9'],
 rsi = df.ta.rsi(length=20, append=True)
@@ -619,9 +618,9 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
 # plot (df, start=-200, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
 # plot (df, start=-50, ctype='ohlc')
 # plot (df, start=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-300, end=-220, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
+plot (df, start=-300, end=-220, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
 # plot (df, start=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-plot (df, start=-100, ctype='candle', ha=True, signal='signalxTrade_StackEMA')
+# plot (df, start=-100, ctype='candle', ha=True, signal='signalxTrade_StackEMA')
 # plot (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
 print (df[-1:][['open', 'high', 'low', 'close']])
