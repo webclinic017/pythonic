@@ -147,4 +147,5 @@ cython_debug/
 # dont update workspace file - should update this before 1st commit
 *.code-workspace
 
+database/
 # 

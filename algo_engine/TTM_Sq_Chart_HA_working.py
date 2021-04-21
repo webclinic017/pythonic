@@ -12,8 +12,7 @@ import plotly.graph_objects as go
 import yfinance as yf
 
 
-
-symbol = 'AMD'
+symbol = 'AMZN'
 sd = datetime(2020, 1, 1)
 ed = datetime(2021, 4, 12)
 # interval = "1d"
@@ -94,6 +93,7 @@ ema50 = df.ta.ema(length=50, append=True)
 ema100 = df.ta.ema(length=100, append=True)
 ema150 = df.ta.ema(length=150, append=True)
 keltner = df.ta.kc(append=True)
+psar = df.ta.psar(append=True)
 
 # New Squeeze (black dots) : 1 = ON, 0 = OFF (for 'in_squeeze')
 def in_squeeze(df):
@@ -109,6 +109,21 @@ df['squeeze_off'] = df.apply(out_squeeze, axis=1)
 mpfdf_columns = list(df.columns)
 
 #################################  MAIN AlGO and SIGNAL GENERATION  #####################################
+
+# add psar signal -1 0 +1 
+df['signal_lsPSAR'] = df['PSARl_0.02_0.2'].apply(lambda x: 1 if x>0 else -1)
+df['rPSAR'] = df['PSARr_0.02_0.2'].apply(lambda x: -8 if x==True else 0)
+
+def revPSAR (df): 
+    if df['PSARl_0.02_0.2'] > 0 and df['PSARr_0.02_0.2'] : return 9 
+    elif df['PSARs_0.02_0.2'] > 0  and df['PSARr_0.02_0.2'] :  return -9 
+    else : return 0
+
+df['signal_revPSAR'] = df[['PSARl_0.02_0.2', 'PSARs_0.02_0.2', 'PSARr_0.02_0.2' ]].apply(revPSAR, axis=1)
+# df[['signal_revPSAR', 'signal_rPSAR']].tail(50)
+
+# add HA_Color to signal -1 0 +1 
+df['signal_hacolor'] = df['HA_color']
 
 # define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
 df['signal_StackEMA'] = np.where(
@@ -137,11 +152,11 @@ df['signal_StackEMA21'] = np.where(
 ## >>>>>>>>>>   generate long signal : 
 # find 1st change Entry from day1: 0->1 and day2: reconfirmation 1->1 ; Exit 1->0
 
-df.loc [ ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) , 'signal_Trade_StackEMA'] = 1 
-df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signal_Trade_StackEMA'] = -1 
+df.loc [ ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) , 'signalxTrade_StackEMA'] = 1 
+df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signalxTrade_StackEMA'] = -1 
 # df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
 ## See results: 
-df[ (df.signal_Trade_StackEMA == 1) | (df.signal_Trade_StackEMA == -1)] [['signal_Trade_StackEMA', 'close']]
+df[ (df.signalxTrade_StackEMA == 1) | (df.signalxTrade_StackEMA == -1)] [['signalxTrade_StackEMA', 'close']]
 
 # df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
 
@@ -202,7 +217,7 @@ def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
     return analysisDF 
 
 
-analysisDF = BackTester_Long(df, 'signal_Trade_StackEMA')
+analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
 
 
 
@@ -238,6 +253,29 @@ def long_signal_exit(signal_series, df):
         else:
             signal.append(np.nan)
     return signal
+
+
+def get_reversals(signal_series, df):
+
+    if signal_series.isnull().values.all() : return [], [] 
+
+    signal   = []
+    markercolor = []
+    yrange = max(df['high']) - min(df['low'])
+    offset = yrange * 0.10  # 2% of range
+    for date,value in signal_series.iteritems():
+        if value == -9: # reversal bear
+            signal.append(df.loc[date].high + 2*offset ) # Put o marker above highs 2x 
+            markercolor.append('red')
+        
+        elif value == 9: # reversal bull
+            signal.append(df.loc[date].high + offset ) # Put o marker above highs 1x
+            markercolor.append('green')
+        else:
+            signal.append(np.nan)
+            markercolor.append('None')
+
+    return signal, markercolor
 
 
 def get_sessions_long(analysisDF, df):
@@ -288,7 +326,7 @@ def get_sessions_long(analysisDF, df):
 
 
 
-def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False, addAlgo=False, session=False, ha=False, signal='signal_Trade_StackEMA') : 
+def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False, addAlgo=False, session=False, ha=False, signal='signalxTrade_StackEMA') : 
 
     # taplots = [] 
     # taplots += 
@@ -312,6 +350,13 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
             # mpf.make_addplot(mpfdf['EMA_21HA'], color='blue'),  # uses panel 0 by default
     ]
     
+    # # if PSAR enabled : draw lines 
+    # apsq += [
+    #      # psar 
+    #         mpf.make_addplot(mpfdf['PSARl_0.02_0.2'], color='pink', markersize=markersize, width=1),  # uses panel 0 by default
+    #         mpf.make_addplot(mpfdf['PSARs_0.02_0.2'], color='orange', markersize=markersize, width=1),  # uses panel 0 by default
+    # ]
+
 
     
     # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD signal if addSignal = True  (Panel 0)     ###############      >>>>>>>>>>>>>>>>>>>>>>>
@@ -330,9 +375,30 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
             mpf.make_addplot( longExit ,type='scatter', color='black', markersize=40, marker='x') 
         ]
 
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD STOPS  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
+    # todo
+
+
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD SR levels  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
+    #  todo 
+
 
     # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD TRADE SESSIONS  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
 
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD Reversal indicator  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
+    d, markercolor = get_reversals(mpfdf['signal_revPSAR'], mpfdf)
+    # print (len(d), len(mpfdf['signal_rPSAR']), len(mpfdf['signal_revPSAR']))
+    # print (d) 
+    # print (markercolor)   
+    # print (mpfdf['signal_revPSAR'].tolist())
+    if d : # check has values
+        # mymarkers = d.ReturnMarker.tolist()
+        apsq += [ 
+            # add texts using markers to annotate 
+            # mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color='black')
+            mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color=markercolor)
+        ]
+    
     # add sessions if addsession = True 
     # seq_of_points=[('2021-03-22',25),('2021-03-29',25)] # test 
     seq_of_points, seq_colors, seq_Returns = get_sessions_long(analysisDF, mpfdf) # draw session lines
@@ -401,7 +467,7 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
     d = mpfdf['squeeze_on'].apply(lambda x: 0 if x==1 else np.nan)
     if not d.isnull().values.all() : 
         # print (d)
-        apsq += [mpf.make_addplot(d, secondary_y=False, scatter=True, markersize=2, marker='o', color="black",  panel=1)]
+        apsq += [mpf.make_addplot(d, secondary_y=False, scatter=True, markersize=2, marker='o', color="black", panel=1)]
     # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
 
     # mpf.make_addplot(mpfdf['squeeze_on'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="black",  panel=1),
@@ -426,13 +492,16 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
     # add base at 0 
     apsq += [mpf.make_addplot(mpfdf[signalCols[0]].apply(lambda x:0), scatter=True, alpha=0, panel=2, secondary_y=False, ylim=(0,ylimSignal), ylabel='Signals')]
 
+    # define markersize 
+    l = len(mpfdf)
+    markersize = 5 if l > 150 else 20 
     for col in signalCols : 
         d = mpfdf[col].copy()        
         if not d.isnull().values.all() :  # check if a null array 
             # print (d)
 
-            # IF signal_trade indicator 
-            if (col.startswith('signal_Trade')) : 
+            # IF signalxtrade indicator 
+            if (col.startswith('signalxTrade')) : 
                 mymarkercolor = d.apply(
                     lambda x: 'purple' if x==1 else ('red' if x==-1 else 
                     'yellow' if (x==-2 or x==2) else 'lightgray')).tolist()
@@ -440,16 +509,20 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
                     lambda x: '^' if x==1 else ('x' if x==-1 else 
                     'o' if (x==-2 or x==2) else 'None')).tolist()
                 mydata = d.apply( lambda x: counter )
-                apsq += [mpf.make_addplot(mydata, scatter=True, markersize=20, marker=mymarker, color=mymarkercolor, panel=2, secondary_y=False, ylim=(0,ylimSignal))]
+                apsq += [mpf.make_addplot(mydata, scatter=True, markersize=markersize, marker=mymarker, color=mymarkercolor, panel=2, secondary_y=False, ylim=(0,ylimSignal))]
+
 
             # IF only signal indicator 
-
             else: 
                 mymarkercolor = d.apply(
-                    lambda x: 'limegreen' if x==1 else ('red' if x==-1 else 
-                    'yellow' if (x==-2 or x==2) else 'lightgray')).tolist()
+                    lambda x: 'limegreen' if x==1 else ('red' if x==-1 
+                    else 'yellow' if (x==-2 or x==2) 
+                    else ( 'black' if x ==-8 
+                    else ( 'green' if x== 9 
+                    else ('red' if x == -9 
+                    else 'lightgray'))))).tolist()
                 mydata = d.apply( lambda x: counter )
-                apsq += [mpf.make_addplot(mydata, scatter=True, markersize=20, marker='o', color=mymarkercolor, panel=2, secondary_y=False, ylim=(0,ylimSignal))]
+                apsq += [mpf.make_addplot(mydata, scatter=True, markersize=markersize, marker='o', color=mymarkercolor, panel=2, secondary_y=False, ylim=(0,ylimSignal))]
             # print (mydata) # test 
             # print (mymarkercolor) # test 
 
@@ -504,7 +577,7 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
     counter = 0.5 
     yticks = list(np.arange (0.5, 0.5*(1+len(signalCols)), 0.5))
     # signalCols # replace prefix signal_ - clean look
-    signalCols_n = [sub.replace('signal_', '') for sub in signalCols]
+    signalCols_n = [sub.replace('signalx', '') for sub in signalCols]
     print (len(yticks), len(signalCols))
     # axs = for i in axlist i.ylable="signal"
     ax3.set_yticks(yticks)
@@ -542,11 +615,13 @@ def plot (df, start=-100, end=-1, ctype='candle', analysis=None, addSignal=False
     plt.show()
     # print (df[-1:][['open', 'high', 'low', 'close']])
 
-# plot (df, start=-150, end=-50, ctype='ohlc', ha=True, signal='signal_Trade_StackEMA')
-# plot (df, start=-200, ctype='ohlc', ha=True, signal='signal_Trade_StackEMA')
+# plot (df, start=-150, end=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
+# plot (df, start=-200, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
 # plot (df, start=-50, ctype='ohlc')
-# plot (df, start=-50, ctype='ohlc', ha=True, signal='signal_Trade_StackEMA')
-plot (df, start=-200, end=-100, ctype='ohlc', ha=True, signal='signal_Trade_StackEMA')
-# plot (df, start=-450, end=-100, ctype='ohlc', ha=False)
+# plot (df, start=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
+# plot (df, start=-300, end=-220, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
+# plot (df, start=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
+plot (df, start=-100, ctype='candle', ha=True, signal='signalxTrade_StackEMA')
+# plot (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
 print (df[-1:][['open', 'high', 'low', 'close']])
