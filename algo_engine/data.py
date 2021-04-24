@@ -18,6 +18,9 @@ DATAROOT    = '/home/towshif/code/python/pythonic/database/'
 OLDDATA    = '/home/towshif/code/python/pythonic/database/olddata/' 
 
 
+    ## direct download = p1d = yf.download(tickers=symbols, interval="5m", period="60d", group_by="Ticker")
+    ## https://stackoverflow.com/questions/63107594/how-to-deal-with-multi-level-column-names-downloaded-with-yfinance
+
 
 def create_Data_1H_twoyrs (symbols) : 
     for symbol in symbols : 
@@ -34,14 +37,14 @@ def create_Data_1H_twoyrs (symbols) :
                 # exit loop 
         else : 
             print (symbol, 'already exists')
-
-    ## direct download = p1d = yf.download(tickers=symbols, interval="5m", period="60d", group_by="Ticker")
-    ## https://stackoverflow.com/questions/63107594/how-to-deal-with-multi-level-column-names-downloaded-with-yfinance
+    print (notfound)
     
 # create_Data_1H_twoyrs (symbols=['SPX', 'SPY', 'MU']) # test 
 
 
 def create_Data_1D_twoyrs (symbols) : 
+
+    notfound = []
     for symbol in symbols : 
 
         flink = TICKDATA + symbol+'.1D.pickle'
@@ -53,15 +56,40 @@ def create_Data_1D_twoyrs (symbols) :
                 # print (dfdata.head(10))
             else : 
                 print (symbol, 'ERROR!')
+                notfound.append(symbol)
+
                 # exit loop 
         else : 
             print (symbol, 'already exists')
+    print (notfound)
 
 # create_Data_1D_twoyrs (symbols=['SPX', 'SPY', 'MU']) # test 
 
 
+def create_Data_5m_60days (symbols) : 
+
+    notfound = []
+    for symbol in symbols : 
+
+        flink = TICKDATA + symbol+'.5m.pickle'
+        if not os.path.exists(flink) : 
+            dfdata = yf.download(tickers=symbol, interval="5m", period="60d")
+            if len(dfdata)>0  : # if successful download     
+                pd.to_pickle(dfdata, flink)
+                print ("Successful : ", symbol)
+                # print (dfdata.head(10))
+            else : 
+                print (symbol, 'ERROR!')
+                notfound.append(symbol)
+                # exit loop 
+        else : 
+            print (symbol, 'already exists')
+    print (notfound)
+
+
+
 def initDBWatchList () : 
-    symbols = ['SPY', 'VIX', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'SPX', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW', 'SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^DJI', '^VIX', ]
+    symbols = ['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW', 'SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^DJI', '^VIX', ]
 
     df = pd.DataFrame(columns=['TICK', 'info' ])
 
@@ -79,8 +107,10 @@ def create_Data_from_Watchlist (watchlist):
     dfdata = pd.read_pickle(DATAROOT + watchlist +'.pickle') 
     symbols = dfdata['TICK'].tolist() 
     print (symbols)
-    create_Data_1D_twoyrs (symbols)
-    create_Data_1H_twoyrs (symbols)
+    # create_Data_1D_twoyrs (symbols)
+    # create_Data_1H_twoyrs (symbols)
+    create_Data_5m_60days (symbols)
+
 
 # create_Data_from_Watchlist('WatchListDB') # test
 
@@ -191,47 +221,7 @@ def read_from_old () :  ## DO NOT WASTE TIME
 
 
 def initDBCoreWatchList () : 
-    symbols = ['SPY', 'VIX', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'SPX', 'VIX', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW', 'SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', 
-    '^GSPC', '^NDX', '^GDAXI', '^FTSE', '^HSI', '^N225', '^NYA', '^SSEC', 
-    'WGO', 'SAIA', 'MMM','ABT','ABBV','ACN','ATVI','AYI','ADBE','AMD','AAP','AES','AET',
-    'AMG','AFL','A','APD','AKAM','ALK','ALB','ARE','ALXN','ALGN','ALLE',
-    'AGN','ADS','LNT','ALL','GOOGL','GOOG','MO','AMZN','AEE','AAL','AEP',
-    'AXP','AIG','AMT','AWK','AMP','ABC','AME','AMGN','APH','APC','ADI','ANDV',
-    'ANSS','ANTM','AON','AOS','APA','AIV','AAPL','AMAT','APTV','ADM','ARNC',
-    'AJG','AIZ','T','ADSK','ADP','AZO','AVB','AVY','BHGE','BLL','BAC','BK',
-    'BAX','BBT','BDX','BRK.B','BBY','BIIB','BLK','HRB','BA','BWA','BXP','BSX',
-    'BHF','BMY','AVGO','BF.B','CHRW','CA','COG','CDNS','CPB','COF','CAH','CBOE',
-    'KMX','CCL','CAT','CBG','CBS','CELG','CNC','CNP','CTL','CERN','CF','SCHW',
-    'CHTR','CHK','CVX','CMG','CB','CHD','CI','XEC','CINF','CTAS','CSCO','C','CFG',
-    'CTXS','CLX','CME','CMS','KO','CTSH','CL','CMCSA','CMA','CAG','CXO','COP',
-    'ED','STZ','COO','GLW','COST','COTY','CCI','CSRA','CSX','CMI','CVS','DHI',
-    'DHR','DRI','DVA','DE','DAL','XRAY','DVN','DLR','DFS','DISCA','DISCK','DISH',
-    'DG','DLTR','D','DOV','DWDP','DPS','DTE','DRE','DUK','DXC','ETFC','EMN','ETN',
-    'EBAY','ECL','EIX','EW','EA','EMR','ETR','EVHC','EOG','EQT','EFX','EQIX','EQR',
-    'ESS','EL','ES','RE','EXC','EXPE','EXPD','ESRX','EXR','XOM','FFIV','FB','FAST',
-    'FRT','FDX','FIS','FITB','FE','FISV','FLIR','FLS','FLR','FMC','FL','F','FTV',
-    'FBHS','BEN','FCX','GPS','GRMN','IT','GD','GE','GGP','GIS','GM','GPC','GILD',
-    'GPN','GS','GT','GWW','HAL','HBI','HOG','HRS','HIG','HAS','HCA','HCP','HP','HSIC',
-    'HSY','HES','HPE','HLT','HOLX','HD','HON','HRL','HST','HPQ','HUM','HBAN','HII',
-    'IDXX','INFO','ITW','ILMN','IR','INTC','ICE','IBM','INCY','IP','IPG','IFF','INTU',
-    'ISRG','IVZ','IQV','IRM','JEC','JBHT','SJM','JNJ','JCI','JPM','JNPR','KSU','K','KEY',
-    'KMB','KIM','KMI','KLAC','KSS','KHC','KR','LB','LLL','LH','LRCX','LEG','LEN','LUK',
-    'LLY','LNC','LKQ','LMT','L','LOW','LYB','MTB','MAC','M','MRO','MPC','MAR','MMC','MLM',
-    'MAS','MA','MAT','MKC','MCD','MCK','MDT','MRK','MET','MTD','MGM','KORS','MCHP','MU',
-    'MSFT','MAA','MHK','TAP','MDLZ','MON','MNST','MCO','MS','MOS','MSI','MYL','NDAQ',
-    'NOV','NAVI','NTAP','NFLX','NWL','NFX','NEM','NWSA','NWS','NEE','NLSN','NKE','NI',
-    'NBL','JWN','NSC','NTRS','NOC','NCLH','NRG','NUE','NVDA','ORLY','OXY','OMC','OKE',
-    'ORCL','PCAR','PKG','PH','PDCO','PAYX','PYPL','PNR','PBCT','PEP','PKI','PRGO','PFE',
-    'PCG','PM','PSX','PNW','PXD','PNC','RL','PPG','PPL','PX','PCLN','PFG','PG','PGR',
-    'PLD','PRU','PEG','PSA','PHM','PVH','QRVO','PWR','QCOM','DGX','RRC','RJF','RTN','O',
-    'RHT','REG','REGN','RF','RSG','RMD','RHI','ROK','COL','ROP','ROST','RCL','CRM','SBAC',
-    'SCG','SLB','SNI','STX','SEE','SRE','SHW','SIG','SPG','SWKS','SLG','SNA','SO','LUV',
-    'SPGI','SWK','SBUX','STT','SRCL','SYK','STI','SYMC','SYF','SNPS','SYY','TROW','TPR',
-    'TGT','TEL','FTI','TXN','TXT','TMO','TIF','TWX','TJX','TMK','TSS','TSCO','TDG','TRV',
-    'TRIP','FOXA','FOX','TSN','UDR','ULTA','USB','UAA','UA','UNP','UAL','UNH','UPS','URI',
-    'UTX','UHS','UNM','VFC','VLO','VAR','VTR','VRSN','VRSK','VZ','VRTX','VIAB','V','VNO',
-    'VMC','WMT','WBA','DIS','WM','WAT','WEC','WFC','HCN','WDC','WU','WRK','WY','WHR','WMB',
-    'WLTW','WYN','WYNN','XEL','XRX','XLNX','XL','XYL','YUM','ZBH','ZION','ZTS',]
+    symbols = ['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'AAL', 'WGO', 'WGO', 'WGO', 'DAL', 'DAL', 'AAPL', 'AAPL', 'AMAT', 'AMAT', 'AMAT', 'AMD', 'AMD', 'AMZN', 'AMZN', 'BA', 'BA', 'BAC', 'BAC', 'CLX', 'CLX', 'COST', 'COST', 'DIS', 'DIS', 'FB', 'FB', 'GOOG', 'GOOG', 'INTC', 'INTC', 'IVV', 'KLAC', 'KLAC', 'LRCX', 'LRCX', 'MRNA', 'MSFT', 'MSFT', 'MU', 'MU', 'NFLX', 'NFLX', 'NVDA', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SAIA', 'SBUX', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'UAL', 'URI', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LEN', 'LOW', 'LOW', 'SYNA', 'TBBK', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^GDAXI', '^FTSE', '^HSI', '^N225', '^NYA', 'MMM', 'ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AAP', 'AES', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'ADS', 'LNT', 'ALL', 'GOOGL', 'MO', 'AEE', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'ADI', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'APTV', 'ADM', 'ARNC', 'AJG', 'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BLL', 'BK', 'BAX', 'BDX', 'BBY', 'BIIB', 'BLK', 'HRB', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'CHRW', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'CBOE', 'KMX', 'CCL', 'CAT', 'CNC', 'CNP', 'CERN', 'CF', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'COP', 'ED', 'STZ', 'COO', 'GLW', 'COTY', 'CCI', 'CSX', 'CMI', 'CVS', 'DHR', 'DRI', 'DVA', 'DE', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DTE', 'DRE', 'DUK', 'DXC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'EXR', 'XOM', 'FFIV', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GD', 'GE', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HIG', 'HAS', 'HCA', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'HII', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IQV', 'IRM', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KSS', 'KHC', 'KR', 'LB', 'LH', 'LEG', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'MCHP', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'NDAQ', 'NOV', 'NAVI', 'NTAP', 'NWL', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PDCO', 'PAYX', 'PYPL', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'RRC', 'RJF', 'O', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SLB', 'STX', 'SEE', 'SRE', 'SHW', 'SIG', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'STT', 'SRCL', 'SYK', 'SYF', 'SNPS', 'SYY', 'TROW', 'TPR', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TJX', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UAA', 'UA', 'UNP', 'UNH', 'UPS', 'UHS', 'UNM', 'VFC', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'WM', 'WAT', 'WEC', 'WFC', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS']
 
     df = pd.DataFrame(columns=['TICK', 'info' ])
 
@@ -241,6 +231,8 @@ def initDBCoreWatchList () :
         }, ignore_index=True)
     print (df)
     df.to_pickle(DATAROOT+'WatchListDBFull.pickle')
-    create_Data_from_Watchlist('WatchListDBFull') # test
-
+ 
 # initDBCoreWatchList()
+
+# create_Data_from_Watchlist('WatchListDBFull') # test
+

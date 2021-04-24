@@ -12,178 +12,168 @@ import plotly.graph_objects as go
 import yfinance as yf
 import finta as ft
 
+import datasource as data  # disable this whn API is runing 
+
 # # key reference ind and plots
 # https://github.com/peerchemist/finta
 # https://github.com/twopirllc/pandas-ta
 # https://github.com/matplotlib/mplfinance/
 
+symbol = None
 
-symbol = 'AAL'
-sd = datetime(2020, 1, 1)
-ed = datetime(2021, 4, 12)
-# interval = "1d"
-interval = "60m"
+def initData (symbol = 'SPY', interval="4H", bars=700) : 
+    symbol = symbol
+    df = None
+    # symbol = 'AAL'
+    # sd = datetime(2020, 1, 1)
+    # ed = datetime(2021, 4, 12)
+    # # interval = "1d"
+    # interval = "60m"
 
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
-# df = yf.download(tickers=symbol, start=sd, interval="60m")
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
-# dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
-dfd = yf.download(tickers=symbol, start=sd, interval=interval)
-df = dfd
+    # # df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
+    # # df = yf.download(tickers=symbol, start=sd, interval="60m")
+    # # df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
+    # # dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
+    # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
+    
+    if interval=="4H": 
+        df = data.getData(symbol, interval="1H", bars=(-2000, None))
+        # df = data.getLiveData(symbol=symbol, interval="1H", period='100d')
+        # df = data.getData(symbol, bars=(-900, -325))
 
-# # Enable if 4H reampling is True 
-# dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
-# dfd = yf.download(tickers=symbol, start=sd, interval=interval)
-# df = dfd
-interval = "4h"
-# Resampling Code 
-## Resample to 4H timefeame 
-aggregation = {'Open'  :'first',
-               'High'  :'max',
-               'Low'   :'min',
-               'Close' :'last',
-               'Volume':'sum'}
-df = dfd.resample('4H').agg(aggregation).dropna()
+        # # Enable if 4H reampling is True 
+        # dfd = yf.download(tickers=symbol, start=sd, interval=interval,prepost=True)
+        # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
+        # df = dfd
+        interval = "4H"
+        # Resampling Code 
+        ## Resample to 4H timefeame 
+        aggregation = {'Open'  :'first',
+                    'High'  :'max',
+                    'Low'   :'min',
+                    'Close' :'last',
+                    'Volume':'sum'}
+        df = df.resample('4H').agg(aggregation).dropna()
+    else: 
+        df = data.getData(symbol, interval=interval)
 
-# symbol = 'AAPL'
-# sd = datetime(2020, 1, 1)
-# ed = datetime(2021, 4, 7)
-# dfdata = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
-# dfdata.to_pickle(symbol+'.pickle')
-# dfdata.to_pickle(symbol+'.pickle')
-# dfdata = pd.read_csv('h:/WorkSpace_Python/AppPy/rough/'+symbol+'.csv', index_col='Datetime', parse_dates=True)
-# if os.name == 'nt': df = pd.read_pickle('h:/WorkSpace_Python/pythonic/rough/'+symbol+'.pickle')
-# else: df = pd.read_pickle('/home/towshif/code/python/pythonic/rough/'+symbol+'.pickle')
-
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m", prepost=True)
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="30m")
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="15m")
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="5m")
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="5m", prepost=True)
-# df = yf.download(tickers=symbol, start=sd, end=ed, interval="15m", prepost=True)
+    return df
 
 
+def addIndicators(df): 
+    ################################################################################
+
+    ############    ADD some INDICATORS 
+
+    print ('Initial DF length ', len(df))
+    # squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
+    squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True)
+    bollingers = df.ta.bbands(append=True) # 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0' 
+    # macd = df.ta.macd(append=True) # 'MACD_12_26_9', 'MACDh_12_26_9','MACDs_12_26_9'],
+    # rsi = df.ta.rsi(length=20, append=True)
+    # rsi_SMA = df['RSI_20_SMA'] = ta.sma(rsi, length=20, append=True)
+
+    # rsx = df.ta.rsx(length=20, append=True)
+    # rsx_SMA = df['RSX_20_SMA'] = ta.sma(rsx, length=20, append=True)
+
+    ha = df.ta.ha(append=True) # heikinashi bars 
+    df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
+    # ema21HA = df['EMA_21HA'] = ta.ema( df.HA_close, length=21, append=True)
+    ema9 = df.ta.ema(length=9, append=True)
+    ema21 = df.ta.ema(length=21, append=True)
+    ema42 = df.ta.ema(length=42, append=True)
+    ema50 = df.ta.ema(length=50, append=True)
+    ema100 = df.ta.ema(length=100, append=True)
+    ema150 = df.ta.ema(length=150, append=True)
+    keltner = df.ta.kc(append=True)
+    psar = df.ta.psar( append=True)
+    sar = df['SAR'] = ft.TA.SAR(df)
+    df['signal_SQ2gauss']= ft.TA.SQZMI(df).apply(lambda x: -1 if x else 0)
+    df['signal_trTTM'] = df.ta.ttm_trend(append=True)
+
+    # df['signal_decreasing'] = df.ta.decreasing(length=8).apply(lambda x: -1 if x==1 else x)
+    # df['signal_increasing'] =df.ta.increasing(length=8)
+    length = 3 
+    df['signal_IDClose'] = df.ta.decreasing(close=df.HA_close, length=length, strict=True).apply(lambda x: -1 if x==1 else x) + df.ta.increasing(close=df.HA_close,length=length, strict=True)
+    df['signal_IDhigh'] = df.ta.decreasing(close=df.HA_high, length=length, strict=True).apply(lambda x: -1 if x==1 else x) + df.ta.increasing(close=df.HA_high,length=length, strict=True)
+
+    # Exit Chandelier 
+    chandelier = ft.TA.CHANDELIER(df, long_period=15, short_period=15)
+    df['chxLong'], df['chxShort'] = chandelier['Long.'], chandelier['Short.']
+    df['chxLong'] = np.where(df['chxLong'] >= df['close'], np.NaN, df['chxLong'])
+    df['chxShort']= np.where(df['chxShort'] < df['close'], np.NaN, df['chxShort'])
+    df['signal_sChandelier'] = np.where(df['chxShort'] > 0, -1, 1) # first hint of red
+    # df['signal_chandelierL'] = np.where(df['chxLong'] > 0, 1, -1)
 
 
-############     SIMPLE CANDLE CHART w/ volume 
-# style = 'yahoo','nightclouds','ibd'
-# type =  'candle', 'hollow_and_filled'
-# mpf.plot(mpfdf, style='yahoo', type='candle', volume=True, panel_ratios=(4,1))
+    # New Squeeze (black dots) : 1 = ON, 0 = OFF (for 'in_squeeze')
+    def in_squeeze(df):
+        if df['BBL_5_2.0'] > df['KCLe_20_2'] and df['BBU_5_2.0'] < df['KCUe_20_2'] : 
+            return 1 
+    def out_squeeze(df):
+        if not (df['BBL_5_2.0'] > df['KCLe_20_2'] and df['BBU_5_2.0'] < df['KCUe_20_2']):         
+            return 1    
+    df['squeeze_on'] = df.apply(in_squeeze, axis=1)
+    df['squeeze_off'] = df.apply(out_squeeze, axis=1)
+
+    return df  # loaded with indicators 
+
+def algo (df): 
+        
+    #################################  MAIN AlGO and SIGNAL GENERATION  #####################################
+
+    # add psar signal -1 0 +1 
+    df['signal_lsPSAR'] = df['PSARl_0.02_0.2'].apply(lambda x: 1 if x>0 else -1)
+    df['rPSAR'] = df['PSARr_0.02_0.2'].apply(lambda x: -8 if x==True else 0)
+
+    def rPSAR (df): 
+        if df['PSARl_0.02_0.2'] > 0 and df['PSARr_0.02_0.2'] : return 9 
+        elif df['PSARs_0.02_0.2'] > 0  and df['PSARr_0.02_0.2'] :  return -9 
+        else : return 0
+
+    df['signal_rPSAR'] = df[['PSARl_0.02_0.2', 'PSARs_0.02_0.2', 'PSARr_0.02_0.2' ]].apply(rPSAR, axis=1)
+    # df[['signal_rPSAR', 'signal_rPSAR']].tail(50)
+
+    df['signal_sSAR'] = np.where (df['SAR']<df['low'], 1, -1)
 
 
+    # add HA_Color to signal -1 0 +1 
+    df['signal_trHAcolor'] = df['HA_color']
 
+    # define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
+    df['signal_StackEMA'] = np.where(
+        (df.EMA_9 > df.EMA_21) & 
+        (df.EMA_21 > df.EMA_50) & 
+        (df.EMA_50 > df.EMA_100) &
+        (df.EMA_100 > df.EMA_150)      
+        ,1, np.where(
+        (df.EMA_9 < df.EMA_21) & 
+        (df.EMA_21 < df.EMA_50) & 
+        (df.EMA_50 < df.EMA_100) &
+        (df.EMA_100 < df.EMA_150), -1, 0))
 
-################################################################################
+    # define stack EMA Softer:base=21 :: +1: positive bullish, 0:undecided, -1:negative bearish
+    df['signal_StackEMA21'] = np.where(
+        # (df.EMA_9 > df.EMA_21) & 
+        (df.EMA_21 > df.EMA_50) & 
+        (df.EMA_50 > df.EMA_100) &
+        (df.EMA_100 > df.EMA_150)      
+        ,1, np.where(
+        # (df.EMA_9 < df.EMA_21) & 
+        (df.EMA_21 < df.EMA_50) & 
+        (df.EMA_50 < df.EMA_100) &
+        (df.EMA_100 < df.EMA_150), -1, 0))
 
-############    ADD some INDICATORS 
-# squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
-squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True)
-bollingers = df.ta.bbands(append=True) # 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0' 
-# macd = df.ta.macd(append=True) # 'MACD_12_26_9', 'MACDh_12_26_9','MACDs_12_26_9'],
-# rsi = df.ta.rsi(length=20, append=True)
-# rsi_SMA = df['RSI_20_SMA'] = ta.sma(rsi, length=20, append=True)
+    ## >>>>>>>>>>   generate long signal : 
+    # find 1st change Entry from day1: 0->1 and day2: reconfirmation 1->1 ; Exit 1->0
 
-# rsx = df.ta.rsx(length=20, append=True)
-# rsx_SMA = df['RSX_20_SMA'] = ta.sma(rsx, length=20, append=True)
+    df.loc [ ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) , 'signalxTrade_StackEMA'] = 1 
+    df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signalxTrade_StackEMA'] = -1 
+    # df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
+    ## See results: 
+    df[ (df.signalxTrade_StackEMA == 1) | (df.signalxTrade_StackEMA == -1)] [['signalxTrade_StackEMA', 'close']]
 
-ha = df.ta.ha(append=True) # heikinashi bars 
-df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
-# ema21HA = df['EMA_21HA'] = ta.ema( df.HA_close, length=21, append=True)
-ema9 = df.ta.ema(length=9, append=True)
-ema21 = df.ta.ema(length=21, append=True)
-ema42 = df.ta.ema(length=42, append=True)
-ema50 = df.ta.ema(length=50, append=True)
-ema100 = df.ta.ema(length=100, append=True)
-ema150 = df.ta.ema(length=150, append=True)
-keltner = df.ta.kc(append=True)
-psar = df.ta.psar( append=True)
-sar = df['SAR'] = ft.TA.SAR(df)
-df['signal_SQ2gauss']= ft.TA.SQZMI(df).apply(lambda x: -1 if x else 0)
-df['signal_trTTM'] = df.ta.ttm_trend(append=True)
-
-# df['signal_decreasing'] = df.ta.decreasing(length=8).apply(lambda x: -1 if x==1 else x)
-# df['signal_increasing'] =df.ta.increasing(length=8)
-length = 3 
-df['signal_IDClose'] = df.ta.decreasing(close=df.HA_close, length=length, strict=True).apply(lambda x: -1 if x==1 else x) + df.ta.increasing(close=df.HA_close,length=length, strict=True)
-df['signal_IDhigh'] = df.ta.decreasing(close=df.HA_high, length=length, strict=True).apply(lambda x: -1 if x==1 else x) + df.ta.increasing(close=df.HA_high,length=length, strict=True)
-
-# Exit Chandelier 
-chandelier = ft.TA.CHANDELIER(df, long_period=15, short_period=15)
-df['chxLong'], df['chxShort'] = chandelier['Long.'], chandelier['Short.']
-df['chxLong'] = np.where(df['chxLong'] >= df['close'], np.NaN, df['chxLong'])
-df['chxShort']= np.where(df['chxShort'] < df['close'], np.NaN, df['chxShort'])
-df['signal_sChandelierS'] = np.where(df['chxShort'] > 0, -1, 1) # first hint of red
-# df['signal_chandelierL'] = np.where(df['chxLong'] > 0, 1, -1)
-
-
-# New Squeeze (black dots) : 1 = ON, 0 = OFF (for 'in_squeeze')
-def in_squeeze(df):
-    if df['BBL_5_2.0'] > df['KCLe_20_2'] and df['BBU_5_2.0'] < df['KCUe_20_2'] : 
-        return 1 
-def out_squeeze(df):
-    if not (df['BBL_5_2.0'] > df['KCLe_20_2'] and df['BBU_5_2.0'] < df['KCUe_20_2']):         
-        return 1    
-df['squeeze_on'] = df.apply(in_squeeze, axis=1)
-df['squeeze_off'] = df.apply(out_squeeze, axis=1)
-
-
-mpfdf_columns = list(df.columns)
-
-#################################  MAIN AlGO and SIGNAL GENERATION  #####################################
-
-# add psar signal -1 0 +1 
-df['signal_lsPSAR'] = df['PSARl_0.02_0.2'].apply(lambda x: 1 if x>0 else -1)
-df['rPSAR'] = df['PSARr_0.02_0.2'].apply(lambda x: -8 if x==True else 0)
-
-def rPSAR (df): 
-    if df['PSARl_0.02_0.2'] > 0 and df['PSARr_0.02_0.2'] : return 9 
-    elif df['PSARs_0.02_0.2'] > 0  and df['PSARr_0.02_0.2'] :  return -9 
-    else : return 0
-
-df['signal_rPSAR'] = df[['PSARl_0.02_0.2', 'PSARs_0.02_0.2', 'PSARr_0.02_0.2' ]].apply(rPSAR, axis=1)
-# df[['signal_rPSAR', 'signal_rPSAR']].tail(50)
-
-df['signal_sSAR'] = np.where (df['SAR']<df['low'], 1, -1)
-
-
-# add HA_Color to signal -1 0 +1 
-df['signal_trHAcolor'] = df['HA_color']
-
-# define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
-df['signal_StackEMA'] = np.where(
-    (df.EMA_9 > df.EMA_21) & 
-    (df.EMA_21 > df.EMA_50) & 
-    (df.EMA_50 > df.EMA_100) &
-    (df.EMA_100 > df.EMA_150)      
-    ,1, np.where(
-    (df.EMA_9 < df.EMA_21) & 
-    (df.EMA_21 < df.EMA_50) & 
-    (df.EMA_50 < df.EMA_100) &
-    (df.EMA_100 < df.EMA_150), -1, 0))
-
-# define stack EMA Softer:base=21 :: +1: positive bullish, 0:undecided, -1:negative bearish
-df['signal_StackEMA21'] = np.where(
-    # (df.EMA_9 > df.EMA_21) & 
-    (df.EMA_21 > df.EMA_50) & 
-    (df.EMA_50 > df.EMA_100) &
-    (df.EMA_100 > df.EMA_150)      
-    ,1, np.where(
-    # (df.EMA_9 < df.EMA_21) & 
-    (df.EMA_21 < df.EMA_50) & 
-    (df.EMA_50 < df.EMA_100) &
-    (df.EMA_100 < df.EMA_150), -1, 0))
-
-## >>>>>>>>>>   generate long signal : 
-# find 1st change Entry from day1: 0->1 and day2: reconfirmation 1->1 ; Exit 1->0
-
-df.loc [ ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) , 'signalxTrade_StackEMA'] = 1 
-df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signalxTrade_StackEMA'] = -1 
-# df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
-## See results: 
-df[ (df.signalxTrade_StackEMA == 1) | (df.signalxTrade_StackEMA == -1)] [['signalxTrade_StackEMA', 'close']]
-
-# df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
+    # df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
 
 
 ###########################  BACK TEST  ###########################
@@ -242,7 +232,7 @@ def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
     return analysisDF 
 
 
-analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
+# analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
 
 
 
@@ -350,14 +340,23 @@ def get_sessions_long(analysisDF, df):
     return sessions, sessioncolors, sessionReturns
 
 
-mpf.plot()
-def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=False, addAlgo=False, session=False, ha=False, signal='signalxTrade_StackEMA') : 
+
+
+############     SIMPLE CANDLE CHART w/ volume 
+# style = 'yahoo','nightclouds','ibd'
+# type =  'candle', 'hollow_and_filled'
+# mpf.plot(mpfdf, style='yahoo', type='candle', volume=True, panel_ratios=(4,1))
+
+
+
+def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candle', addSignal=False, addAlgo=False, session=False, ha=False, signal='signalxTrade_StackEMA', analysisDF=None, header="") : 
 
     # taplots = [] 
     # taplots += 
     # Lets start with a simple chart 
 
     # mpfdf = df[-500:-450]
+    mpfdf_columns = list(df.columns)
     mpfdf = df[start:end]
 
     apsq = []
@@ -437,19 +436,19 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
             mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color=markercolor)
         ]
     
-    # add sessions if addsession = True 
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  ADD TRADE SESSION if addsession = True 
     # seq_of_points=[('2021-03-22',25),('2021-03-29',25)] # test 
-    seq_of_points, seq_colors, seq_Returns = get_sessions_long(analysisDF, mpfdf) # draw session lines
+    seq_of_points, seq_colors, seq_Returns = get_sessions_long(analysisDF, mpfdf) if analysisDF is not None else (None, None, None) # draw session lines
     # mpf.plot(df,alines=dict(alines=seq_of_points)) # test 
     # print ('Trade Area', seq_of_points)
 
-    d = seq_Returns
-    if not d.ReturnPlaceholder.isnull().values.all() : 
-        mymarkers = d.ReturnMarker.tolist()
-        apsq += [ 
-            # add texts using markers to annotate 
-            mpf.make_addplot( d.ReturnPlaceholder, type='scatter',marker=mymarkers,markersize=200,color='pink')
-        ]
+    if seq_Returns is not None : 
+        if not seq_Returns.ReturnPlaceholder.isnull().values.all() : 
+            mymarkers = seq_Returns.ReturnMarker.tolist()
+            apsq += [ 
+                # add texts using markers to annotate 
+                mpf.make_addplot( seq_Returns.ReturnPlaceholder, type='scatter',marker=mymarkers,markersize=200,color='pink')
+            ]
     # mpfchart["plot_ratios"] += common_plot_ratio # Required to add a new Panel
 
 
@@ -459,24 +458,25 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
     # make same as TOS colors # order is important
     data = []
     alpha = []
+    squeezes = [col for col in mpfdf if col.startswith('SQZ')]
     for i in [-3, -4, -2, -1, 4, 5 ] : # maintain order
-        d = mpfdf[squeezes.columns[i]]
+        d = mpfdf[squeezes[i]]
         # if np.isnan(np.sum(np.asarray(d))) : 
         if d.isnull().values.all() : 
             d = d.fillna(0)
-            print ("All Null/NAN : ", squeezes.columns[i])
+            print ("All Null/NAN : ", squeezes[i])
             alpha += [0.0] # make invisible 
-            print (squeezes.columns[i], 'modified')
+            print (squeezes[i], 'modified')
         else : 
             alpha += [0.3]
 
         # alpha += [0.5]
         data += [d]
         # print (d)
-        # print ("isnull", squeezes.columns[i], d.isnull().values.all())
+        # print ("isnull", squeezes[i], d.isnull().values.all())
 
     # set ylim 
-    ylim = (min(mpfdf[squeezes.columns].min())*1.02, max(mpfdf[squeezes.columns].max()*1.02))
+    ylim = (min(mpfdf[squeezes].min())*1.02, max(mpfdf[squeezes].max()*1.02))
     
     apsq += [
             # Note order is important here    
@@ -506,7 +506,7 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
     if not d.isnull().values.all() : 
         # print (d)
         apsq += [mpf.make_addplot(d, secondary_y=False, scatter=True, markersize=2, marker='o', color="black", panel=1)]
-    # mpf.make_addplot(mpfdf[squeezes.columns[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
+    # mpf.make_addplot(mpfdf[squeezes[3]], scatter=True,markersize=20,marker='o',color="skyblue",  panel=2),
 
     # mpf.make_addplot(mpfdf['squeeze_on'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="black",  panel=1),
     # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),   
@@ -600,11 +600,18 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
     # fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True, ) 
     ## tight_layout=Truex, ylim = ( min(mpfdf['low'] - + yrange * 0.1), max(mpfdf['high']) + yrange * 0.1)
 
-    # Add Algo Panel # if addAlgo=True 
-    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,))
+    # Add Algo Panel # if addAlgo=True and AnalysisDF is not None 
+    # kwargs=dict(title)
+    
+
+    # For Tight layout True 
+    #fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=True, scale_padding=dict(left=.15,right=5))
+
+    # For Tight layout False 
+    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, scale_padding=dict(left=.05,right=1.3))
 
 
-
+    
     # print (axlist)
     ax1 = axlist[1]  # Panel 0 
     # ax1.set_ylim( max(mpfdf['high']) + yrange * 0.1, min(mpfdf['low'] - + yrange * 0.1))
@@ -617,7 +624,7 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
     # signalCols # replace prefix signal_ - clean look
     signalCols_n = [sub.replace('signalx', '') for sub in signalCols]
     signalCols_n = [sub.replace('signal_', '') for sub in signalCols_n]
-    print (len(yticks), len(signalCols))
+    print ("YTICKS, signalcols", len(yticks), len(signalCols))
     # axs = for i in axlist i.ylable="signal"
     ax3.set_yticks(yticks)
     ax3.set_yticklabels(signalCols_n, fontdict={'fontsize': 8})
@@ -629,12 +636,25 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
 
 
 
-    # ax2.set_ylim(min(mpfdf[squeezes.columns].min()), max(mpfdf[squeezes.columns].max()))
+    # ax2.set_ylim(min(mpfdf[squeezes].min()), max(mpfdf[squeezes].max()))
     ax1.minorticks_on()    
     ax1.tick_params(axis='x',which='minor',direction='out',color='b',labelsize=3,labelcolor='g')
     ax1.xaxis.set_minor_locator(MultipleLocator(1))
+
+    # # calculate tick intervals # 25 majors for 100 bars : bars / 4
+    # fdict = {
+    #     '1H': 7, 
+    #     '4H':2, 
+    #     '1D': 3
+    # }
+    totalbars = len(mpfdf)
+    numMajors = 25
+    # locator = -(start-end)/fdict.get(interval)
+    # if locator > 1: 
+    #     ax1.xaxis.set_major_locator(MultipleLocator(round(locator)))
+
     # if (len(mpfdf) <=50) : 
-    #     ax1.xaxis.set_major_locator(MultipleLocator(2))
+    ax1.xaxis.set_major_locator(MultipleLocator(round(totalbars/numMajors)))
     # elif (len(mpfdf) <=100): 
     #     ax1.xaxis.set_major_locator(MultipleLocator(3))
 
@@ -655,18 +675,54 @@ def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=Fal
     # ax1.xaxis.set_minor_locator(AutoMinorLocator())
 
     # mpf.plot(mpfdf, type='candle', figscale=1, style='blueskies')
-    plt.show()
+    # plt.show()
     # print (df[-1:][['open', 'high', 'low', 'close']])
+    print ( "Done")
 
-# plot (df, start=-150, end=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-200, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-50, ctype='ohlc')
-# plot (df, start=-10, ctype='candle', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-220, end=-150, ctype='candle', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-450, end=-325, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-plot (df, start=-75, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-200, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA')
-# plot (df, start=-450, end=-300, ctype='ohlc', ha=False)
+    return fig
 
-print (df[-1:][['open', 'high', 'low', 'close']])
-# yf.Ticker(symbol).get
+def runTest(symbol="SPY", interval="4H", bars=(-700, None)): 
+
+    df = initData(symbol=symbol, interval=interval) # load/download data to df
+
+    addIndicators(df)
+    algo(df)
+
+    analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
+
+    # all Plot calls 
+    s, e = bars 
+
+    # plotAll (df, start=-150, end=-50, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # plotAll (df, start=-200, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # plotAll (df, start=-50, ctype='ohlc', symbol=symbol, interval=interval)
+    # plotAll (df, start=-10, ctype='candle', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # plotAll (df, start=-220, end=-150, ctype='candle', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # plotAll (df, start=-450, end=-325, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # plotAll (df, start=-200, ctype='ohlc', ha=False, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval, header='Live')
+    # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
+
+    print (df[-1:][['open', 'high', 'low', 'close']])
+        # yf.Ticker(symbol).get
+
+
+def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None)): 
+
+    df = initData(symbol=symbol, interval=interval) # load/download data to df
+
+    addIndicators(df)
+    algo(df)
+
+    # analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
+
+    # all Plot calls 
+    s, e = bars 
+
+    
+    fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
+
+    # print (df[-1:][['open', 'high', 'low', 'close']])
+        # yf.Ticker(symbol).get
+    return fig
