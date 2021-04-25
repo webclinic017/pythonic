@@ -118,122 +118,6 @@ def addIndicators(df):
 
     return df  # loaded with indicators 
 
-def algo (df): 
-        
-    #################################  MAIN AlGO and SIGNAL GENERATION  #####################################
-
-    # add psar signal -1 0 +1 
-    df['signal_lsPSAR'] = df['PSARl_0.02_0.2'].apply(lambda x: 1 if x>0 else -1)
-    df['rPSAR'] = df['PSARr_0.02_0.2'].apply(lambda x: -8 if x==True else 0)
-
-    def rPSAR (df): 
-        if df['PSARl_0.02_0.2'] > 0 and df['PSARr_0.02_0.2'] : return 9 
-        elif df['PSARs_0.02_0.2'] > 0  and df['PSARr_0.02_0.2'] :  return -9 
-        else : return 0
-
-    df['signal_rPSAR'] = df[['PSARl_0.02_0.2', 'PSARs_0.02_0.2', 'PSARr_0.02_0.2' ]].apply(rPSAR, axis=1)
-    # df[['signal_rPSAR', 'signal_rPSAR']].tail(50)
-
-    df['signal_sSAR'] = np.where (df['SAR']<df['low'], 1, -1)
-
-
-    # add HA_Color to signal -1 0 +1 
-    df['signal_trHAcolor'] = df['HA_color']
-
-    # define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
-    df['signal_StackEMA'] = np.where(
-        (df.EMA_9 > df.EMA_21) & 
-        (df.EMA_21 > df.EMA_50) & 
-        (df.EMA_50 > df.EMA_100) &
-        (df.EMA_100 > df.EMA_150)      
-        ,1, np.where(
-        (df.EMA_9 < df.EMA_21) & 
-        (df.EMA_21 < df.EMA_50) & 
-        (df.EMA_50 < df.EMA_100) &
-        (df.EMA_100 < df.EMA_150), -1, 0))
-
-    # define stack EMA Softer:base=21 :: +1: positive bullish, 0:undecided, -1:negative bearish
-    df['signal_StackEMA21'] = np.where(
-        # (df.EMA_9 > df.EMA_21) & 
-        (df.EMA_21 > df.EMA_50) & 
-        (df.EMA_50 > df.EMA_100) &
-        (df.EMA_100 > df.EMA_150)      
-        ,1, np.where(
-        # (df.EMA_9 < df.EMA_21) & 
-        (df.EMA_21 < df.EMA_50) & 
-        (df.EMA_50 < df.EMA_100) &
-        (df.EMA_100 < df.EMA_150), -1, 0))
-
-    ## >>>>>>>>>>   generate long signal : 
-    # find 1st change Entry from day1: 0->1 and day2: reconfirmation 1->1 ; Exit 1->0
-
-    df.loc [ ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) , 'signalxTrade_StackEMA'] = 1 
-    df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signalxTrade_StackEMA'] = -1 
-    # df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
-    ## See results: 
-    df[ (df.signalxTrade_StackEMA == 1) | (df.signalxTrade_StackEMA == -1)] [['signalxTrade_StackEMA', 'close']]
-
-    # df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
-
-
-###########################  BACK TEST  ###########################
-
-## >>>>>>>>>>   Run a Back Test and Display results : 
-def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
-    
-    df = dfr.copy() # create copy or else will rename original column name
-    df.rename(columns = { signal_col: 'signal' }, inplace = True)
-
-    sessionpoints = np.where((df.signal == 1) | ( df.signal==-1))
-    # sessionpoints = df.loc[(df.signal == 1) | ( df.signal==-1)]
-    ## check df consistency: df.iloc[sessionpoints][['signal', 'close']]
-
-    in_sessionLong = False; 
-    start_long = None
-    start_long_date = None
-    exit_long = None
-    exit_long_date = None
-
-    analysisDF = pd.DataFrame(columns = ['En', 'Ex', 'EnPrice','ExPrice', 'ReturnPer' ])
-
-    for item in sessionpoints[0] : 
-        close_price = df.iloc[item].close
-        signal = df.iloc[item].signal
-        if (not in_sessionLong) and signal == 1: 
-            in_sessionLong = True
-            start_long = close_price
-            start_long_date = df.index[item]
-
-        
-        elif in_sessionLong and signal == -1 : 
-            exit_long = close_price
-            exit_long_date = df.index[item]
-            per_return = 100*(exit_long - start_long )/start_long
-            delta_days = (exit_long_date - start_long_date)
-
-            analysisDF = analysisDF.append ({
-                'En' : start_long_date,
-                'Ex' : exit_long_date,
-                'EnPrice' : start_long,
-                'ExPrice' : exit_long,
-                'ReturnPer' : per_return,
-                'days' : delta_days
-                # , 'Signal': signal
-            }, ignore_index=True)
-
-            # reset vars 
-            in_sessionLong = False; 
-            start_long = None
-            start_long_date = None
-            exit_long = None
-            exit_long_date = None
-        
-    print(analysisDF)
-    return analysisDF 
-
-
-# analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
-
 
 
 
@@ -349,7 +233,7 @@ def get_sessions_long(analysisDF, df):
 
 
 
-def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candle', addSignal=False, addAlgo=False, session=False, ha=False, signal='signalxTrade_StackEMA', analysisDF=None,figratio=(15,8), figscale=1,panel_ratios=(6,2,4), header="") : 
+def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candle', addSignal=False, addAlgo=False, session=False, ha=False, signal='signalxTrade_StackEMA', analysisDF=None,figratio=(15,8), figscale=1,panel_ratios=(6,2,4), scale_padding=dict(left=.05,right=0.95, top=0.3, bottom=0.6), header="") : 
 
     # taplots = [] 
     # taplots += 
@@ -608,7 +492,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     #fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=True, scale_padding=dict(left=.15,right=5))
 
     # For Tight layout False 
-    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio,title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio, title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, scale_padding=dict(left=.05,right=.7, top=0.3, bottom=0.6))
+    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio,title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio, title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, scale_padding=scale_padding)
 
 
     
@@ -706,8 +590,125 @@ def runTest(symbol="SPY", interval="4H", bars=(-700, None)):
     print (df[-1:][['open', 'high', 'low', 'close']])
         # yf.Ticker(symbol).get
 
+def algo (df): 
+        
+    #################################  MAIN AlGO and SIGNAL GENERATION  #####################################
+
+    # add psar signal -1 0 +1 
+    df['signal_lsPSAR'] = df['PSARl_0.02_0.2'].apply(lambda x: 1 if x>0 else -1)
+    df['rPSAR'] = df['PSARr_0.02_0.2'].apply(lambda x: -8 if x==True else 0)
+
+    def rPSAR (df): 
+        if df['PSARl_0.02_0.2'] > 0 and df['PSARr_0.02_0.2'] : return 9 
+        elif df['PSARs_0.02_0.2'] > 0  and df['PSARr_0.02_0.2'] :  return -9 
+        else : return 0
+
+    df['signal_rPSAR'] = df[['PSARl_0.02_0.2', 'PSARs_0.02_0.2', 'PSARr_0.02_0.2' ]].apply(rPSAR, axis=1)
+    # df[['signal_rPSAR', 'signal_rPSAR']].tail(50)
+
+    df['signal_sSAR'] = np.where (df['SAR']<df['low'], 1, -1)
+
+
+    # add HA_Color to signal -1 0 +1 
+    df['signal_trHAcolor'] = df['HA_color']
+
+    # define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
+    df['signal_StackEMA'] = np.where(
+        (df.EMA_9 > df.EMA_21) & 
+        (df.EMA_21 > df.EMA_50) & 
+        (df.EMA_50 > df.EMA_100) &
+        (df.EMA_100 > df.EMA_150)      
+        ,1, np.where(
+        (df.EMA_9 < df.EMA_21) & 
+        (df.EMA_21 < df.EMA_50) & 
+        (df.EMA_50 < df.EMA_100) &
+        (df.EMA_100 < df.EMA_150), -1, 0))
+
+    # define stack EMA Softer:base=21 :: +1: positive bullish, 0:undecided, -1:negative bearish
+    df['signal_StackEMA21'] = np.where(
+        # (df.EMA_9 > df.EMA_21) & 
+        (df.EMA_21 > df.EMA_50) & 
+        (df.EMA_50 > df.EMA_100) &
+        (df.EMA_100 > df.EMA_150)      
+        ,1, np.where(
+        # (df.EMA_9 < df.EMA_21) & 
+        (df.EMA_21 < df.EMA_50) & 
+        (df.EMA_50 < df.EMA_100) &
+        (df.EMA_100 < df.EMA_150), -1, 0))
+
+    ## >>>>>>>>>>   generate long signal : 
+    # find 1st change Entry from day1: 0->1 and day2: reconfirmation 1->1 ; Exit 1->0
+
+    df.loc [ ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) , 'signalxTrade_StackEMA'] = 1 
+    df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signalxTrade_StackEMA'] = -1 
+    # df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
+    ## See results: 
+    df[ (df['signalxTrade_StackEMA'] == 1) | (df['signalxTrade_StackEMA'] == -1)] [['signalxTrade_StackEMA', 'close']]
+
+    # df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
+
+
+###########################  BACK TEST  ###########################
+
+## >>>>>>>>>>   Run a Back Test and Display results : 
+def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
+    
+    df = dfr.copy() # create copy or else will rename original column name
+    df.rename(columns = { signal_col: 'signal' }, inplace = True)
+
+    sessionpoints = np.where((df.signal == 1) | ( df.signal==-1))
+    # sessionpoints = df.loc[(df.signal == 1) | ( df.signal==-1)]
+    ## check df consistency: df.iloc[sessionpoints][['signal', 'close']]
+
+    in_sessionLong = False; 
+    start_long = None
+    start_long_date = None
+    exit_long = None
+    exit_long_date = None
+
+    analysisDF = pd.DataFrame(columns = ['En', 'Ex', 'EnPrice','ExPrice', 'ReturnPer' ])
+
+    for item in sessionpoints[0] : 
+        close_price = df.iloc[item].close
+        signal = df.iloc[item].signal
+        if (not in_sessionLong) and signal == 1: 
+            in_sessionLong = True
+            start_long = close_price
+            start_long_date = df.index[item]
+
+        
+        elif in_sessionLong and signal == -1 : 
+            exit_long = close_price
+            exit_long_date = df.index[item]
+            per_return = 100*(exit_long - start_long )/start_long
+            delta_days = (exit_long_date - start_long_date)
+
+            analysisDF = analysisDF.append ({
+                'En' : start_long_date,
+                'Ex' : exit_long_date,
+                'EnPrice' : start_long,
+                'ExPrice' : exit_long,
+                'ReturnPer' : per_return,
+                'days' : delta_days
+                # , 'Signal': signal
+            }, ignore_index=True)
+
+            # reset vars 
+            in_sessionLong = False; 
+            start_long = None
+            start_long_date = None
+            exit_long = None
+            exit_long_date = None
+        
+    print(analysisDF)
+    return analysisDF 
+
+
+# analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
+
+
 # figwidth=45
-def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False): 
+def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False): 
 
     df = initData(symbol=symbol, interval=interval) # load/download data to df
 
@@ -720,12 +721,18 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False):
     s, e = bars 
 
     if full :  # full page image # ~200KB 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6)
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6))
         #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
-        
-    else: # miniimage ~ 100kb
+
+    elif mini : # recommend 50 bars max 
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval, figratio=(2,2),panel_ratios=(8,2,6), figscale=0.8, scale_padding=dict(left=.05,right=2.3, top=0.3, bottom=0.8))
+
+
+    else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
         fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
+
+
 
     # print (df[-1:][['open', 'high', 'low', 'close']])
         # yf.Ticker(symbol).get
