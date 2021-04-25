@@ -124,8 +124,9 @@ def addIndicators(df):
 ###################################    PLOT TTM SQUEEZE & EMA21     ###################################
 
 
-def long_signal_entry(signal_series, df):
+def long_signal_entry(signal_series, df, secondary=False):
 
+    factor = 1.0 if not secondary else 1.2
     if signal_series.isnull().values.all() or (1 not in list(signal_series))  : return [] 
 
     signal   = []
@@ -133,14 +134,15 @@ def long_signal_entry(signal_series, df):
     offset = yrange * 0.10  # 2% of range
     for date,value in signal_series.iteritems():
         if value == 1: # buy
-            signal.append(df.loc[date].low - offset ) # Put ^ marker below lows 
+            signal.append(df.loc[date].low - factor* offset ) # Put ^ marker below lows 
         else:
             signal.append(np.nan)
     return signal
 
 
-def long_signal_exit(signal_series, df):
+def long_signal_exit(signal_series, df, secondary=False):
 
+    factor = 1.5 if not secondary else 1.8
     if signal_series.isnull().values.all() or (-1 not in list(signal_series)) : return [] 
 
     signal   = []
@@ -148,7 +150,7 @@ def long_signal_exit(signal_series, df):
     offset = yrange * 0.10  # 2% of range    
     for date,value in signal_series.iteritems():
         if value == -1: # exit
-            signal.append(df.loc[date].high + 1.5 * offset) # Put 'v' marker above highs 
+            signal.append(df.loc[date].high + factor * offset) # Put 'v' marker above highs 
         else:
             signal.append(np.nan)
     return signal
@@ -291,10 +293,30 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     if ( longEntry and longExit) : 
         apsq += [ 
             # add long entry 
-            mpf.make_addplot(longEntry ,type='scatter', color='purple', markersize=40, marker='^'), 
+            mpf.make_addplot(longEntry, type='scatter', color='purple', markersize=40, marker='^'), 
             # add long exit 
-            mpf.make_addplot( longExit ,type='scatter', color='black', markersize=40, marker='x') 
+            mpf.make_addplot( longExit, type='scatter', color='black', markersize=40, marker='x') 
         ]
+
+
+    ## Add anything that starts with SignalxTrade Add the above logic to draw on chart Panel 0 
+
+    signalCols = sorted ([col for col in mpfdf if col.startswith('signalx_')])
+    for col in signalCols : 
+        longEntry = long_signal_entry(mpfdf[col], mpfdf, secondary=True)
+        longExit = long_signal_exit(mpfdf[col], mpfdf, secondary=True)
+
+        # print ('Long Entry  : ', longEntry)
+        # print ('Long Exit   : ', longExit)
+
+        if ( longEntry and longExit) : 
+            apsq += [ 
+                # add long entry 
+                mpf.make_addplot(longEntry, type='scatter', color='violet', markersize=25, marker='$\\bigtriangleup$'), 
+                # add long exit 
+                mpf.make_addplot( longExit, type='scatter', color='gray', markersize=25, marker='x') 
+            ]
+
 
     # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD STOPS  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
     # todo
@@ -320,7 +342,9 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
             mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color=markercolor)
         ]
     
-    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  ADD TRADE SESSION if addsession = True 
+
+
+    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  ADD TRADE SESSION if addsession = True   (Panel 0)  >>>>>>>>>>>>>>>>>>>>>>>>>>
     # seq_of_points=[('2021-03-22',25),('2021-03-29',25)] # test 
     seq_of_points, seq_colors, seq_Returns = get_sessions_long(analysisDF, mpfdf) if analysisDF is not None else (None, None, None) # draw session lines
     # mpf.plot(df,alines=dict(alines=seq_of_points)) # test 
@@ -396,9 +420,9 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),   
     
 
-    # mpf.make_addplot(long_signal_entry(mpfdf[signal], mpfdf.low) ,type='scatter', color='purple', markersize=15, marker='^'),
+    # mpf.make_addplot(long_signal_entry(mpfdf[signal], mpfdf.low), type='scatter', color='purple', markersize=15, marker='^'),
     # # add long exit 
-    # mpf.make_addplot(long_signal_exit(mpfdf[signal], mpfdf.high) ,type='scatter', color='magenta', markersize=15, marker='v'), 
+    # mpf.make_addplot(long_signal_exit(mpfdf[signal], mpfdf.high), type='scatter', color='magenta', markersize=15, marker='v'), 
 
 
 
@@ -434,7 +458,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
                 apsq += [mpf.make_addplot(mydata, scatter=True, markersize=markersize, marker=mymarker, color=mymarkercolor, panel=2, secondary_y=False, ylim=(0,ylimSignal))]
 
 
-            # IF only signal indicator 
+            # IF only signal indicator which starts with 'signal'
             else: 
                 mymarkercolor = d.apply(
                     lambda x: 'limegreen' if x==1 else ('red' if x==-1 
@@ -644,6 +668,11 @@ def algo (df):
     # df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
     ## See results: 
     df[ (df['signalxTrade_StackEMA'] == 1) | (df['signalxTrade_StackEMA'] == -1)] [['signalxTrade_StackEMA', 'close']]
+
+    df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
+    df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1 
+    
+
 
     # df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
 
