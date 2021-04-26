@@ -797,22 +797,13 @@ def algo(df) :
     df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
 
     # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
-    df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 )  * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
+    df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0)
 
+    # black sq opportunity 
+    df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
 
-
-    # black sq opportunity red SQZ off
-    df['signalx_yMiniSQ'] = df.SQZ_OFF * df['miniSQFire'] * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 )  * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
 
     
-    # simple SQZ OFF and SQ momentum + StackEMA 
-    df['signalx_SQMomo'] = df.SQZ_OFF * ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 ) * df['signal_sSAR']  # also test * df['signal_sChandelier'] or df['signal_sSAR'] 
-    # Note: chandelier is good for Exit; SAR good for entry 
-
-    # Try SQ release + green Chandelier with Gray Stack EMA with exit on 8~10 bar SQMomo |  Pull back scenario 
-
-
-
 
 
 
@@ -864,8 +855,8 @@ df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_I
 df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
     lambda x:1 if x else 0) 
 
-# simple SQ momentum + StackEMA 
-df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
+
+
 
 bars=(-200, None)
 # Plot it 
