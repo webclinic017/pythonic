@@ -37,8 +37,8 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
     # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
     
     if interval=="4H": 
-        df = data.getData(symbol, interval="1H", bars=(-4000, None))
-        # df = data.getLiveData(symbol=symbol, interval="1H", period='100d')
+        #df = data.getData(symbol, interval="1H", bars=(-4000, None))
+        df = data.getLiveData(symbol=symbol, interval="1H", period='500d')
         # df = data.getData(symbol, bars=(-900, -325))
 
         # # Enable if 4H reampling is True 
@@ -55,7 +55,11 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
                     'Volume':'sum'}
         df = df.resample('4H').agg(aggregation).dropna()
     else: 
-        df = data.getData(symbol, interval=interval)
+        # df = data.getData(symbol, interval=interval)
+        if interval =="1D" : period = '500d' 
+        elif interval =="1H" : period = '100d' 
+        df = data.getLiveData(symbol=symbol, interval=interval, period=period)
+
 
     return df
 
@@ -747,7 +751,7 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
     # trade_Identifier = 'signalxTrade_StackEMA'
 
     if full :  # full page image # ~200KB 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
         #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
 
     elif mini : # recommend 50 bars max 
@@ -755,7 +759,7 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
 
 
     else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval)
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
 
@@ -788,25 +792,26 @@ def algo(df) :
     # Stack EMA Change 0-> 1, 1-> 0 
     # df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
     # df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
-    
-    
+
+
     # detect squeeze fired 
     df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
 
+
     # detect mini squeeze 
     df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
+
 
     # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
     df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 )  * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
 
 
-
-    # black sq opportunity red SQZ off
+    # black sq opportunity red SQZ off and miniSQ fire ON
     df['signalx_yMiniSQ'] = df.SQZ_OFF * df['miniSQFire'] * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 )  * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
 
-    
-    # simple SQZ OFF and SQ momentum + StackEMA 
-    df['signalx_SQMomo'] = df.SQZ_OFF * ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 ) * df['signal_sSAR']  # also test * df['signal_sChandelier'] or df['signal_sSAR'] 
+
+    # simple All SQZ OFF and SQ momentum + StackEMA 
+    df['signalx_SQMomo'] = df.SQZ_OFF * df.squeeze_off.fillna(0) * ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 ) * df['signal_sSAR']  # also test * df['signal_sChandelier'] or df['signal_sSAR'] 
     # Note: chandelier is good for Exit; SAR good for entry 
 
     # Try SQ release + green Chandelier with Gray Stack EMA with exit on 8~10 bar SQMomo |  Pull back scenario 
