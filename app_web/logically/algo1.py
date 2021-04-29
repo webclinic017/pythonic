@@ -37,8 +37,11 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
     # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
     
     if interval=="4H": 
-        #df = data.getData(symbol, interval="1H", bars=(-4000, None))
-        df = data.getLiveData(symbol=symbol, interval="1H", period='500d')
+        # df = data.getData(symbol=symbol, interval="1H", bars=(-4900, None))
+        # df = data.getData(symbol=symbol, interval="1H", bars=(-1000, None))
+
+        df = data.getLiveData(symbol=symbol, interval="1H", period='300d')
+        # df = df[-4000:]
         # df = data.getData(symbol, bars=(-900, -325))
 
         # # Enable if 4H reampling is True 
@@ -56,6 +59,7 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
         df = df.resample('4H').agg(aggregation).dropna()
     else: 
         # df = data.getData(symbol, interval=interval)
+
         if interval =="1D" : period = '500d' 
         elif interval =="1H" : period = '100d' 
         df = data.getLiveData(symbol=symbol, interval=interval, period=period)
@@ -876,8 +880,9 @@ bars=(-200, None)
 # Plot it 
 s,e = bars 
 fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval)
-fig.show()
+# fig.show()
 
+df[['open', 'close']].tail(20)
 # fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
 # fig.show()
 

@@ -33,7 +33,12 @@ def getData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=None) 
         if interval == None : return None
 
         dfdata = yf.download(tickers=symbol, interval=interval, period="730d")
-        if len(dfdata)>0  : # if successful download     
+        if len(dfdata)>0  : # if successful download               
+            # Timezone/ daylight saving fix 
+            dfdata['Datetime'] = dfdata.index
+            dfdata['Datetime'] = dfdata['Datetime'].dt.tz_localize(None)
+            dfdata.set_index('Datetime', inplace=True)  
+
             pd.to_pickle(dfdata, flink)
             print ("Successful download : ", symbol, interval)
             # print (dfdata.head(10))            
@@ -76,6 +81,10 @@ def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=No
 
     if not period == None: 
         dfdata = yf.download(tickers=symbol, interval=interval, period=period)
+        # Timezone/ daylight saving fix 
+        dfdata['Datetime'] = dfdata.index
+        dfdata['Datetime'] = dfdata['Datetime'].dt.tz_localize(None)
+        dfdata.set_index('Datetime', inplace=True)  
     else: 
         return 'Period Not specified'
     
