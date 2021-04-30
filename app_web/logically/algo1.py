@@ -608,7 +608,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
 
 
     # ax2.set_ylim(min(mpfdf[squeezes].min()), max(mpfdf[squeezes].max()))
-    ax1.minorticks_on()    
+    # ax1.minorticks_on()    
     ax1.tick_params(axis='x',which='minor',direction='out',color='b',labelsize=3,labelcolor='g')
     ax1.xaxis.set_minor_locator(MultipleLocator(1))
 
@@ -834,7 +834,7 @@ def algo(df) :
 
 
 symbol="AAL"
-interval='4H'
+interval='1D'
 df = None 
 
 

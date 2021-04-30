@@ -21,7 +21,7 @@ import datasource as data  # disable this whn API is runing
 
 symbol = None
 
-def initData (symbol = 'SPY', interval="4H", bars=700) : 
+def initData (symbol = 'SPY', interval="4H", bars=700, live=False) : 
     symbol = symbol
     df = None
     # symbol = 'AAL'
@@ -29,7 +29,7 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
     # ed = datetime(2021, 4, 12)
     # # interval = "1d"
     # interval = "60m"
-
+    # , live=True if live : 
     # # df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
     # # df = yf.download(tickers=symbol, start=sd, interval="60m")
     # # df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
@@ -37,8 +37,12 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
     # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
     
     if interval=="4H": 
-        df = data.getData(symbol, interval="1H", bars=(-4000, None))
-        # df = data.getLiveData(symbol=symbol, interval="1H", period='100d')
+        if live : df = data.getLiveData(symbol=symbol, interval="1H", period='300d')        
+        else:  df = data.getData(symbol=symbol, interval="1H", bars=(-4900, None))
+        # df = data.getData(symbol=symbol, interval="1H", bars=(-1000, None))
+
+
+        # df = df[-4000:]
         # df = data.getData(symbol, bars=(-900, -325))
 
         # # Enable if 4H reampling is True 
@@ -54,8 +58,14 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
                     'Close' :'last',
                     'Volume':'sum'}
         df = df.resample('4H').agg(aggregation).dropna()
-    else: 
-        df = data.getData(symbol, interval=interval)
+    
+    
+    else: # for Other timeframes 1H, 1D - no resampling
+        if not live: df = data.getData(symbol, interval=interval)
+        else : 
+            if interval =="1D" : period = '500d' 
+            elif interval =="1H" : period = '100d' 
+            df = data.getLiveData(symbol=symbol, interval=interval, period=period)
 
     return df
 
@@ -640,7 +650,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     # print (df[-1:][['open', 'high', 'low', 'close']])
     print ( "Done")
 
-    return fig
+    return fig, axlist
 
 def runTest(symbol="SPY", interval="4H", bars=(-700, None)): 
 
@@ -729,9 +739,9 @@ def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
 # figwidth=45
 df = None 
 
-def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False): 
+def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False, live=True): 
 
-    df = initData(symbol=symbol, interval=interval) # load/download data to df
+    df = initData(symbol=symbol, interval=interval, live=True) # load/download data to df
 
     addIndicators(df)
 
@@ -747,7 +757,7 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
     # trade_Identifier = 'signalxTrade_StackEMA'
 
     if full :  # full page image # ~200KB 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
         #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
 
     elif mini : # recommend 50 bars max 
@@ -755,7 +765,7 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
 
 
     else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval)
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
 
@@ -788,43 +798,49 @@ def algo(df) :
     # Stack EMA Change 0-> 1, 1-> 0 
     # df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
     # df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
-    
-    
+
+
     # detect squeeze fired 
     df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
+
 
     # detect mini squeeze 
     df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
 
+
     # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
-    df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0)
-
-    # black sq opportunity 
-    df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
+    df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 )  * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
 
 
-    
+    # black sq opportunity red SQZ off and miniSQ fire ON
+    df['signalx_yMiniSQ'] = df.SQZ_OFF * df['miniSQFire'] * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 )  * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
+
+
+    # simple All SQZ OFF and SQ momentum + StackEMA 
+    df['signalx_SQMomo'] = df.SQZ_OFF * df.squeeze_off.fillna(0) * ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA'].apply(lambda x: 1 if x ==1 else 0 ) * df['signal_sSAR']  # also test * df['signal_sChandelier'] or df['signal_sSAR'] 
+    # Note: chandelier is good for Exit; SAR good for entry 
+
+    # Try SQ release + green Chandelier with Gray Stack EMA with exit on 8~10 bar SQMomo |  Pull back scenario 
+
+
+
 
 
 
 ##########################      TEST AND BUILD ALGO     ##########################
 # # Use 'signalx for primary signals - hollow marker in panel 0 
-# # Use 'signalxTrade for final  - filled markers in panel 0 
-# 
+# # Use 'signalxTrade for final  
+#
 
 
-symbol="AAL"
-interval='4H'
+symbol="UAL"
+interval='1D'
 df = None 
-
-
 # >>>>>>>>>>>>>>>
-
-df = initData(symbol="AAL", interval=interval) # load/download data to df
+df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
 addIndicators(df)
-
 # >>>>>>>>>>>>>>>
-# Utility (5)
+# pandas_ta Utility (5)
 
 #     Above: above
 #     Above Value: above_value
@@ -832,10 +848,8 @@ addIndicators(df)
 #     Below Value: below_value
 #     Cross: cross
 
-
 # algo(df)
 
-# 
 # Stack EMA Change 0-> 1, 1-> 0 
 df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
 df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
@@ -843,27 +857,32 @@ df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 
 
 # detect squeeze fired 
 df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
-
 # detect mini squeeze 
 df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
-
 # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
 df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
     lambda x:1 if x else 0)
-
 # black sq opportunity 
 df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
     lambda x:1 if x else 0) 
+# simple SQ momentum + StackEMA 
+df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
 
-
-
-
-bars=(-200, None)
+bars=(-201, None)
 # Plot it 
 s,e = bars 
-fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval)
-fig.show()
 
+fig, axlist = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+# fig.show()
+# df[['open', 'close']].tail(20)
 # fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
 # fig.show()
 
+
+## Text annodate example 
+ax1 = axlist[0]
+style = dict(size=5, color='black')
+xpos = df[s:e].index.get_loc('2021-03-19 10:30', method='nearest') # find row # with the nearest index to x
+# df[s:e].index.get_loc('2021-03-19 10:30') # find nearest value of a slice 
+axlist[0].text(xpos, 40, "| 03/19", **style)
+fig.show()
