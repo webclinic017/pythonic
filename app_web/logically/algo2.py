@@ -809,8 +809,8 @@ def algo(df) :
 
 ##########################      TEST AND BUILD ALGO     ##########################
 # # Use 'signalx for primary signals - hollow marker in panel 0 
-# # Use 'signalxTrade for final  
-#
+# # Use 'signalxTrade for final  - filled markers in panel 0 
+# 
 
 
 symbol="AAL"

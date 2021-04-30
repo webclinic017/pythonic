@@ -21,7 +21,7 @@ import datasource as data  # disable this whn API is runing
 
 symbol = None
 
-def initData (symbol = 'SPY', interval="4H", bars=700) : 
+def initData (symbol = 'SPY', interval="4H", bars=700, live=False) : 
     symbol = symbol
     df = None
     # symbol = 'AAL'
@@ -29,7 +29,7 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
     # ed = datetime(2021, 4, 12)
     # # interval = "1d"
     # interval = "60m"
-
+    # , live=True if live : 
     # # df = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
     # # df = yf.download(tickers=symbol, start=sd, interval="60m")
     # # df = yf.download(tickers=symbol, start=sd, end=ed, interval="1d")
@@ -37,10 +37,11 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
     # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
     
     if interval=="4H": 
-        # df = data.getData(symbol=symbol, interval="1H", bars=(-4900, None))
+        if live : df = data.getLiveData(symbol=symbol, interval="1H", period='300d')        
+        else:  df = data.getData(symbol=symbol, interval="1H", bars=(-4900, None))
         # df = data.getData(symbol=symbol, interval="1H", bars=(-1000, None))
 
-        df = data.getLiveData(symbol=symbol, interval="1H", period='300d')
+
         # df = df[-4000:]
         # df = data.getData(symbol, bars=(-900, -325))
 
@@ -57,13 +58,14 @@ def initData (symbol = 'SPY', interval="4H", bars=700) :
                     'Close' :'last',
                     'Volume':'sum'}
         df = df.resample('4H').agg(aggregation).dropna()
-    else: 
-        # df = data.getData(symbol, interval=interval)
-
-        if interval =="1D" : period = '500d' 
-        elif interval =="1H" : period = '100d' 
-        df = data.getLiveData(symbol=symbol, interval=interval, period=period)
-
+    
+    
+    else: # for Other timeframes 1H, 1D - no resampling
+        if not live: df = data.getData(symbol, interval=interval)
+        else : 
+            if interval =="1D" : period = '500d' 
+            elif interval =="1H" : period = '100d' 
+            df = data.getLiveData(symbol=symbol, interval=interval, period=period)
 
     return df
 
@@ -737,9 +739,9 @@ def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
 # figwidth=45
 df = None 
 
-def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False): 
+def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False, live=True): 
 
-    df = initData(symbol=symbol, interval=interval) # load/download data to df
+    df = initData(symbol=symbol, interval=interval, live=True) # load/download data to df
 
     addIndicators(df)
 

@@ -54,7 +54,7 @@ def create_Data_1D_twoyrs (symbols) :
     for symbol in symbols : 
 
         flink = TICKDATA + symbol+'.1D.pickle'
-        if True : 
+        if not os.path.exists(flink) : 
             dfdata = yf.download(tickers=symbol, interval="1D", period="5000d")
 
             if len(dfdata)>0  : # if successful download   
@@ -282,5 +282,5 @@ def initDBCoreWatchList () :
  
 # initDBCoreWatchList()
 
-create_Data_from_Watchlist('WatchListDBFull') # test
+# create_Data_from_Watchlist('WatchListDBFull') # test
 
