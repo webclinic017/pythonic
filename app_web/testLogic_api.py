@@ -82,6 +82,14 @@ def plotfig():
     # Embed the result in the html output.
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return f"<img src='data:image/png;base64,{data}'/>"
+    
+    # # Canvas approach 
+    # canvas = FigureCanvas(fig)
+    # output = io.BytesIO()
+    # canvas.print_png(output)
+    # response = make_response(output.getvalue())
+    # response.mimetype = 'image/png'
+    # return response
 
 
 #########################  PLOTTING API TESTS #########################
