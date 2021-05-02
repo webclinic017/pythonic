@@ -370,9 +370,15 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
         # print ('Long Exit   : ', longExit)
 
         if ( longEntry ) : 
+            if col.startswith('signalx_L1') : 
+                colorme = 'turquoise'    # 'greenyellow' # 'aquamarine'
+                markersz = 10;  
+            else : 
+                colorme = 'violet', 
+                markersz = 25; 
             apsq += [ 
                 # add long entry 
-                mpf.make_addplot(longEntry, type='scatter', color='violet', markersize=25, marker='$\\bigtriangleup$')
+                mpf.make_addplot(longEntry, type='scatter', color=colorme, markersize=markersz, marker='$\\bigtriangleup$')
             ]
         if (longExit) : 
              apsq += [ 
@@ -832,11 +838,16 @@ def algo(df) :
 # # Use 'signalxTrade for final  
 #
 
-symbol="KLAC"
-interval='1H'
+symbol="WGO"  # TRY GE, 
+interval='4H'
 miniinterval ='1H'
 microinterval = '5m'
 df = None 
+bars = None 
+# bars=(-600, -300)
+# bars=(-500, -350)
+# bars=(-350, None)
+bars=(-202, None )
 # >>>>>>>>>>>>>>>
 df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
 
@@ -858,53 +869,70 @@ addIndicators(df)
 # df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
 
 
-# ##########>>>>>>>>>>>       1 LOWER TIME FRAME CALCULATIONS and Resampling          <<<<<<<<<<<##########
-# df2 = initData(symbol=symbol, interval=miniinterval, live=False) # load/download data to df
-# addIndicators(df2)
-# # Stack EMA Change 0-> 1, 1-> 0 
-# df2.loc [ (df2['signal_StackEMA'] == 1) & (df2['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
-# df2.loc [ (df2['signal_StackEMA'] == 0) & (df2['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
-# # df['signalx_1HStackEMA'] = df2['signalx_StackEMA'] # this will not work - different index. use pd.concat axis=1
-# df2['miniSQFire'] = ta.cross_value(df2.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
-# df2['signalx_yMiniSQ'] = df2['miniSQFire'] * df2['signal_StackEMA'] * (df2['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
-# df2['redSQFire'] = ta.cross_value(df2.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
-# df2['signalxTrade_SQTest'] = df2['redSQFire'] * df2['signal_StackEMA'] * (df2['SQZ_INC']>0).apply(lambda x:1 if x else 0)
-# aggregation = {
-#             'signalx_StackEMA'  :'max',
-#             'signalx_yMiniSQ'  :'max',
-#             'signalxTrade_SQTest' : 'max',
-#             # 'Low'   :'min',
-#             # 'Close' :'last',
-#             # 'Volume':'sum'
-#             }
-# dfr = df2.resample(interval).agg(aggregation)  # keep without  .dropna() # dropna caused problems (keep issue open for now)
-# # df['signalx_L1StackEMA'] = dfr['signalx_StackEMA']  # or do manually # stackEMA only signal (not confirmation)
-# df['signalx_L1MiniSQ'] = dfr['signalx_yMiniSQ'] # or do manually 
-# df['signalxL1Trade_SQTest'] = dfr['signalxTrade_SQTest'] # or do manually 
+##########>>>>>>>>>>>       1 LOWER TIME FRAME CALCULATIONS and Resampling          <<<<<<<<<<<##########
+df2 = initData(symbol=symbol, interval=miniinterval, live=False) # load/download data to df
+addIndicators(df2)
+# Stack EMA Change 0-> 1, 1-> 0 
+df2.loc [ (df2['signal_StackEMA'] == 1) & (df2['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
+df2.loc [ (df2['signal_StackEMA'] == 0) & (df2['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
+# df['signalx_1HStackEMA'] = df2['signalx_StackEMA'] # this will not work - different index. use pd.concat axis=1
+df2['miniSQFire'] = ta.cross_value(df2.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
+df2['confirm_SQZ_INC'] = (df2['SQZ_INC']).apply(lambda x: 0 if np.isnan(x) else 1)
+# df2['confirm_SQZ_INC'] = df2['confirm_SQZ_INC'] * df2['confirm_SQZ_INC'].shift(1)  # confim if atleast 2 consecutive SQZ_INC values (green rising) 
+df2['confirm_SQZ_INC'] = df2['confirm_SQZ_INC'] * df2['confirm_SQZ_INC'].shift(1) * df2['confirm_SQZ_INC'].shift(2) # confim if atleast 3 consecutive SQZ_INC values (green rising) 
+df2['confirm_StackEMA'] = df2['signal_StackEMA'] * df2['signal_StackEMA'].shift(1) * df2['signal_StackEMA'].shift(2) # confim if atleast 3 consecutive SQZ_INC values (green rising) 
+df2['signalx_yMiniSQ'] = df2['miniSQFire'] * df2['SQZ_OFF'] * df2['confirm_StackEMA'] * df2['confirm_SQZ_INC'] * (df2['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
+df2['redSQFire'] = ta.cross_value(df2.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
+df2['signalxTrade_SQTest'] = df2['redSQFire'] * df2['squeeze_off'] * df2['signal_StackEMA'] * df2['confirm_SQZ_INC'] * (df2['SQZ_INC']>0).apply(lambda x:1 if x else 0)
+aggregation = {
+            'signalx_StackEMA'  :'max',
+            'signalx_yMiniSQ'  :'max',
+            'signalxTrade_SQTest' : 'max',
+            # 'Low'   :'min',
+            # 'Close' :'last',
+            # 'Volume':'sum'
+            }
+dfr = df2.resample(interval).agg(aggregation)  # keep without  .dropna() # dropna caused problems (keep issue open for now)
+# df['signalx_L1StackEMA'] = dfr['signalx_StackEMA']  # or do manually # stackEMA only signal (not confirmation)
+df['signalx_L1yMiniSQ'] = dfr['signalx_yMiniSQ'] # or do manually 
+df['signalx_L1xTradeSQTest'] = dfr['signalxTrade_SQTest'] # or do manually 
 
-# # dfr.columns = ['signalx_LStackEMA', 'signalx_yLMiniSQ'] # rename columns and then concat to main DF (higher timeframe)
-# # df = pd.concat([df,dfr], axis=1)
-# # df2[df2['signalx_yMiniSQ'] == 1]
-# # dfr[dfr['signalx_yLMiniSQ'] == 1 ]
+# dfr.columns = ['signalx_LStackEMA', 'signalx_yLMiniSQ'] # rename columns and then concat to main DF (higher timeframe)
+# df = pd.concat([df,dfr], axis=1)
+# df2[df2['signalx_yMiniSQ'] == 1]
+# dfr[dfr['signalx_yLMiniSQ'] == 1 ]
 
+
+# >>>>>>>>>>             Key learning b/w 4H and 1H  timeframe mix      (VERY IMPORTANT !!! )               <<<<<<<<
+# after each blue arrow in 1H if SQ momentum in 4H (higher TF) > 0  = THERE WILL BE A CONFIRMED BREAKOUT
+# if blue occurred in a SQ Squeeze in Higher TF. End of the SQ is entry and it will spike IFF Momntum did not go negaive in the Squeeze period
+# Trend breaks when momentum becomes -ve 
+# remember : blue should only be used in pairs with another blue or end of a squeeze with positive momo.
+## TODO: need blue to blue tracking for entry : 1st signal is yellow if in SQZ - track momo till get SQZ over and +ve momo; break on -ve momo
+## 
 
 ########## END
 
 
 # detect squeeze fired 
-df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
+df['signal_yRedSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
 # detect mini squeeze fired 
 df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
 # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
-df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
-    lambda x:1 if x else 0)
+df['confirm_SQZ_INC'] = (df['SQZ_INC']).apply(lambda x: 0 if np.isnan(x) else 1) # confirm atleast 2 positive mom tick 
+df['confirm_SQZ_INC'] = df['confirm_SQZ_INC'] * df['confirm_SQZ_INC'].shift(1) * df['confirm_SQZ_INC'].shift(2) # confim if atleast 3 consecutive SQZ_INC values (green rising) 
+df['signalxTrade_SQTest'] = df['signal_yRedSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0)
 # black sq opportunity 
-df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
-    lambda x:1 if x else 0) 
+df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * df['confirm_SQZ_INC'] # * (df['SQZ_INC']>0).apply(lambda x:1 if x else 0)
 # simple SQ momentum + StackEMA 
 df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
 
-bars=(-1500, None)
+
+## TODO : delayed squeeze fire and positive momentum 
+
+
+
+if bars == None : bars=(-600, None)
 # Plot it 
 s,e = bars 
 
