@@ -832,13 +832,16 @@ def algo(df) :
 # # Use 'signalxTrade for final  
 #
 
-
-symbol="UAL"
-interval='1D'
+symbol="KLAC"
+interval='1H'
+miniinterval ='1H'
+microinterval = '5m'
 df = None 
 # >>>>>>>>>>>>>>>
 df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
+
 addIndicators(df)
+
 # >>>>>>>>>>>>>>>
 # pandas_ta Utility (5)
 
@@ -850,14 +853,47 @@ addIndicators(df)
 
 # algo(df)
 
-# Stack EMA Change 0-> 1, 1-> 0 
-df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
-df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
+# # Stack EMA Change 0-> 1, 1-> 0 
+# df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
+# df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
+
+
+# ##########>>>>>>>>>>>       1 LOWER TIME FRAME CALCULATIONS and Resampling          <<<<<<<<<<<##########
+# df2 = initData(symbol=symbol, interval=miniinterval, live=False) # load/download data to df
+# addIndicators(df2)
+# # Stack EMA Change 0-> 1, 1-> 0 
+# df2.loc [ (df2['signal_StackEMA'] == 1) & (df2['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
+# df2.loc [ (df2['signal_StackEMA'] == 0) & (df2['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
+# # df['signalx_1HStackEMA'] = df2['signalx_StackEMA'] # this will not work - different index. use pd.concat axis=1
+# df2['miniSQFire'] = ta.cross_value(df2.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
+# df2['signalx_yMiniSQ'] = df2['miniSQFire'] * df2['signal_StackEMA'] * (df2['SQZ_INC']>0).apply(lambda x:1 if x else 0) 
+# df2['redSQFire'] = ta.cross_value(df2.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
+# df2['signalxTrade_SQTest'] = df2['redSQFire'] * df2['signal_StackEMA'] * (df2['SQZ_INC']>0).apply(lambda x:1 if x else 0)
+# aggregation = {
+#             'signalx_StackEMA'  :'max',
+#             'signalx_yMiniSQ'  :'max',
+#             'signalxTrade_SQTest' : 'max',
+#             # 'Low'   :'min',
+#             # 'Close' :'last',
+#             # 'Volume':'sum'
+#             }
+# dfr = df2.resample(interval).agg(aggregation)  # keep without  .dropna() # dropna caused problems (keep issue open for now)
+# # df['signalx_L1StackEMA'] = dfr['signalx_StackEMA']  # or do manually # stackEMA only signal (not confirmation)
+# df['signalx_L1MiniSQ'] = dfr['signalx_yMiniSQ'] # or do manually 
+# df['signalxL1Trade_SQTest'] = dfr['signalxTrade_SQTest'] # or do manually 
+
+# # dfr.columns = ['signalx_LStackEMA', 'signalx_yLMiniSQ'] # rename columns and then concat to main DF (higher timeframe)
+# # df = pd.concat([df,dfr], axis=1)
+# # df2[df2['signalx_yMiniSQ'] == 1]
+# # dfr[dfr['signalx_yLMiniSQ'] == 1 ]
+
+
+########## END
 
 
 # detect squeeze fired 
 df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
-# detect mini squeeze 
+# detect mini squeeze fired 
 df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
 # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
 df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
@@ -868,7 +904,7 @@ df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC'
 # simple SQ momentum + StackEMA 
 df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
 
-bars=(-201, None)
+bars=(-1500, None)
 # Plot it 
 s,e = bars 
 
@@ -879,10 +915,10 @@ fig, axlist = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='sign
 # fig.show()
 
 
-## Text annodate example 
-ax1 = axlist[0]
-style = dict(size=5, color='black')
-xpos = df[s:e].index.get_loc('2021-03-19 10:30', method='nearest') # find row # with the nearest index to x
-# df[s:e].index.get_loc('2021-03-19 10:30') # find nearest value of a slice 
-axlist[0].text(xpos, 40, "| 03/19", **style)
-fig.show()
+# ##->>>>>>>>>>>>>>>>>      Text annotate example 
+# ax1 = axlist[0]
+# style = dict(size=5, color='black')
+# xpos = df[s:e].index.get_loc('2021-03-19 10:30', method='nearest') # find row # with the nearest index to x
+# # df[s:e].index.get_loc('2021-03-19 10:30') # find nearest value of a slice 
+# axlist[0].text(xpos, 40, "| 03/19", **style)
+# fig.show()
