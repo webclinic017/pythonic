@@ -579,7 +579,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     #fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=True, scale_padding=dict(left=.15,right=5))
 
     # For Tight layout False 
-    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio,title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio, title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, scale_padding=scale_padding)
+    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio,title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d-%y',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio, title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d-%y',xrotation=90, returnfig=True, tight_layout=False, scale_padding=scale_padding)
 
 
     
@@ -741,7 +741,7 @@ df = None
 
 def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False, live=True): 
 
-    df = initData(symbol=symbol, interval=interval, live=True) # load/download data to df
+    df = initData(symbol=symbol, interval=interval, live=live) # load/download data to df
 
     addIndicators(df)
 

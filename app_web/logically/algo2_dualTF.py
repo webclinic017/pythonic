@@ -585,7 +585,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     #fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=(6,2,4), datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=True, scale_padding=dict(left=.15,right=5))
 
     # For Tight layout False 
-    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio,title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio, title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d',xrotation=90, returnfig=True, tight_layout=False, scale_padding=scale_padding)
+    fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio,title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d-%Y',xrotation=90, returnfig=True, tight_layout=False, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,)) if seq_of_points is not None else mpf.plot(final_df, type=ctype, addplot=apsq, figscale=figscale, figratio=figratio, title= symbol+' '+ interval + header, style='yahoo', volume=False, panel_ratios=panel_ratios, datetime_format=' %b-%d-%y',xrotation=90, returnfig=True, tight_layout=False, scale_padding=scale_padding)
 
 
     
@@ -838,13 +838,13 @@ def algo(df) :
 # # Use 'signalxTrade for final  
 #
 
-symbol="WGO"  # TRY GE, 
+symbol="HBM"  # TRY GE, SAIA 
 interval='4H'
 miniinterval ='1H'
 microinterval = '5m'
 df = None 
 bars = None 
-# bars=(-600, -300)
+# bars=(350, 700)
 # bars=(-500, -350)
 # bars=(-350, None)
 bars=(-202, None )
@@ -904,12 +904,19 @@ df['signalx_L1xTradeSQTest'] = dfr['signalxTrade_SQTest'] # or do manually
 
 
 # >>>>>>>>>>             Key learning b/w 4H and 1H  timeframe mix      (VERY IMPORTANT !!! )               <<<<<<<<
+### 4H + 1H : 
 # after each blue arrow in 1H if SQ momentum in 4H (higher TF) > 0  = THERE WILL BE A CONFIRMED BREAKOUT
 # if blue occurred in a SQ Squeeze in Higher TF. End of the SQ is entry and it will spike IFF Momntum did not go negaive in the Squeeze period
 # Trend breaks when momentum becomes -ve 
 # remember : blue should only be used in pairs with another blue or end of a squeeze with positive momo.
 ## TODO: need blue to blue tracking for entry : 1st signal is yellow if in SQZ - track momo till get SQZ over and +ve momo; break on -ve momo
 ## 
+
+
+### 1D: 
+# on daily timeframe: RED SQ release, price > 21 and positive momo entry ||  EXIT on 8 bar of Blue => will work 
+# the above will not work well/ will be too short for 4H timeframe 
+
 
 ########## END
 
