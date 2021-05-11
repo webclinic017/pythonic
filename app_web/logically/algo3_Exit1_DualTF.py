@@ -98,6 +98,7 @@ def addIndicators(df):
     ema150 = df.ta.ema(length=150, append=True)
     keltner = df.ta.kc(append=True)
     keltner = df.ta.kc(scalar=3, append=True)
+    keltner = df.ta.kc(scalar=3.5, append=True)
     keltner = df.ta.kc(scalar=1.5, append=True)
 
     df['signal_SQ2gauss']= ft.TA.SQZMI(df).apply(lambda x: -1 if x else 0)
@@ -238,6 +239,29 @@ def get_reversals(signal_series, df):
     return signal, markercolor
 
 
+def get_top_market(signal_series, df, factor=1.5):
+
+    if signal_series.isnull().values.all() : return [], [] 
+
+    signal   = []
+    markercolor = []
+    yrange = max(df['high']) - min(df['low'])
+    offset = yrange * 0.10  # 2% of range
+    for date,value in signal_series.iteritems():
+        if value == -1: # reversal bear
+            signal.append(df.loc[date].high + factor * offset ) # Put o marker above highs 2x 
+            markercolor.append('red')
+        
+        elif value == 1: # reversal bull
+            signal.append(df.loc[date].high + factor * offset ) # Put o marker above highs 1x
+            markercolor.append('green')
+        else:
+            signal.append(np.nan)
+            markercolor.append('None')
+    return signal, markercolor
+
+
+
 def get_sessions_long(analysisDF, df):
     df = df.copy()
     sessions   = []
@@ -333,8 +357,11 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
             mpf.make_addplot(mpfdf['KCLe_20_3.0'], type = "line", color='green', width=0.5),  # uses panel 0 by default
             mpf.make_addplot(mpfdf['KCUe_20_3.0'], type = "line", color='green', width=0.5),  # uses panel 0 by default
 
-            mpf.make_addplot(mpfdf['KCLe_20_1.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
-            mpf.make_addplot(mpfdf['KCUe_20_1.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
+            # mpf.make_addplot(mpfdf['KCLe_20_1.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
+            # mpf.make_addplot(mpfdf['KCUe_20_1.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
+
+            
+            mpf.make_addplot(mpfdf['KCUe_20_3.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
 
     ]
     
@@ -384,9 +411,10 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     ## Add anything that starts with SignalxTrade Add the above logic to draw on chart Panel 0 
 
     signalCols = sorted ([col for col in mpfdf if col.startswith('signalx_')])
-    for col in signalCols : 
-        longEntry = long_signal_entry(mpfdf[col], mpfdf, secondary=True)
-        longExit = long_signal_exit(mpfdf[col], mpfdf, secondary=True)
+    for col in signalCols :
+
+        longEntry = long_signal_entry   (mpfdf[col], mpfdf, secondary=True)
+        longExit = long_signal_exit     (mpfdf[col], mpfdf, secondary=True)
 
         # print ('Long Entry  : ', longEntry)
         # print ('Long Exit   : ', longExit)
@@ -404,7 +432,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
             ]
         
         if (longExit) : 
-             apsq += [ 
+            apsq += [ 
                 # add long exit 
                 mpf.make_addplot( longExit, type='scatter', color='gray', markersize=25, marker='x') 
             ]
@@ -415,25 +443,62 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
 
 
     # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD SR levels  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
-    #  todo 
+    # todo 
 
 
     # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD TRADE SESSIONS  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
+    # todo
 
-    # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD Reversal indicator  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
-    d, markercolor = get_reversals(mpfdf['signal_rPSAR'], mpfdf)
-    # print (len(d), len(mpfdf['signal_rPSAR']), len(mpfdf['signal_rPSAR']))
-    # print (d) 
-    # print (markercolor)   
-    # print (mpfdf['signal_rPSAR'].tolist())
-    if d : # check has values
-        # mymarkers = d.ReturnMarker.tolist()
-        apsq += [ 
-            # add texts using markers to annotate 
-            # mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color='black')
-            mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color=markercolor)
-        ]
+
+
+    # # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      ADD Reversal indicator  (Panel 0)       >>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ## PSAR dots 
+    # d, markercolor = get_reversals(mpfdf['signal_rPSAR'], mpfdf)
+    # # print (len(d), len(mpfdf['signal_rPSAR']), len(mpfdf['signal_rPSAR']))
+    # # print (d) 
+    # # print (markercolor)   
+    # # print (mpfdf['signal_rPSAR'].tolist())
+    # if d : # check has values
+    #     # mymarkers = d.ReturnMarker.tolist()
+    #     apsq += [ 
+    #         # add texts using markers to annotate 
+    #         # mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color='black')
+    #         mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color=markercolor)
+    #     ]
     
+
+    #### >>>>>>>>>>>>>>>>>  EXIT Signals 
+    
+    if 'signal_ATRExit' in mpfdf.columns : 
+        d, markercolor = get_top_market (mpfdf['signal_ATRExit'], mpfdf)
+        # print (len(d), len(mpfdf['signal_rPSAR']), len(mpfdf['signal_rPSAR']))
+        # print (d) 
+        # print (markercolor)   
+        # print (mpfdf['signal_rPSAR'].tolist())
+        if d : # check has values
+            # mymarkers = d.ReturnMarker.tolist()
+            apsq += [ 
+                # add texts using markers to annotate 
+                # mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color='black')
+                mpf.make_addplot( d, type='scatter',marker='x',markersize=15,color=markercolor)
+            ]
+
+    
+    if 'signal_TDdiffExit' in mpfdf.columns : 
+        d, markercolor = get_top_market (mpfdf['signal_TDdiffExit'], mpfdf, factor=2.0)
+        # print (len(d), len(mpfdf['signal_rPSAR']), len(mpfdf['signal_rPSAR']))
+        # print (d) 
+        # print (markercolor)   
+        # print (mpfdf['signal_rPSAR'].tolist())
+        if d : # check has values
+            # mymarkers = d.ReturnMarker.tolist()
+            apsq += [ 
+                # add texts using markers to annotate 
+                # mpf.make_addplot( d, type='scatter',marker='o',markersize=5,color='black')
+                mpf.make_addplot( d, type='scatter',marker='v',markersize=15,color=markercolor) 
+            ]
+
+
 
 
     # # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  ADD TRADE SESSION if addsession = True   (Panel 0)  >>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -556,8 +621,8 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
                     lambda x: 'limegreen' if x==1 else ('red' if x==-1 
                     else 'yellow' if (x==-2 or x==2) 
                     else ( 'black' if x ==-8 
-                    else ( 'green' if x== 9 
-                    else ('red' if x == -9 
+                    else ( 'green' if x== 9     # case of stops and reversals 
+                    else ('red' if x == -9      # case of stops and reversals 
                     else 'lightgray'))))).tolist()
                 mydata = d.apply( lambda x: counter )
                 apsq += [mpf.make_addplot(mydata, scatter=True, markersize=markersize, marker='o', color=mymarkercolor, panel=2, secondary_y=False, ylim=(0,ylimSignal))]
@@ -786,11 +851,11 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
     # trade_Identifier = 'signalxTrade_StackEMA'
 
     if full :  # full page image # ~200KB 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(9,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
         #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
 
     elif mini : # recommend 50 bars max 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(2,2),panel_ratios=(8,2,6), figscale=0.8, scale_padding=dict(left=.05,right=2.3, top=0.3, bottom=0.8))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(2,2),panel_ratios=(9,2,6), figscale=0.8, scale_padding=dict(left=.05,right=2.3, top=0.3, bottom=0.8))
 
 
     else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
@@ -873,24 +938,30 @@ def searchDF (df, colmatch=None, contains=None) :
 # # Use 'signalxTrade for final  
 #
 
-symbol="QQQ"  # TRY GE, SAIA, QQQ, WGO, MSFT
+symbol="AMD"  # TRY GE, SAIA, QQQ, WGO, MSFT
 interval='4H'
 # interval='1D'
 miniinterval ='1H'
 microinterval = '5m'
 df = None 
-bars = None 
+bars = None
+hatrue = False 
 # bars=(350, 700)
 # bars=(-420, -300)
-# bars=(-420, -370)
+bars=(-420, -350)
 # bars=(-380, -310)
 # bars=(-200, -150)
 # bars=(-350, None)
 # bars=(-600, -500 )
-bars=(-1100, -1000 )
-# bars=(-500, -400 )
-# bars=(-250, -120 )
-# bars=(-100, -1 )
+# bars=(-600, None )
+# bars=(-700, -600 )
+# bars=(-700, -650 )
+# bars=(-1080, -1000 )
+# bars=(-450, -380 )
+# bars=(-230, -150 )
+# bars=(-100, -50 )
+# bars=(-200, None )
+# bars=(-100, -75 )
 # >>>>>>>>>>>>>>>
 df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
 
@@ -915,9 +986,14 @@ addIndicators(df)
 ##########>>>>>>>>>>>       1 LOWER TIME FRAME CALCULATIONS and Resampling          <<<<<<<<<<<##########
 df2 = initData(symbol=symbol, interval=miniinterval, live=False) # load/download data to df
 addIndicators(df2)
+
+# ATR 2-3 exit 
+# df2['signal_ATRExit'] = (ta.above(df2.close, df2.KCUe_20_2) * ta.above(df2.open, df2.KCUe_20_2)).apply(lambda x: -1 if x else 0)
+
 # Stack EMA Change 0-> 1, 1-> 0 
 df2.loc [ (df2['signal_StackEMA'] == 1) & (df2['signal_StackEMA'].shift(1) == 0) , 'signal_x_StackEMA'] = 1 
 df2.loc [ (df2['signal_StackEMA'] == 0) & (df2['signal_StackEMA'].shift(1) == 1) , 'signal_x_StackEMA'] = -1    
+
 # df['signalx_1HStackEMA'] = df2['signal_x_StackEMA'] # this will not work - different index. use pd.concat axis=1
 df2['miniSQFire'] = ta.cross_value(df2.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
 df2['confirm_SQZ_INC'] = (df2['SQZ_INC']).apply(lambda x: 0 if np.isnan(x) else 1)
@@ -984,6 +1060,16 @@ df['signal_SQ0_T0'] = df['SQZ_OFF'].apply(lambda x: -1 if x ==0 else x)
 # simple SQ momentum + StackEMA 
 df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
 
+# simple ATR Exit 
+df['signal_ATRExit'] = (ta.above(df.close, df.KCUe_20_2) * ta.above(df.open, df.KCUe_20_2)).apply(lambda x: -1 if x else 0)
+
+# td differential Exit 
+dfr = df.ta.td_seq()
+df['TD_SEQ_UP'] = np.array(dfr['TD_SEQ_UP'])
+df['TD_SEQ_DN'] = np.array(dfr['TD_SEQ_DN'])
+
+df['signal_TDdiffExit'] = df['TD_SEQ_UP'].apply(lambda x : -1 if x==9 else 0 )
+
 
 ## TODO : delayed squeeze fire and positive momentum 
 
@@ -993,11 +1079,11 @@ if bars == None : bars=(-600, None)
 s,e = bars 
 
 # plot consolidated current TF 
-fig, axlist = plotAll (df, start= s, end= e, ctype='ohlc', ha=False, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+fig, axlist = plotAll (df, start= s, end= e, ctype='ohlc', ha=hatrue, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
 
-# plot lower TF 
-s1, e1 = df[s:e].index[0], df[s:e].index[-1]
-fig, axlist = plotAll (df2, start= s1, end= e1, ctype='ohlc', ha=False, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
+# # plot lower TF 
+# s1, e1 = df[s:e].index[0], df[s:e].index[-1]
+# fig, axlist = plotAll (df2, start= s1, end= e1, ctype='ohlc', ha=hatrue, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
 
 # fig.show()
 # df[['open', 'close']].tail(20)
