@@ -97,8 +97,10 @@ def addIndicators(df):
     ema100 = df.ta.ema(length=100, append=True)
     ema150 = df.ta.ema(length=150, append=True)
     keltner = df.ta.kc(append=True)
-    keltner = df.ta.kc(scalar=3, append=True)
+    keltner = df.ta.kc(scalar=3, append=True) # 
     keltner = df.ta.kc(scalar=3.5, append=True)
+    keltner = df.ta.kc(scalar=4, append=True)
+    keltner = df.ta.kc(scalar=5, append=True)
     keltner = df.ta.kc(scalar=1.5, append=True)
 
     df['signal_SQ2gauss']= ft.TA.SQZMI(df).apply(lambda x: -1 if x else 0)
@@ -352,16 +354,19 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
             
             # Show KELTNER Line ATR = 1.5, 2, 3 
 
-            mpf.make_addplot(mpfdf['KCLe_20_2'], type = "line", color='fuchsia', width=0.5),  # uses panel 0 by default
-            mpf.make_addplot(mpfdf['KCUe_20_2'], type = "line", color='fuchsia', width=0.5),  # uses panel 0 by default
-            mpf.make_addplot(mpfdf['KCLe_20_3.0'], type = "line", color='green', width=0.5),  # uses panel 0 by default
-            mpf.make_addplot(mpfdf['KCUe_20_3.0'], type = "line", color='green', width=0.5),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCLe_20_2'], type = "line", color='fuchsia', width=0.2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCUe_20_2'], type = "line", color='fuchsia', width=0.2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCLe_20_3.0'], type = "line", color='green', width=0.2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCUe_20_3.0'], type = "line", color='green', width=0.2),  # uses panel 0 by default
 
             # mpf.make_addplot(mpfdf['KCLe_20_1.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
             # mpf.make_addplot(mpfdf['KCUe_20_1.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
 
             
-            mpf.make_addplot(mpfdf['KCUe_20_3.5'], type = "line", color='gray', width=0.5),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCUe_20_3.5'], type = "line", color='gray', width=0.2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCUe_20_4.0'], type = "line", color='lightgray', width=0.2),  # uses panel 0 by default
+            mpf.make_addplot(mpfdf['KCUe_20_5.0'], type = "line", color='lightgray', width=0.2),  # uses panel 0 by default
+
 
     ]
     
@@ -938,29 +943,35 @@ def searchDF (df, colmatch=None, contains=None) :
 # # Use 'signalxTrade for final  
 #
 
-symbol="AMD"  # TRY GE, SAIA, QQQ, WGO, MSFT
+symbol="WGO"  # TRY GE, SAIA, QQQ, WGO, MSFT
 interval='4H'
 # interval='1D'
 miniinterval ='1H'
 microinterval = '5m'
 df = None 
 bars = None
-hatrue = False 
-# bars=(350, 700)
+hatrue = True 
+ctype = 'candle' # 'ohlc' # 'candle'
+# bars=(0, 100)
+# bars=(-1200, -1100)
 # bars=(-420, -300)
-bars=(-420, -350)
+# bars=(-420, -350)
 # bars=(-380, -310)
 # bars=(-200, -150)
 # bars=(-350, None)
 # bars=(-600, -500 )
 # bars=(-600, None )
 # bars=(-700, -600 )
-# bars=(-700, -650 )
+# bars=(-750, -650 )
 # bars=(-1080, -1000 )
-# bars=(-450, -380 )
+bars=(-500, -380 )
 # bars=(-230, -150 )
 # bars=(-100, -50 )
+# bars=(-150, None )
 # bars=(-200, None )
+# bars=(-50, None )
+# bars=(-100, -30)
+# bars=(-200, -170 )
 # bars=(-100, -75 )
 # >>>>>>>>>>>>>>>
 df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
@@ -1060,15 +1071,23 @@ df['signal_SQ0_T0'] = df['SQZ_OFF'].apply(lambda x: -1 if x ==0 else x)
 # simple SQ momentum + StackEMA 
 df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
 
-# simple ATR Exit 
+# simple ATR Exit : if open and close is above 2x ATR (keltner 2.0)
 df['signal_ATRExit'] = (ta.above(df.close, df.KCUe_20_2) * ta.above(df.open, df.KCUe_20_2)).apply(lambda x: -1 if x else 0)
 
-# td differential Exit 
-dfr = df.ta.td_seq()
-df['TD_SEQ_UP'] = np.array(dfr['TD_SEQ_UP'])
-df['TD_SEQ_DN'] = np.array(dfr['TD_SEQ_DN'])
 
-df['signal_TDdiffExit'] = df['TD_SEQ_UP'].apply(lambda x : -1 if x==9 else 0 )
+
+# # td differential Exit with Close
+# dfr = df.ta.td_seq()  # using close 
+# df['TD_SEQ_UP'] = np.array(dfr['TD_SEQ_UP'])
+# df['TD_SEQ_DN'] = np.array(dfr['TD_SEQ_DN'])
+# df['signal_TDdiffExit'] = df['TD_SEQ_UP'].apply(lambda x : -1 if x==9 or x==7 else 0 )
+
+# # td differential Exit with HA Close
+dfr = ta.td_seq(df.HA_close)
+df['TD_SEQ_UP'] = np.array(dfr['TD_SEQ_UPa'])
+df['TD_SEQ_DN'] = np.array(dfr['TD_SEQ_DNa'])
+df['signal_TDdiffExit'] = df['TD_SEQ_UP'].apply(lambda x : -1 if x==9 or x==12 or x==13 else 0 )
+# df['signal_TDdiffExit'] = df['TD_SEQ_UP'].apply(lambda x : -1 if x>=9 or x<=13 else 0 )
 
 
 ## TODO : delayed squeeze fire and positive momentum 
@@ -1079,15 +1098,17 @@ if bars == None : bars=(-600, None)
 s,e = bars 
 
 # plot consolidated current TF 
-fig, axlist = plotAll (df, start= s, end= e, ctype='ohlc', ha=hatrue, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+fig, axlist = plotAll (df, start=s, end= e, ctype=ctype, ha=hatrue, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
 
 # # plot lower TF 
 # s1, e1 = df[s:e].index[0], df[s:e].index[-1]
-# fig, axlist = plotAll (df2, start= s1, end= e1, ctype='ohlc', ha=hatrue, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
+# fig, axlist = plotAll (df2, start= s1, end= e1, ctype=ctype, ha=hatrue, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
 
+
+## >> Some tests 
 # fig.show()
 # df[['open', 'close']].tail(20)
-# fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+# fig = plotAll (df, start= s, end= e, ctype=ctype, ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
 # fig.show()
 
 
