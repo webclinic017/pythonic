@@ -50,7 +50,7 @@ fig.update_xaxes(
 fig.update_yaxes()
 
 
-
+### Add Auto Scale functionality to candle stick charts 
 def zoom(layout, xrange):
     in_view = data.loc[fig.layout.xaxis.range[0]:fig.layout.xaxis.range[1]]
     yrange = (in_view.High.max() - in_view.Low.min())
