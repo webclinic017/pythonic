@@ -139,7 +139,7 @@ curdoc().add_root(
         slider
     ))
 
-# show(plot)
+show(plot)  # if using notebook 
 
 ######################### RUM APP 
 #       bokeh serve --show CandlePlotter_Brokeh_03.py
