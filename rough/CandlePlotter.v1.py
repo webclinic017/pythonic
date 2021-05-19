@@ -89,10 +89,15 @@ def plot_candles(pricing, title=None, volume_bars=False, color_function=None, te
 
 
 
+
+#######################################################################################
+##                                 ALGO CODE 
+#######################################################################################
+
 import yfinance as yf
 import pandas_ta as ta
 #Importing market data
-# df = yf.download(tickers='AMZN',period = '150d', interval = '1d')
+df = yf.download(tickers='AMZN',period = '150d', interval = '1d')
 # df = yf.download(tickers='AMZN',period = '50d', interval = '60m')
 # df.ta.ha(append=True) # calculate Heikin Ashi ohlc
 ema21 = df.ta.ema(length=21, append=True)
@@ -107,3 +112,7 @@ ema08 = df.ta.ema(length=8, append=True)
 # Candles with Technical indicators
 plot_candles(df[-50:], title='1 day candles', volume_bars=True, technicals=[ema21[-50:], ema08[-50:]])
 plot_candles(df[-50:], title='1 day candles', volume_bars=False, technicals=[ema21[-50:], ema08[-50:]])
+# plot_candles(df[-80:], title='1 day candles', volume_bars=False, technicals=[ema21[-80:], ema08[-80:]])
+
+
+#######################################################################################
