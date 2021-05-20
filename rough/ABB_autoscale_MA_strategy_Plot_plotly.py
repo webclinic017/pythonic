@@ -10,8 +10,8 @@ import plotly.graph_objs as go
 data = yf.download(tickers='AMZN',period = '150d', interval = '1d')
 
 #Adding Moving average calculated field
-data['MA5'] = data['Close'].rolling(5).mean()
-data['MA20'] = data['Close'].rolling(20).mean()
+data['MA5'] = data['Close'].rolling(9).mean()
+data['MA20'] = data['Close'].rolling(21).mean()
 
 #declare figure
 # fig = go.Figure()
