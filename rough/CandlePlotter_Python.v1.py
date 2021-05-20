@@ -97,21 +97,25 @@ def plot_candles(pricing, title=None, volume_bars=False, color_function=None, te
 import yfinance as yf
 import pandas_ta as ta
 #Importing market data
-df = yf.download(tickers='AMZN',period = '150d', interval = '1d')
+# df = yf.download(tickers='AAL',period = '150d', interval = '1d')
+df = yf.download(tickers='AAL',period = '50d', interval = '90m')
+df = yf.download(tickers='AAL',period = '50d', interval = '60m')
 # df = yf.download(tickers='AMZN',period = '50d', interval = '60m')
 # df.ta.ha(append=True) # calculate Heikin Ashi ohlc
 ema21 = df.ta.ema(length=21, append=True)
 ema08 = df.ta.ema(length=8, append=True)
-
+keltner2 = df.ta.kc(scalar=2, append=True) # 
+keltner3 = df.ta.kc(scalar=3, append=True) # 
 
 # Simple plain OHLC 
 # plot_candles(df[-20:], title='1 day candles', volume_bars=True,) 
 # plot_candles(df[-50:], title='1 day candles', volume_bars=True,) # ideal 
-# plot_candles(df[-75:], title='1 day candles', volume_bars=True,) 
+plot_candles(df[-50:], title='1 day candles', volume_bars=False,) 
 
 # Candles with Technical indicators
-plot_candles(df[-50:], title='1 day candles', volume_bars=True, technicals=[ema21[-50:], ema08[-50:]])
-plot_candles(df[-50:], title='1 day candles', volume_bars=False, technicals=[ema21[-50:], ema08[-50:]])
+# plot_candles(df[-50:], title='1 day candles', volume_bars=True, technicals=[ema21[-50:], ema08[-50:]])
+# plot_candles(df[-50:], title='1 day candles', volume_bars=False, technicals=[ema21[-50:], ema08[-50:]])
+# plot_candles(df[-50:], title='1 day candles', volume_bars=False, technicals=[ema21[-50:], ema08[-50:], df['KCUe_20_2.0'][-50:], df['KCUe_20_3.0'][-50:] ])
 # plot_candles(df[-80:], title='1 day candles', volume_bars=False, technicals=[ema21[-80:], ema08[-80:]])
 
 
