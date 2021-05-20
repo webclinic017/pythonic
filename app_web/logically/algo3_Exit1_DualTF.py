@@ -944,13 +944,13 @@ def searchDF (df, colmatch=None, contains=None) :
 #
 
 symbol="WGO"  # TRY GE, SAIA, QQQ, WGO, MSFT
+# interval='4H'
 interval='4H'
-# interval='1D'
 miniinterval ='1H'
 microinterval = '5m'
 df = None 
 bars = None
-hatrue = True 
+hatrue = False 
 ctype = 'candle' # 'ohlc' # 'candle'
 # bars=(0, 100)
 # bars=(-1200, -1100)
@@ -964,17 +964,18 @@ ctype = 'candle' # 'ohlc' # 'candle'
 # bars=(-700, -600 )
 # bars=(-750, -650 )
 # bars=(-1080, -1000 )
-bars=(-500, -380 )
+# bars=(-500, -380 )
 # bars=(-230, -150 )
 # bars=(-100, -50 )
 # bars=(-150, None )
 # bars=(-200, None )
 # bars=(-50, None )
+bars=(-100, None )
 # bars=(-100, -30)
 # bars=(-200, -170 )
 # bars=(-100, -75 )
 # >>>>>>>>>>>>>>>
-df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
+df = initData(symbol=symbol, interval=interval, live=True) # load/download data to df
 
 addIndicators(df)
 
