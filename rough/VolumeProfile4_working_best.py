@@ -205,6 +205,11 @@ print ("Width Range", width_x0, width_x1 )
 # Validate with 
 data.plot(kind='bar', width=1.0, zorder=2)
 
+
+############## CORE FUNCTION DONE ############
+
+
+
 ################################ OTHER OPTIONS TO PLAY  ##########################################
 
 ## 
