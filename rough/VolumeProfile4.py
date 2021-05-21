@@ -45,7 +45,7 @@ mpf.plot(df2, style='yahoo', type='candle', hlines=dict( hlines=[vah, val, poc],
 
 "Plot profile"
 data = mp_slice.profile
-data.plot(kind='barh', width=1.0, zorder=2)
+data.plot(kind='barh', width=1.0, zorder=2), plt.show()
 
 # data.plot(kind='bar', width=1.0, zorder=2)
 
@@ -87,19 +87,19 @@ val=mp_slice.value_area[0]
 vah=mp_slice.value_area[1]
 poc=mp_slice.poc_price
 data = mp_slice.profile
-data.plot(kind='bar')
+data.plot(kind='bar'), plt.show()
 
 "Plot profile"
 data = mp_slice.profile
-data.plot(kind='barh', width=1.0, zorder=2)
-data.plot(kind='bar', width=1.0, zorder=2)
+data.plot(kind='barh', width=1.0, zorder=2), plt.show()
+data.plot(kind='bar', width=1.0, zorder=2), plt.show()
 
 print( "POC: %f" % mp_slice.poc_price)
 print( "Value area: %f, %f" % mp_slice.value_area)
 
 ###################################     START PROFILE ANALYSIS          ##################################
 
-df3 = d.copy()
+# df3 = d.copy()
 # convert to float for stats.gaussian_kde
 df3['Volume'] = df3['Volume'].astype(np.float64)
 # pd.to_numeric(df3['volume'], downcast='float')
