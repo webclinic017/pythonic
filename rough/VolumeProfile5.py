@@ -21,7 +21,7 @@ dfR = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
 
 ###################################      CALCULATE TPO          ##################################
 
-def calc_TPO (df1, tick_size = round(2.0*(df1['Open'][0]/100))/10) : 
+def calc_TPO (df1, tick_size = 0.25) : 
     "You can change the mode to volume by replacing mode='tpo' with 'vol'. Keep tick size for Nifty as 1 and for Emini 0.25" 
     # mp = MarketProfile(df1, tick_size=5, mode='tpo')
     # mp = MarketProfile(df1, tick_size=.25, open_range_size=pd.to_timedelta('10 minutes'),initial_balance_delta=pd.to_timedelta('60 minutes'), mode='tpo')
