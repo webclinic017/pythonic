@@ -148,5 +148,6 @@ cython_debug/
 *.code-workspace
 
 database/
+compilation/stocklist/
 # 
 *.zip
