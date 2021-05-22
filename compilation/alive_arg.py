@@ -31,7 +31,7 @@ qs = QuoteStreamer()
 qs.subscribe(TICKERS)
 
 # Override on_quote callback
-qs.on_quote = lambda q: print(q)
+qs.on_quote = lambda qs, q: print(q)
 
-# Start streaming
-qs.start()
+# Non-blocking if blocking=False (default is True)
+qs.start(blocking=True)
