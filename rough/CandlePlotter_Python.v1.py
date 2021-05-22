@@ -37,19 +37,26 @@ def plot_candles(pricing, title=None, volume_bars=False, color_function=None, te
         fig.set_figwidth(w)
     if title:
         ax1.set_title(title)
+
     x = np.arange(len(pricing))
+    # candle color
     candle_colors = [color_function(i, open, close, low, high) for i in x]
-    candles = ax1.bar(x, oc_max-oc_min, bottom=oc_min, color=candle_colors, linewidth=0)
+    # draw candle bar : Note 0.01 added to have a visible bar incase open==close ie. oc_max-oc_mi=0 
+    candles = ax1.bar(x, 0.01+ oc_max-oc_min, bottom=oc_min, color=candle_colors, linewidth=0)
+    
     # lines = ax1.vlines(x + 0.4, low, high, color=candle_colors, linewidth=1)
     lines = ax1.vlines(x, low, high, color=candle_colors, linewidth=1)
 
-    ax1.xaxis.grid(False)
+    ax1.xaxis.grid(False) # xgridline OFF
     ax1.xaxis.set_tick_params(which='major', length=3.0, direction='in', top='off')
+    ax1.set_axisbelow(True) # place gridlines in background 
+
     # Assume minute frequency if first two bars are in the same day.
     frequency = 'minute' if (pricing.index[1] - pricing.index[0]).days == 0 else 'day'
     time_format = '%m-%d-%Y'
     if frequency == 'minute':
         time_format = '%m%d %H:%M'
+    
     # Set X axis tick labels.
     plt.xticks(x, [date.strftime(time_format) for date in pricing.index], rotation='vertical')
     for indicator in technicals:
@@ -57,19 +64,7 @@ def plot_candles(pricing, title=None, volume_bars=False, color_function=None, te
         ax1.plot(x, indicator, 'o', markersize=2) # for scatter plot isolated
         # ax1.plot(x, indicator, marker='o', markersize=5) # for line plot 
 
-### Example of plotting with scatter and lines 
-### https://jakevdp.github.io/PythonDataScienceHandbook/04.02-simple-scatter-plots.html
-### https://www.tutorialspoint.com/matplotlib/matplotlib_scatter_plot.htm
-### marker types: [ 'o', '.', ',', 'x', '+', 'v', '^', '<', '>', 's', 'd' ]
-# plt.plot(x, y, '-p', color='gray',
-#          markersize=15, linewidth=4,
-#          markerfacecolor='white',
-#          markeredgecolor='gray',
-#          markeredgewidth=2)
-# plt.ylim(-1.2, 1.2);    
-# 
-
-
+    # Volume Bars 
     if volume_bars:
         volume = pricing['volume']
         volume_scale = None
@@ -88,19 +83,32 @@ def plot_candles(pricing, title=None, volume_bars=False, color_function=None, te
         ax2.xaxis.grid(False)
 
 
+### Example of plotting with scatter and lines 
+### https://jakevdp.github.io/PythonDataScienceHandbook/04.02-simple-scatter-plots.html
+### https://www.tutorialspoint.com/matplotlib/matplotlib_scatter_plot.htm
+### marker types: [ 'o', '.', ',', 'x', '+', 'v', '^', '<', '>', 's', 'd' ]
+# plt.plot(x, y, '-p', color='gray',
+#          markersize=15, linewidth=4,
+#          markerfacecolor='white',
+#          markeredgecolor='gray',
+#          markeredgewidth=2)
+# plt.ylim(-1.2, 1.2);    
+# 
+
 
 
 #######################################################################################
-##                                 ALGO CODE 
+##                                 ALGO CODE                                         ##  
 #######################################################################################
 
 import yfinance as yf
 import pandas_ta as ta
 #Importing market data
 # df = yf.download(tickers='AAL',period = '150d', interval = '1d')
-df = yf.download(tickers='AAL',period = '50d', interval = '90m')
-df = yf.download(tickers='AAL',period = '50d', interval = '60m')
+# df = yf.download(tickers='AAL',period = '50d', interval = '90m')
+# df = yf.download(tickers='AAL',period = '50d', interval = '60m')
 # df = yf.download(tickers='AMZN',period = '50d', interval = '60m')
+df = yf.download(tickers='GE',period = '50d', interval = '60m')
 # df.ta.ha(append=True) # calculate Heikin Ashi ohlc
 ema21 = df.ta.ema(length=21, append=True)
 ema08 = df.ta.ema(length=8, append=True)
@@ -111,6 +119,7 @@ keltner3 = df.ta.kc(scalar=3, append=True) #
 # plot_candles(df[-20:], title='1 day candles', volume_bars=True,) 
 # plot_candles(df[-50:], title='1 day candles', volume_bars=True,) # ideal 
 plot_candles(df[-50:], title='1 day candles', volume_bars=False,) 
+# plot_candles(df[10:150], title='1 day candles', volume_bars=False,) 
 
 # Candles with Technical indicators
 # plot_candles(df[-50:], title='1 day candles', volume_bars=True, technicals=[ema21[-50:], ema08[-50:]])
