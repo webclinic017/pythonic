@@ -2,6 +2,6 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": false,
     "python.formatting.provider": "black",
-    "python.pythonPath": "/home/towshif/venv3/bin/python",
-    // "python.pythonPath": "/home/towshif/venv38/bin/python",
+    // "python.pythonPath": "/home/towshif/venv3/bin/python",
+    "python.pythonPath": "/home/towshif/venv38/bin/python",
 }
