@@ -350,7 +350,7 @@ def get_sessions_long(analysisDF, df):
     return sessions, sessioncolors, sessionReturns
 
 
-mpf.plot()
+# mpf.plot()
 def plot (df, start=-100, end=None, ctype='candle', analysis=None, addSignal=False, addAlgo=False, session=False, ha=False, signal='signalxTrade_StackEMA') : 
 
     # taplots = [] 
