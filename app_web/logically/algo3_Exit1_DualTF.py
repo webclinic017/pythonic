@@ -943,7 +943,7 @@ def searchDF (df, colmatch=None, contains=None) :
 # # Use 'signalxTrade for final  
 #
 
-symbol="WGO"  # TRY GE, SAIA, QQQ, WGO, MSFT
+symbol="QQQ"  # TRY GE, SAIA, QQQ, WGO, MSFT
 # interval='4H'
 interval='4H'
 miniinterval ='1H'
@@ -951,6 +951,7 @@ microinterval = '5m'
 df = None 
 bars = None
 hatrue = False 
+live = True
 ctype = 'candle' # 'ohlc' # 'candle'
 # bars=(0, 100)
 # bars=(-1200, -1100)
@@ -975,7 +976,7 @@ bars=(-100, None )
 # bars=(-200, -170 )
 # bars=(-100, -75 )
 # >>>>>>>>>>>>>>>
-df = initData(symbol=symbol, interval=interval, live=True) # load/download data to df
+df = initData(symbol=symbol, interval=interval, live=live) # load/download data to df
 
 addIndicators(df)
 
@@ -996,7 +997,7 @@ addIndicators(df)
 
 
 ##########>>>>>>>>>>>       1 LOWER TIME FRAME CALCULATIONS and Resampling          <<<<<<<<<<<##########
-df2 = initData(symbol=symbol, interval=miniinterval, live=False) # load/download data to df
+df2 = initData(symbol=symbol, interval=miniinterval, live=live) # load/download data to df
 addIndicators(df2)
 
 # ATR 2-3 exit 
