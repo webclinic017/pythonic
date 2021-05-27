@@ -108,7 +108,8 @@ import pandas_ta as ta
 # df = yf.download(tickers='AAL',period = '50d', interval = '90m')
 # df = yf.download(tickers='AAL',period = '50d', interval = '60m')
 # df = yf.download(tickers='AMZN',period = '50d', interval = '60m')
-df = yf.download(tickers='GE',period = '50d', interval = '60m')
+# df = yf.download(tickers='GE',period = '50d', interval = '60m')
+df = yf.download(tickers='AMZN',period = '10d', interval = '5m')
 # df.ta.ha(append=True) # calculate Heikin Ashi ohlc
 ema21 = df.ta.ema(length=21, append=True)
 ema08 = df.ta.ema(length=8, append=True)
