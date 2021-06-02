@@ -80,7 +80,7 @@ def plot_candles(pricing, title=None, volume_bars=False, color_function=None, te
         plt.legend(loc="lower right")
 
     # Set primary axis y-grid 
-    ax1.yaxis.grid(True,color='lightgray',)
+    ax1.yaxis.grid(True, color='#EEEEEE',) # very light gray 
 
     # Set secondary Y axis as percentage 
     ymax, ymin = high.max(), low.min()
@@ -151,9 +151,10 @@ import pandas_ta as ta
 pd.options.display.float_format = '{:,.2f}'.format  
 
 #Importing market data
-# df = yf.download(tickers='AAL',period = '150d', interval = '1d')
+df = yf.download(tickers='AAL',period = '150d', interval = '1d')
 # df = yf.download(tickers='AAPL',period = '150d', interval = '1d')
-df = yf.download(tickers='SPY',period = '150d', interval = '1d')
+# df = yf.download(tickers='SPY',period = '150d', interval = '1d')
+# df = yf.download(tickers='QQQ',period = '150d', interval = '1d')
 # df = yf.download(tickers='AAL',period = '50d', interval = '90m')
 # df = yf.download(tickers='AMD',period = '50d', interval = '60m')
 # df = yf.download(tickers='AMZN',period = '50d', interval = '60m')
@@ -179,7 +180,7 @@ title = '' + str(df[-1:].iloc[0].close.round(2))
 # plot_candles(df[10:150], title=title, volume_bars=False,) 
 
 # Candles with Technical indicators
-plot_candles(df[-50:], title=title, volume_bars=True, technicals=[ema21[-50:], ema08[-50:]])
+# plot_candles(df[-50:], title=title, volume_bars=True, technicals=[ema21[-50:], ema08[-50:]])
 # plot_candles(df[-50:], title=title, volume_bars=False, technicals=[ema21[-50:], ema08[-50:]], showlines=False, add_candle_percent=True)
 # plot_candles(df[-50:], title=title, volume_bars=False, technicals=[ema21[-50:], ema08[-50:]], showlines=True, ha=True, add_candle_percent=True)
 
@@ -207,7 +208,7 @@ import io
 from flask_socketio import emit, SocketIO
 
 
-image = plot_candles(df[-50:], title=title, volume_bars=False, technicals=[ema21[-50:], ema08[-50:]], showlines=True, ha=True, add_candle_percent=True)
+image = plot_candles(df[-50:], title=title, volume_bars=False, technicals=[ema21[-50:], ema08[-50:]], showlines=True, ha=False, add_candle_percent=True)
 
 buf = io.BytesIO()
 image.savefig(buf, format="png", dpi=100, pad_inches= 0, transparent=True)
