@@ -4,4 +4,6 @@
     "python.formatting.provider": "black",
     // "python.pythonPath": "/home/towshif/venv3/bin/python",
     // "python.pythonPath": "/home/towshif/venv38/bin/python",
+    "python.pythonPath": "/home/towshif/anaconda3/envs/cenv38/bin/python",
+
 }
