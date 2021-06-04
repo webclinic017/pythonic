@@ -11,23 +11,32 @@ import time
 orders = queue.Queue()
 has_order = threading.Semaphore(value=0)  # ADDED THIS
 
+def order_line_or_producer():
+    # Each staff in the serving line produces 200 orders
+    for _ in range(4):
+        orders.put("Order"+str(_))
+        print ("placing order", "Order"+str(_))
+        # time.sleep(1)
+        has_order.release() # ADDED THIS: Release the Semaphore, increment the internal counter by 1
+
+    time.sleep(3)
+    
+    for _ in range(5,9):
+        orders.put("Order"+str(_))
+        print ("placing order", "Order"+str(_))
+        has_order.release() # ADDED THIS: Release the Semaphore, increment the internal counter by 1
+
 
 def serving_line_or_consumer():
     while has_order.acquire():  # ADDED THIS: Acquire a Semaphore, or sleep until the counter of semaphore is larger than zero
         new_order = orders.get()
         # prepare meals from `new_order`, assuming GIL is released while preparing meals
         print ('Preparing order', new_order)
-        time.sleep(2)
+        # time.sleep(1)
+        # if (new_order == 'Order1') : time.sleep (10)
+        # else: time.sleep(2)
+        print ('DONE order', new_order)
         orders.task_done()
-
-
-def order_line_or_producer():
-    # Each staff in the serving line produces 200 orders
-    for _ in range(4):
-        orders.put("Order"+str(_))
-        print ("placing order", "Order"+str(_))
-        time.sleep(1)
-        has_order.release() # ADDED THIS: Release the Semaphore, increment the internal counter by 1
 
 
 # Let's put 4 staff into the order line
@@ -54,7 +63,19 @@ serving_line.start()
 # serving_line.join()
 print ('all orders completed')
 
-time.sleep(5) ## test reactivation
+time.sleep(15) ## test reactivation
 orders.put("Order"+str(15))
 print ("placing order", "Order"+str(15))
 has_order.release() 
+
+
+time.sleep(5) ## test reactivation
+orders.put("Order"+str(5))
+print ("placing order", "Order"+str(5))
+has_order.release() 
+
+# Exit all threads 
+# orders.join()
+# order_line.join()
+# serving_line.join()
+print ("Exiting all producers and consumers")
