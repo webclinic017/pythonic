@@ -1,3 +1,5 @@
+//  This is synced with GIT 
+
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": false,
@@ -5,5 +7,11 @@
     // "python.pythonPath": "/home/towshif/venv3/bin/python",
     // "python.pythonPath": "/home/towshif/venv38/bin/python",
     // "python.pythonPath": "/home/towshif/anaconda3/envs/cenv38/bin/python",
+
+    // add this to resolve local paths to libs imports
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/app_web",
+        // "${workspaceFolder}/path/to/lib2"
+    ]
 
 }
