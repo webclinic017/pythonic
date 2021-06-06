@@ -5,6 +5,10 @@
 # https://melvinkoh.me/solving-producerconsumer-problem-of-concurrent-programming-in-python-ck3bqyj1j00i8o4s1cqu9mfi7
 # https://stackoverflow.com/questions/41648103/how-would-i-go-about-using-concurrent-futures-and-queues-for-a-real-time-scenari
 
+
+#### To test vars run in ipython 
+#### %run -i timer_py/producer_consumer_future_queue.1.py
+
 import concurrent.futures
 import queue
 import random
@@ -23,13 +27,13 @@ def compute (i) : # simulate a high compute or low latency IO process
 
 def myfunc(job, timeout): 
     duration = random.randint(0,7)
-    print (f"Compute {job} started with {duration} secs")
+    print (f"Compute {job} started with {duration} secs")    
     time.sleep(duration)
 
 def producer(queue):
     for i in range(15):
         # time.sleep(0.01) # Do you think the result will be changed if I uncomment this line? 
-        print(f"Insert element {i}")
+        print(f"Insert job {i}")
         queue.put(i)
         has_q.release()
     # queue.put(SENTINEL)
@@ -46,37 +50,57 @@ def consumer2(queue):
             queue.task_done()
             break
 
+future_to_func = None
 
 def consumer (queue): ## create a live consumer thread with has_q semaphore 
     
     # We can use a with statement to ensure threads are cleaned up promptly        
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
 
         # start a future for a thread which sends work in through the queue            
-        future_to_func = {
-            executor.submit(lambda x: print ("Started. Waiting for Queue ......"), 0): "FEEDER DONE"}
-
+        future_to_func = { } # init empty dict for executors 
+            # {executor.submit(lambda x: print ("Started. Waiting for Queue ......"), 0): "FEEDER DONE"}
+            
         while has_q.acquire() : # will pause thread for release 
             has_q.release()  # increment to compensate above 
             while not queue.empty() and has_q.acquire():
                 # fetch a url from the queue
                 job = queue.get()
+                if job == SENTINEL:
+                    print(f"\t\tThread Quit Triggered. Job ID: {job}.")
+                    print(f"\t\tQuitting Consumer thread....")
+                    queue.task_done()
+                    q.join()
+                    return
                 # Start the load operation and mark the future with its URL
-                future_to_func[executor.submit(myfunc, job, 60 )] = job
+                # this is a dictionary for future_to_func = { `executorobject` : `job ID`}
+                future_to_func[executor.submit(myfunc, job, 60)] = job
         
                 # https://rednafi.github.io/digressions/python/2020/04/21/python-concurrent-futures.html#submitfn-args-kwargs
                 # sample executor with function and args 
                 # args = ((a, b) for b in c)
                 # for result in executor.map(f, args):
                 #     pass
-                    
+
             while future_to_func:
                 # check for status of the futures which are currently working
                 done, not_done = concurrent.futures.wait(
                     future_to_func, timeout=1.0, return_when=concurrent.futures.FIRST_COMPLETED
                 )
 
-                print (f"\t\t\tRunning {len(not_done)} | Completed {len(done)}  | queue {len(future_to_func)} | qsize {queue.qsize()}")
+                
+                ### Live Thread Updates from the dict of futures
+                runningfutures = [v for (k,v) in future_to_func.items() if 'state=running' in str(k)]
+                # print('running fut: ', str(runningfutures))
+                # print ('all fut:', str(future_to_func))
+                # runningfutures = []
+                # for future in not_done: ## find 'state=running', 'state=pending' in workers 
+                #     if 'state=running' in str(future): runningfutures.append(future_to_func[future])
+                # print (f"")
+
+                print (f"\t\t\tWorkerCount = {len(runningfutures)} | Pending {len(not_done)-len(runningfutures)} | Completed {len(done)}  | queue {len(future_to_func)} | qsize {queue.qsize()} | qUnfinished: {q.unfinished_tasks} | {runningfutures} is running ")
+                ## Live End...
+
                 # if there is incoming work, start a new future
                 while not queue.empty() and has_q.acquire():
 
@@ -90,15 +114,16 @@ def consumer (queue): ## create a live consumer thread with has_q semaphore
                 for future in done:
                     job = future_to_func[future]
                     try:
-                        data = future.result()
+                        data = future.result()             
+                        queue.task_done() # update task counter in queue if result true
                     except Exception as exc:
-                        print("%r generated an exception: %s" % (job, exc))
+                        print("%r generated an exception: %s" % (job, exc))                        
                     else:
                         if job == "FEEDER DONE":
                             print(data)
                         else:
-                            print("Execution is successful",job)
-
+                            print("Execution is successful | Job ID:",job)
+                            
                     # remove the now completed future
                     del future_to_func[future]
             print ("Waiting for Queue ......")
