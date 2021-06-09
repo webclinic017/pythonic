@@ -26,7 +26,7 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
     print (f'Staring CPU bound tasks with {max_workers} process workers.')
     # We can use a with statement to ensure threads are cleaned up promptly        
     # with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
 
         # start a future for a thread which sends work in through the queue            
         future_to_func = { } # init empty dict for executors 
