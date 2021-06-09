@@ -32,9 +32,9 @@ dfdata = pd.read_pickle(DATAROOT + watchlist ) # read file
 symbols = dfdata.TICK.to_list()
 
 
-# download = pd.read_pickle(DATATEMP+'download.pickle') # read file
-print ('Starting Download........')
-download = yf.download(tickers=symbols, interval="60m", period="60d", group_by="Ticker")
+download = pd.read_pickle(DATATEMP+'download.pickle') # read file
+# print ('Starting Download........')
+# download = yf.download(tickers=symbols, interval="60m", period="60d", group_by="Ticker")
 # download.to_pickle(DATATEMP+'download.pickle') # save temp download df
 ## Memory usage 
 download.info(verbose=False, memory_usage="deep")
@@ -44,8 +44,6 @@ download.info(verbose=False, memory_usage="deep")
 # for symbol in symbols: 
 #     df = download[symbol].dropna()
 #     print (f"{symbol} \t {df.size}") # will print symbol and length of its DF 
-
-
 
 
 p = download['QQQ']
@@ -123,16 +121,29 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 ## troubleshoot -> some symbols delisted will have smaller length - remove them 
 
 
+##########################  Simple Compute test ##############
+# for symbol in symbols: 
+#     df = download[symbol].dropna()
+#     df = df.copy()   
+#     # compute (df,symbol,10)
+#     package = compute, (df, symbol, 10), symbol+" compute"
 
+#     processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
+
+
+
+##########################  Simple Compute test ##############
 for symbol in symbols: 
     df = download[symbol].dropna()
-    df = df.copy()   
-    # compute (df,symbol,10)
+    df = df.copy()  
+    # compute (df,symbol,10)  ## Sequential run - no threads
     package = compute, (df, symbol, 10), symbol+" compute"
 
+    # import algo1 # this processing takes ~ 56.4819 seconds for 103 images + indicator and 
+    # package = algo1.AlgoImage2, (df, symbol, '1H', (-201,None), False, False, False), symbol+" compute"
+    
     processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
 
-# q.qsize()
 
 
 

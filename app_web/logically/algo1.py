@@ -768,12 +768,46 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
         fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
-
+    print (f'Done plotting {symbol}')
 
     # print (df[-1:][['open', 'high', 'low', 'close']])
         # yf.Ticker(symbol).get
     return fig
 
+
+def AlgoImage2( df , symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False, live=True): 
+
+
+    addIndicators(df)
+
+    # algo0(df)
+    algo(df)
+
+    # analysisDF = BackTester_Long(df, 'signalxTrade_StackEMA')
+
+    # all Plot calls 
+    s, e = bars 
+
+    trade_Identifier = 'signalxTrade_SQTest'
+    # trade_Identifier = 'signalxTrade_StackEMA'
+
+    if full :  # full page image # ~200KB 
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
+        #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
+
+    elif mini : # recommend 50 bars max 
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(2,2),panel_ratios=(8,2,6), figscale=0.8, scale_padding=dict(left=.05,right=2.3, top=0.3, bottom=0.8))
+
+
+    else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+    # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
+
+    print (f'Done plotting {symbol}')
+
+    # print (df[-1:][['open', 'high', 'low', 'close']])
+        # yf.Ticker(symbol).get
+    return fig
 
 def algo0 (df): 
         
