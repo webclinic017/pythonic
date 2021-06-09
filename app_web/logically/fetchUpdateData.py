@@ -32,11 +32,13 @@ dfdata = pd.read_pickle(DATAROOT + watchlist ) # read file
 symbols = dfdata.TICK.to_list()
 
 
-download = pd.read_pickle(DATATEMP+'download.pickle') # read file
-# download = yf.download(tickers=symbols, interval="60m", period="60d", group_by="Ticker")
+# download = pd.read_pickle(DATATEMP+'download.pickle') # read file
+print ('Starting Download........')
+download = yf.download(tickers=symbols, interval="60m", period="60d", group_by="Ticker")
 # download.to_pickle(DATATEMP+'download.pickle') # save temp download df
 ## Memory usage 
 download.info(verbose=False, memory_usage="deep")
+# fix_timezone(download)
 
 # ## troubleshoot -> some symbols delisted will have smaller length - remove them 
 # for symbol in symbols: 
@@ -44,7 +46,7 @@ download.info(verbose=False, memory_usage="deep")
 #     print (f"{symbol} \t {df.size}") # will print symbol and length of its DF 
 
 
-# fix_timezone(download)
+
 
 p = download['QQQ']
 # download=download.dropna() # do not drop na on level 0 df 
@@ -128,7 +130,7 @@ for symbol in symbols:
     # compute (df,symbol,10)
     package = compute, (df, symbol, 10), symbol+" compute"
 
-    processThread.putQ (package)  # format: (func, (*args), jobName)
+    processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
 
 # q.qsize()
 
