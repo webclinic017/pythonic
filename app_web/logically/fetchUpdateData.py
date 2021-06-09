@@ -129,10 +129,15 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 #     package = compute, (df, symbol, 10), symbol+" compute"
 
 #     processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
+##############################################################
 
 
 
 ##########################  Simple Compute test ##############
+
+processThread.max_workers = 20
+processThread.initialize()
+
 for symbol in symbols: 
     df = download[symbol].dropna()
     df = df.copy()  
@@ -143,6 +148,10 @@ for symbol in symbols:
     # package = algo1.AlgoImage2, (df, symbol, '1H', (-201,None), False, False, False), symbol+" compute"
     
     processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
+
+time.sleep(11)
+processThread.endQ() # exit all threads 
+##############################################################
 
 
 
