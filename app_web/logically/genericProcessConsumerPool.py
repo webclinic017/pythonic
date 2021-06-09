@@ -11,6 +11,10 @@ def putQ ( job ) :
     processQ.put (job)  # format: (func, (*args), jobName)
     has_q.release()
 
+def endQ ( job ) : 
+    processQ.put (SENTINEL)  # format: (func, (*args), jobName)
+    has_q.release()
+
 def genericConsumer (queue): ## create a live consumer thread with has_q semaphore 
     
     # We can use a with statement to ensure threads are cleaned up promptly        
