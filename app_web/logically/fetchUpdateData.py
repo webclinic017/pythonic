@@ -9,7 +9,7 @@ import pandas as pd
 import pandas_ta as ta
 import yfinance as yf
 
-import genericProcessConsumerPool  as processThread # # communicate using q
+import genericThreadConsumerPool  as processThread # # communicate using q
 
 # Source for data PICKLES 
 
@@ -135,7 +135,7 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 
 ##########################  Simple Compute test ##############
 
-processThread.max_workers = 20
+processThread.max_workers = 20  # Set Global thread count 
 processThread.initialize()
 
 for symbol in symbols: 
@@ -149,8 +149,9 @@ for symbol in symbols:
     
     processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
 
-time.sleep(11)
+time.sleep(25)
 processThread.endQ() # exit all threads 
+
 ##############################################################
 
 
@@ -175,6 +176,7 @@ def fix_timezone (dfdata) : # multi index 'df'
         print ('ERROR!')
         # notfound.append(symbol)
     # print (notfound)
+
 
 
 
