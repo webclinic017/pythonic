@@ -3,7 +3,7 @@ import queue
 import time
 from threading import Semaphore, Thread
 
-max_workers = None  # global max_worker count 
+max_workers = 10  # global max_worker count 
 
 processQ = queue.Queue()
 has_q = Semaphore(value=0)  # Allow consumers to sleep while waiting for an event (pause infinite loop)
