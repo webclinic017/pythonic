@@ -77,7 +77,7 @@ def addIndicators(df):
 
     print ('Initial DF length ', len(df))
     # squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
-    squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
+    squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True)
     bollingers = df.ta.bbands(append=True) # 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0' 
     # macd = df.ta.macd(append=True) # 'MACD_12_26_9', 'MACDh_12_26_9','MACDs_12_26_9'],
     # rsi = df.ta.rsi(length=20, append=True)
@@ -950,7 +950,7 @@ miniinterval ='1H'
 microinterval = '5m'
 df = None 
 bars = None
-hatrue = False 
+hatrue = True 
 live = True
 ctype = 'candle' # 'ohlc' # 'candle'
 # bars=(0, 100)
@@ -1103,7 +1103,7 @@ s,e = bars
 fig, axlist = plotAll (df, start=s, end= e, ctype=ctype, ha=hatrue, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
 
 # # plot lower TF 
-# s1, e1 = df[s:e].index[0], df[s:e].index[-1]
+# s1, e1 = df[s:e].index[0], df[s:e].index[-1] 
 # fig, axlist = plotAll (df2, start= s1, end= e1, ctype=ctype, ha=hatrue, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
 
 
