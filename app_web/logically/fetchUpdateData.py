@@ -9,7 +9,9 @@ import pandas as pd
 import pandas_ta as ta
 import yfinance as yf
 
-import genericThreadConsumerPool  as processThread # # communicate using q
+import algo1
+
+import genericProcessConsumerPool  as processThread # # communicate using q
 
 # Source for data PICKLES 
 
@@ -53,7 +55,10 @@ p = download['QQQ']
 # download['AMD']
 
 
-def compute (df,i,k) : # simulate a high compute or low latency IO process     
+def compute (df,i,k) : # simulate a high compute or low latency IO process   
+    
+    tic = time.perf_counter()
+    
     # print (f"Compute {i} started with {k} secs")
     df.ta.ha(append=True) # heikinashi bars 
     df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
@@ -99,7 +104,10 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
     # PSAR Stop Reverse (based on pandas_TA)
     psar = df.ta.psar( append=True)
     # print (df)
-    print (f"Compute {i} done with {k} secs")
+
+    toc = time.perf_counter()    
+    print (f"Compute {i} done in {toc - tic:0.4f} secs")
+    # print (f"Compute {i} done in {k} secs")
 
 
 
@@ -135,25 +143,25 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 
 ##########################  Simple Compute test ##############
 
-processThread.max_workers = 20  # Set Global thread count 
-processThread.initialize()
+# processThread.max_workers = 20  # Set Global thread count 
+# processThread.setMaxWorker(30)
+processThread.initialize(8)
 
 for symbol in symbols: 
     df = download[symbol].dropna()
     df = df.copy()  
     # compute (df,symbol,10)  ## Sequential run - no threads
-    package = compute, (df, symbol, 10), symbol+" compute"
+    # package = compute, (df, symbol, 10), symbol+" compute"
 
     # import algo1 # this processing takes ~ 56.4819 seconds for 103 images + indicator and 
-    # package = algo1.AlgoImage2, (df, symbol, '1H', (-201,None), False, False, False), symbol+" compute"
+    package = algo1.AlgoImage2, (df, symbol, '1H', (-201,None), False, False, False), symbol+" compute"
     
     processThread.putQ (package)  # format: (func, (*args), jobName) to queue a process job 
 
-time.sleep(25)
-processThread.endQ() # exit all threads 
+# time.sleep(25)
+# processThread.endQ() # exit all threads 
 
 ##############################################################
-
 
 
 
