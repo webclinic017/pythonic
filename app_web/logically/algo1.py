@@ -873,60 +873,61 @@ def algo(df) :
 # # Use 'signalxTrade for final  
 #
 
-
-symbol="AAL"
-interval='1D'
-df = None 
-
-
-# >>>>>>>>>>>>>>>
-
-df = initData(symbol="AAL", interval=interval) # load/download data to df
-addIndicators(df)
-
-# >>>>>>>>>>>>>>>
-# Utility (5)
-
-#     Above: above
-#     Above Value: above_value
-#     Below: below
-#     Below Value: below_value
-#     Cross: cross
+def testme(): 
+    
+    symbol="AAL"
+    interval='1D'
+    df = None 
 
 
-# algo(df)
+    # >>>>>>>>>>>>>>>
 
-# 
-# Stack EMA Change 0-> 1, 1-> 0 
-df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
-df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
+    df = initData(symbol="AAL", interval=interval) # load/download data to df
+    addIndicators(df)
+
+    # >>>>>>>>>>>>>>>
+    # Utility (5)
+
+    #     Above: above
+    #     Above Value: above_value
+    #     Below: below
+    #     Below Value: below_value
+    #     Cross: cross
 
 
-# detect squeeze fired 
-df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
+    # algo(df)
 
-# detect mini squeeze 
-df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
+    # 
+    # Stack EMA Change 0-> 1, 1-> 0 
+    df.loc [ (df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(1) == 0) , 'signalx_StackEMA'] = 1 
+    df.loc [ (df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) , 'signalx_StackEMA'] = -1    
 
-# condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
-df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
-    lambda x:1 if x else 0)
 
-# black sq opportunity 
-df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
-    lambda x:1 if x else 0) 
+    # detect squeeze fired 
+    df['redSQFire'] = ta.cross_value(df.SQZ_ON, 0.5, above=False, offset=0) # ZQZ  1-> 0 
 
-# simple SQ momentum + StackEMA 
-df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
+    # detect mini squeeze 
+    df['miniSQFire'] = ta.cross_value(df.squeeze_on.fillna(0), 0.5, above=False, offset=0) # ZQZ  1-> 0 
 
-bars=(-200, None)
-# Plot it 
-s,e = bars 
-fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval)
-# fig.show()
+    # condition: SQ fired, StackEMA true and SQZ Mom increasing > 0 
+    df['signalxTrade_SQTest'] = df['redSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
+        lambda x:1 if x else 0)
 
-df[['open', 'close']].tail(20)
-# fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
-# fig.show()
+    # black sq opportunity 
+    df['signalx_yMiniSQ'] = df['miniSQFire'] * df['signal_StackEMA'] * (df['SQZ_INC']>0).apply(
+        lambda x:1 if x else 0) 
+
+    # simple SQ momentum + StackEMA 
+    df['signalxSQMomo'] = ta.cross_value(df.SQZ_INC, 0.0, above=True, offset=0) * df['signal_StackEMA']
+
+    bars=(-200, None)
+    # Plot it 
+    s,e = bars 
+    fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval)
+    # fig.show()
+
+    df[['open', 'close']].tail(20)
+    # fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
+    # fig.show()
 
 
