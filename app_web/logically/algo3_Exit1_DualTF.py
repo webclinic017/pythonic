@@ -943,7 +943,7 @@ def searchDF (df, colmatch=None, contains=None) :
 # # Use 'signalxTrade for final  
 #
 
-symbol="DAL"  # TRY GE, SAIA, QQQ, WGO, MSFT
+symbol="AMD"  # TRY GE, SAIA, QQQ, WGO, MSFT
 # interval='4H'
 interval='4H'
 miniinterval ='1H'
@@ -969,8 +969,8 @@ ctype = 'candle' # 'ohlc' # 'candle'
 # bars=(-230, -150 )
 # bars=(-100, -50 )
 # bars=(-150, None )
-bars=(-200, None )
-# bars=(-50, None )
+# bars=(-200, None )
+bars=(-50, None )
 # bars=(-100, None )
 # bars=(-100, -30)
 # bars=(-200, -170 )

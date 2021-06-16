@@ -14,6 +14,11 @@ import finta as ft
 
 import datasource as data  # disable this whn API is runing 
 
+import matplotlib
+matplotlib.use('Agg')
+# Turn interactive plotting off
+plt.ioff()
+
 # # key reference ind and plots
 # https://github.com/peerchemist/finta
 # https://github.com/twopirllc/pandas-ta
@@ -774,9 +779,11 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
         # yf.Ticker(symbol).get
     return fig
 
+fig = None 
 
-def AlgoImage2( df , symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=False, live=True): 
+def AlgoImage2( df , symbol="SPY", interval="4H", bars=(-200, None), full=False, mini=False, live=True): 
 
+    # df = initData(symbol=symbol, interval=interval, live=live) # load/download data to df
 
     addIndicators(df)
 
@@ -921,4 +928,5 @@ fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade
 df[['open', 'close']].tail(20)
 # fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
 # fig.show()
+
 
