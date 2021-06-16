@@ -125,7 +125,7 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 ## troubleshoot -> some symbols delisted will have smaller length - remove them
 
 
-processThread.initialize(8)
+processThread.initialize(21)
 
 for symbol in symbols:
     df = download[symbol].dropna()
