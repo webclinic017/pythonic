@@ -13,7 +13,8 @@ import pandas as pd
 import pandas_ta as ta
 import yfinance as yf
 
-import genericProcessConsumerPool  as processThread # # communicate using q
+import genericProcessConsumerPool as processThread  # # communicate using q
+import datasource as data
 
 # Source for data PICKLES
 
@@ -27,22 +28,20 @@ DATATEMP     = '/home/towshif/code/python/pythonic/database/dataTemp/'
 
 
 # read watchlist
-watchlist = "WatchListDB.pickle"  # initialize
+watchlistName = "WatchListDB.pickle"  # initialize
+watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+# watchlist.to_pickle(DATAROOT+'WatchListLive.pickle') # save file
 
-# dfdata = pd.read_pickle(DATAROOT + watchlist ) # read file
-# dfdata.to_pickle(DATAROOT+'WatchListLive.pickle') # save file
+# watchlist
+symbols = watchlist.TICK.to_list()
 
-# dfdata
-#symbols = dfdata.TICK.to_list()
+# symbols = ['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW', 'SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^DJI', '^VIX', ]
 
-symbols = ['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW',
-        'SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^DJI', '^VIX', ]
-
-download = pd.read_pickle(DATATEMP+'download.pickle') # read file
+# download = pd.read_pickle(DATATEMP+'download.pickle') # read file
 #download = yf.download(tickers=symbols, interval="60m", period="60d", group_by="Ticker")
 #download.to_pickle(DATATEMP+'download.pickle') # save temp download df
 ## Memory usage
-download.info(verbose=False, memory_usage="deep")
+# download.info(verbose=False, memory_usage="deep")
 
 
 
@@ -51,14 +50,21 @@ download.info(verbose=False, memory_usage="deep")
 #     df = download[symbol].dropna()
 #     print (f"{symbol} \t {df.size}") # will print symbol and length of its DF
 
-
 # fix_timezone(download)
 
-p = download['QQQ']
+# p = download['QQQ']
 # download=download.dropna() # do not drop na on level 0 df
 
-# df = getData (symbol='AMD', interval='1H')
-# download['AMD']
+# df = data.getData (symbol='AMD', interval='1H')
+
+ddr = {} # define empty 
+
+for symbol in symbols:  # load all data to memory 
+    ddr[symbol] = data.getData (symbol=symbol, interval='1D').dropna()
+
+# ddr['AMZN']
+# ddr['AMZN'].info(verbose=False, memory_usage="deep")
+
 
 
 def compute (df,i,k) : # simulate a high compute or low latency IO process
@@ -109,6 +115,8 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
     # print (df)
     print (f"Compute {i} done with {k} secs")
 
+    return df
+
 
 
 # ## troubleshoot -> some symbols delisted will have smaller length - remove them
@@ -129,19 +137,30 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 ## troubleshoot -> some symbols delisted will have smaller length - remove them
 
 
-processThread.initialize(21)
+# processThread.initialize(21)
 
-for symbol in symbols:
-    df = download[symbol].dropna()
-    df = df.copy()
-    # compute (df,symbol,10)
-    package = compute, (df, symbol, 10), symbol+" compute"
+for symbol in symbols[:4]:
+    df = ddr[symbol]
+    # df = df.copy()
+    compute (df,symbol,10)
+    # package = compute, (df, symbol, 10), symbol+" compute"
 
-    processThread.putQ (package)  # format: (func, (*args), jobName)
+    # processThread.putQ (package)  # format: (func, (*args), jobName)
 
 # q.qsize()
 
+ddr['JNUG'].info(verbose=False, memory_usage="deep")
+mpfdf = ddr['JNUG']
 
+squeezes = [col for col in mpfdf if col.startswith('SQZ')]
+mpfdf[squeezes][-2:].to_json(orient='split', double_precision=2)
+mpfdf[['open', 'high', 'low','close']][-10:].to_json(orient='split', double_precision=2)
+mpfdf[['open', 'high', 'low','close']][-50:].to_json(orient='columns', double_precision=2, date_unit='s')
+
+import json
+from json import encoder
+encoder.FLOAT_REPR = lambda o: format(o, '.2f')
+json.dumps(js)
 
 def fix_timezone (dfdata) : # multi index 'df'
     # Timezone/ daylight saving fix
@@ -185,89 +204,3 @@ def fix_timezone2 (df) : # multi index 'df'
             notfound.append(symbol)
     print (notfound)
 
-
-
-def getData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=None, days=None) : # only 1 symbol ata a time # download if does not exist
-
-    flink = TICKDATA + symbol+'.'+interval+'.pickle'
-    dfdata = None
-    if not os.path.exists(flink) : # then download an save it
-        # correct interval text alternatives
-        finterval = {
-            "1H": "60m",
-            "1h": "60m",
-            "H1": "60m",
-            "h1": "60m",
-            "1D": "1d",
-            "1d": "1d",
-            "5m": "5m",
-            "5M": "5m",
-        }
-        interval = finterval.get(interval, None)
-        if interval == None : return None
-
-        dfdata = yf.download(tickers=symbol, interval=interval, period="730d")
-        if len(dfdata)>0  : # if successful download
-            pd.to_pickle(dfdata, flink)
-            print ("Successful download : ", symbol, interval)
-            # print (dfdata.head(10))
-        else :
-            print (symbol, 'ERROR!')
-            # exit loop
-    else : # read from pickle
-        dfdata = pd.read_pickle(flink)
-    df = dfdata
-
-    if not dates == None : # only
-        sd, ed = dates
-        df = dfdata.loc[sd:ed]
-    elif not bars == None: # only
-        sb, eb = bars
-        print (bars)
-        df = df.iloc[sb:eb]
-
-    return df
-
-
-def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=None) : # only 1 symbol ata a time # download if does not exist
-
-    dfdata = None
-    # correct interval text alternatives
-    finterval = {
-        "1H": "60m",
-        "1h": "60m",
-        "H1": "60m",
-        "h1": "60m",
-        "1D": "1d",
-        "1d": "1d",
-        "5m": "5m",
-        "5M": "5m",
-    }
-    interval = finterval.get(interval, None)
-    if interval == None : return None
-
-
-    if not period == None:
-        dfdata = yf.download(tickers=symbol, interval=interval, period=period)
-    else:
-        return 'Period Not specified'
-
-    if len(dfdata)>0  : # if successful download
-        print ("Successful download : ", symbol, interval, period)
-        # print (dfdata.head(10))
-    else :
-        print (symbol, 'ERROR!')
-        # exit loop
-
-    df = dfdata
-
-    # filter operations
-    if not dates == None : # only
-        sd, ed = dates
-        df = dfdata.loc[sd:ed]
-    elif not bars == None: # only
-        sb, eb = bars
-        print (bars)
-        df = df.iloc[sb:eb]
-
-    return df
