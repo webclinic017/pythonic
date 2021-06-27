@@ -23,7 +23,7 @@ def setMaxWorker(maxWorkers) :
 
 def genericConsumer (queue): ## create a live consumer thread with has_q semaphore 
     
-    print (f'Staring CPU bound tasks with {max_workers} process workers.')
+    print (f'Staring IO bound tasks with {max_workers} thread workers.')
     # We can use a with statement to ensure threads are cleaned up promptly        
     # with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
