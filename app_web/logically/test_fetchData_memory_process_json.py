@@ -60,7 +60,7 @@ symbols = watchlist.TICK.to_list()
 ddr = {} # define empty 
 
 for symbol in symbols:  # load all data to memory 
-    ddr[symbol] = data.getData (symbol=symbol, interval='1D').dropna()
+    ddr[symbol] = data.getData (symbol=symbol, interval='5m').dropna()
 
 # ddr['AMZN']
 # ddr['AMZN'].info(verbose=False, memory_usage="deep")
