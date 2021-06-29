@@ -11,6 +11,7 @@ ALGODATA    = '/home/towshif/code/python/pythonic/database/dataAlgo/'
 RESULTS     = '/home/towshif/code/python/pythonic/database/dataResults/'
 DATAROOT    = '/home/towshif/code/python/pythonic/database/' 
 OLDDATA     = '/home/towshif/code/python/pythonic/database/olddata/' 
+DATATEMP     = '/home/towshif/code/python/pythonic/database/dataTemp/'
 
 
 def getData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=None) : # only 1 symbol ata a time # download if does not exist 
@@ -107,3 +108,5 @@ def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=No
         df = df.iloc[sb:eb]
 
     return df
+
+

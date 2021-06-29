@@ -7,7 +7,7 @@ Impl:
 # pylint: disable=broad-except
 
 from flask import Flask, abort, jsonify, request, send_file, make_response 
-import logically.datasource as data
+import logically.datasource2 as data
 import logically.algo1 as algo1
 import pandas as pd 
 
