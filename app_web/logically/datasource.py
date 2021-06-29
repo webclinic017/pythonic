@@ -229,14 +229,24 @@ def updateData (symbol='SPY', interval='1H', dates=None, bars=None, period=None,
     return dfdata
 
 
-
-def updateDataEOD (watchlistName=None, interval='1H', persist=False) : 
+def updateDataEODAll (watchlistName=None, persist=True) :
     """ Update database end of day (EOD) data for 
-        default (all): 1H, 1D, 4H, 5m intervals unless specified
+    default (all): 1H, 1D, 4H, 5m intervals unless specified
+    persists (to disk) : False (default)
+    """
+    for interval in ['1D', '1H', '5m'] : 
+        updateDataEOD (watchlistName=None, interval=interval, persist=True)
+    
+    print ( "Update Complete." )
+
+
+def updateDataEOD (watchlistName=None, interval='1H', persist=True) : 
+    """ Update database end of day (EOD) data for 
+        default : 1H interval unless specified
         persists (to disk) : False (default)
     """
     
-    # updateWatchlistLastUpdated() # update entire watchlist first 
+    updateWatchlistLastUpdated(watchlistName) # update entire watchlist first 
 
     symbols = None 
     dfdata = None
@@ -253,38 +263,47 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False) :
     # get the latest updated watchlist 
     watchlist = getWatchlist(watchlistName) # defaults to default watclist 
     symbols = watchlist.TICK.to_list()
-
-    # find the start date : this is the min of last updated 'end.1H' for eg. columns 
-    minDate = watchlist['end.'+interval].min() 
-    maxDate = watchlist['end.'+interval].max() 
-    start = minDate.date() - timedelta(days=1) 
-    end = datetime.today().date() + timedelta(days=1)
-    # end = maxDate.date() + timedelta(days=5)
-    print ( f"Watchlist start={start} end={end}")
     
     symArray = list(chunks (symbols, 25))  # generate a list of symbol list of length 25 each 
     # print ( symArray)
 
-    for symbols in symArray[:1]: 
+    for symbols in symArray : # symArray[:1]
         download = None
         print (f"downloading {symbols}")
-        # start bulk download using yf
-        if interval == '5m' :             
-            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
-        else: 
-            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
-        
-        ## Update all the pickles 
-        for symbol in symbols : 
-            dfdata = getDataFromPickle(symbol, interval=interval)
-            d = fix_timezone(download[symbol]) # extract Df from download and fixtimezone
-            # Append to the existing dataframe 
-            dfdata = pd.concat( (dfdata, d), axis=0)
 
-            ddr[symbol] = dfdata  # append to local dict # debub only 
-        
-    return ddr
-       
+        # find the start date : this is the min of last updated 'end.1H' for eg. columns 
+        minDate = watchlist.loc[symbols]['end.'+interval].min() 
+        maxDate = watchlist.loc[symbols]['end.'+interval].max() 
+        start = minDate.date() - timedelta(days=1) 
+        end = datetime.today().date() + timedelta(days=1)
+        # end = maxDate.date() + timedelta(days=5)
+        print ( f"Watchlist start={start} end={end}, interval: {interval}")
+
+        # determine if ther is a need to update
+        if minDate.date() < datetime.today().date() : ## Update if data us outdated
+            print ("DB outdated. Update started")
+
+            # start bulk download using yf
+            if interval == '5m' :             
+                download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
+            else: 
+                download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
+            
+            ## Update all the pickles 
+            for symbol in symbols : 
+                dfdata = getDataFromPickle(symbol, interval=interval)
+                d = fix_timezone(download[symbol]) # extract Df from download and fixtimezone
+                # Append to the existing dataframe 
+                dfdata = pd.concat( [dfdata, d])
+                dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
+                ddr[symbol] = dfdata  # append to local dict # debub only 
+
+                # Write to disk as pickle 
+                flink = TICKDATA + symbol+'.'+interval+'.pickle'
+                if persist : pd.to_pickle(dfdata, flink)
+
+    return ddr  ## return dict of DFs 
+
 
 
 def chunks(mylist, n):    
@@ -420,6 +439,7 @@ def updateWatchlistLastUpdated(watchlistName=None, interval=None, symbol=None) :
 
     return watchlist  
 
+pd.options.mode.chained_assignment = None
 
 def fix_timezone (dfdata) : # for a single DF : dfdata
     """Timezone/ daylight saving fix for US instruments: 

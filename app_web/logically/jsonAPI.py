@@ -75,11 +75,19 @@ data.updateData('SPT', '1h')
 data.updateData('SPY', '1H')
 data.updateData('AAL', '1H')
 data.updateData('AAL', '1D')
-data.getData('AAL', '1D')
+data.getData('JNUG', '1D')
 
 # df = data.updateData('SPT', '5m')
 # df.drop(df[(df.index.hour ==16) & (df.index.minute == 0)].index, inplace=True)
 
 download = data.updateDataEOD(interval='1D')
+download = data.updateDataEOD(interval='1H')
+download = data.updateDataEOD(interval='5m')
 
-data.getDataFromPickle('KLAC', '5m')
+download['JNUG'].loc['2021-04-15']
+download['JNUG'].loc['2021-04-14' : '2021-04-21' ]
+download['JNUG'].loc['2021-04-14' :  ]
+
+data.updateDataEODAll()
+
+data.getDataFromPickle('SPY', '1D')

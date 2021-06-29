@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 import yfinance as yf
 import finta as ft
 
-import logically.datasource as data  # disable this whn API is runing 
+import logically.datasource2 as data  # disable this whn API is runing 
 
 import matplotlib
 matplotlib.use('Agg')
