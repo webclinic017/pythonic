@@ -35,8 +35,7 @@ watchlist = "WatchListDB.pickle"  # initialize
 # dfdata
 #symbols = dfdata.TICK.to_list()
 
-symbols = ['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW',
-        'SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^DJI', '^VIX', ]
+symbols = ['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI', 'LGIH', 'AMAT', 'THI', 'ABG', 'CTB', 'KIRK', 'LAD', 'TFII', 'LOB', 'TPX', 'USAK', 'CENTA', 'LEN', 'LOW','SYNA', 'TBBK', 'WGO', 'CALX', 'GSL', 'KLIC', 'AVNW', 'HZNP', 'AMRK', 'BGFV', 'CCS', 'GROW', 'HIBB', 'IDT', 'KBH', 'MDC', 'MHO', 'SCVL', 'SLM', 'UNFI', 'ACLS', 'AOUT', 'GPI', 'HIMX', 'HTH', 'RCII', 'TRQ', 'CUBI', 'DAC', 'HVT', 'ICHR', 'MIK', 'ODFL', 'OMI', 'AGCO', '^GSPC', '^NDX', '^DJI', '^VIX', ]
 
 download = pd.read_pickle(DATATEMP+'download.pickle') # read file
 #download = yf.download(tickers=symbols, interval="60m", period="60d", group_by="Ticker")
@@ -143,29 +142,20 @@ for symbol in symbols:
 
 
 
-def fix_timezone (dfdata) : # multi index 'df'
-    # Timezone/ daylight saving fix
+def fix_timezone (dfdata) : # for a single DF 
+    """Timezone/ daylight saving fix
+    """
     notfound = []
-    # symbols = df.columns.levels[0].tolist()  # list of Ticks in the multi index dataframe
-    # for symbol in symbols :
-        # dfdata = df [symbol]
     dfdata['Datetime'] = dfdata.index
     dfdata['Datetime'] = dfdata['Datetime'].dt.tz_localize(None)
     dfdata.set_index('Datetime', inplace=True)
 
-    if len(dfdata)>0  : # if successful download
-        print ("Successful : ")
-        # print (dfdata.head(10))
-    # else :
-        # exit loop
-    else :
-        print ('ERROR!')
-        # notfound.append(symbol)
-    # print (notfound)
+    return dfdata
 
 
-
-def fix_timezone2 (df) : # multi index 'df'
+#   this is redundant - do not use 
+#   Use fix_timezone (dfdata) IF df index is already Datetimestamp
+def fix_timezone_MultiIndex (df) : # multi index 'df'
     # Timezone/ daylight saving fix
     notfound = []
     symbols = df.columns.levels[0].tolist()  # list of Ticks in the multi index dataframe
