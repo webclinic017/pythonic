@@ -40,7 +40,7 @@ finterval = {
     "5M": "5m",
 }
 
-
+### this is redundant at this time 
 def getData (symbol='SPY', interval='1H', dates=None, bars=None, period=None, days=None) : # only 1 symbol ata a time # download if does not exist 
     
     # correct interval text alternatives for pickle names
@@ -65,7 +65,8 @@ def getData (symbol='SPY', interval='1H', dates=None, bars=None, period=None, da
         if len(dfdata)>0  : # if successful download 
             # fix timezone 
             dfdata = fix_timezone(dfdata)
-            dfdata.drop(dfdata[(dfdata.index.hour ==16) & (dfdata.index.minute == 0)].index, inplace=True) if yinterval=='5m' else None ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
+            if yinterval=='5m' : 
+                dfdata.drop(dfdata[(dfdata.index.hour ==16) & (dfdata.index.minute == 0)].index, inplace=True) ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
             # pd.to_pickle(dfdata, flink)
             print ("Successful download : ", symbol, yinterval)
             # print (dfdata.head(10))            
@@ -75,7 +76,11 @@ def getData (symbol='SPY', interval='1H', dates=None, bars=None, period=None, da
             # exit loop 
             
     else : # read from pickle 
-        dfdata = pd.read_pickle(flink)
+        try: 
+            dfdata = pd.read_pickle(flink)
+        except:
+            print (f"Error Reading {flink} with for {symbol}{interval}")
+            pass
     
     df = dfdata # if download successful and len(df) > 0 
 
@@ -102,12 +107,12 @@ def getDataFromPickle (symbol='SPY', interval='1H', dates=None, period=None) : #
     dfdata = None
     
     if not os.path.exists(flink) : # then download an save it 
-        print (f"Symbol {symbol} not in database. Downloading from internet.")
+        print (f"Symbol {symbol} not in database.")
         return None
         # exit loop             
     else : # read from pickle 
         dfdata = pd.read_pickle(flink)
-    return dfdata
+    return dfdata.dropna()
 
 
 def downloadData (symbol='SPY', interval='1H', dates=None, bars=None, period=None, days=None) : # only 1 symbol ata a time # download if does not exist 
@@ -162,14 +167,17 @@ def downloadData (symbol='SPY', interval='1H', dates=None, bars=None, period=Non
     return df
 
 
-
-def updateData (symbol='SPY', interval='1H', dates=None, bars=None, period=None, days=None, watchlistName=None) : 
-    # only 1 symbol ata a time # download if does not exist 
+def getupdatedData (symbol='SPY', interval='1H', watchlistName=None) :  
+    """ Append live data to pickle and show
+        Will update symbol and return df to latest combining pickles and latest live
+        !! this will NOT persist to disk
+    """
+    # only 1 symbol ata a time # download if does not exist to lates 
     
     watchlist = getWatchlist(watchlistName) # defaults to default watclist 
     symbols = watchlist.TICK.to_list()
 
-    dfdata = getData(symbol=symbol, interval=interval)
+    dfdata = getDataFromPickle(symbol=symbol, interval=interval)
 
     # print (dfdata)
     if dfdata is None: 
@@ -192,7 +200,7 @@ def updateData (symbol='SPY', interval='1H', dates=None, bars=None, period=None,
             if yinterval == None : return None
 
             # determine start and end dates for data download 
-            start = end.date() - timedelta(days=1) 
+            start = end.date() # - timedelta(days=1) 
             print (f"{symbol} update required. {end} -> calculated start pos = {start}")
 
             # define new end target date. 
@@ -205,16 +213,19 @@ def updateData (symbol='SPY', interval='1H', dates=None, bars=None, period=None,
             if (datetime.today().date() - start).days > 60 and yinterval=='5m': 
                 ## only for 5m data IF start date is beyond 60 days. 
                 df = yf.download(tickers=symbol, interval=yinterval, period=yperiod)
-                df.drop(df[(df.index.hour ==16) & (df.index.minute == 0)].index, inplace=True)  ## drop last row if it contains 16:00 hr data with 0 volume. 
+                if len(df)>0: df.drop(df[(df.index.hour ==16) & (df.index.minute == 0)].index, inplace=True)  ## drop last row if it contains 16:00 hr data with 0 volume. 
 
             else : 
                 df = yf.download(tickers=symbol, interval=yinterval, period=yperiod, start=start, end=end)
 
-            df = fix_timezone(df)
+            df = fix_timezone(df) if len(df) > 0 else None
+            print (df) # debug 
 
             ######################      UPDATE and APPEND module    ###########################
                        
-            dfdata = dfdata.append (df, ignore_index = False)  # appends data to previous data
+            # Append to the existing dataframe 
+            dfdata = pd.concat( [dfdata, df])
+            dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
 
             return dfdata
 
@@ -229,15 +240,19 @@ def updateData (symbol='SPY', interval='1H', dates=None, bars=None, period=None,
     return dfdata
 
 
+
+########################    MODULES FOR EOD DATABASE UPDATE    ###########################
+
 def updateDataEODAll (watchlistName=None, persist=True) :
     """ Update database end of day (EOD) data for 
     default (all): 1H, 1D, 4H, 5m intervals unless specified
     persists (to disk) : False (default)
     """
     for interval in ['1D', '1H', '5m'] : 
-        updateDataEOD (watchlistName=None, interval=interval, persist=True)
+        updateDataEOD (watchlistName=watchlistName, interval=interval, persist=persist)
     
-    print ( "Update Complete." )
+    print ( "**********     Data Update Complete.   ************" )
+    sanitizeWatchlist(watchlistName=watchlistName, persist=persist)
 
 
 def updateDataEOD (watchlistName=None, interval='1H', persist=True) : 
@@ -254,7 +269,9 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
 
     # select interval text for pickle names based on interval text alternatives 
     interval = finterval.get(interval, None)
-    if interval == None : return None
+    if interval == None : 
+        print (f"Bad interval {interval}")
+        return None
     
     # select interval and period limits for yf download 
     yinterval, yperiod = dinterval.get(interval, None)
@@ -262,14 +279,16 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
 
     # get the latest updated watchlist 
     watchlist = getWatchlist(watchlistName) # defaults to default watclist 
-    symbols = watchlist.TICK.to_list()
+
+    # sort by time lastupdated and then generate list: to improve performance 
+    symbols = watchlist.sort_values(by='end.'+interval, ascending=True).TICK.to_list()
     
     symArray = list(chunks (symbols, 25))  # generate a list of symbol list of length 25 each 
     # print ( symArray)
 
     for symbols in symArray : # symArray[:1]
         download = None
-        print (f"downloading {symbols}")
+        print (f"##\t\tDownloading {symbols}")
 
         # find the start date : this is the min of last updated 'end.1H' for eg. columns 
         minDate = watchlist.loc[symbols]['end.'+interval].min() 
@@ -277,6 +296,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
         start = minDate.date() - timedelta(days=1) 
         end = datetime.today().date() + timedelta(days=1)
         # end = maxDate.date() + timedelta(days=5)
+        print (f"Dates : min {minDate}, max {maxDate}")
         print ( f"Watchlist start={start} end={end}, interval: {interval}")
 
         # determine if ther is a need to update
@@ -288,19 +308,27 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
                 download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
             else: 
                 download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
-            
+
             ## Update all the pickles 
             for symbol in symbols : 
-                dfdata = getDataFromPickle(symbol, interval=interval)
-                d = fix_timezone(download[symbol]) # extract Df from download and fixtimezone
-                # Append to the existing dataframe 
-                dfdata = pd.concat( [dfdata, d])
-                dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
-                ddr[symbol] = dfdata  # append to local dict # debub only 
+                try : 
+                    dfdata = getDataFromPickle(symbol, interval=interval)
+                    d = download[symbol].dropna() ## drop na from extracted df 
+                    if len (d) > 0 : 
+                        d = fix_timezone(d) # extract Df from download and fixtimezone
+                        # Append to the existing dataframe 
+                        dfdata = pd.concat( [dfdata, d])
+                        dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
+                        ddr[symbol] = dfdata  # append to local dict # debub only 
 
-                # Write to disk as pickle 
-                flink = TICKDATA + symbol+'.'+interval+'.pickle'
-                if persist : pd.to_pickle(dfdata, flink)
+                        # Write to disk as pickle 
+                        flink = TICKDATA + symbol+'.'+interval+'.pickle'
+                        if persist : pd.to_pickle(dfdata, flink)
+                except: 
+                    print (f"Error processing {symbol} {interval}")
+                    pass
+        else: 
+            print (f"DB already upto date | End Date {minDate.date()}. Skipping")
 
     return ddr  ## return dict of DFs 
 
@@ -311,7 +339,7 @@ def chunks(mylist, n):
     for i in range(0, len(mylist), n):
         yield mylist[i:i + n]
 
-
+###########################################################################################
 
 
 def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=None) : # only 1 symbol ata a time # download if does not exist 
@@ -360,6 +388,40 @@ def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=No
     return df
 
 
+########################    MODULES FOR WATCHLIST MANAGEMENT    ###########################
+
+def sanitizeWatchlist (watchlistName=None, oldDays=5, persist=False) :
+    """ Removes symbols which are not updated beyond 5 days 
+    """
+
+    watchlist = getWatchlist(watchlistName)
+    delist = getWatchlist('delistedWatchList.pickle')
+
+    df = watchlist[['end.1H']]
+    value_counts = df.stack().value_counts() # Entire DataFrame 
+    threshold = 0.10*value_counts.sum() ## 10% of the total # of instruments 
+    to_remove = value_counts[value_counts <= threshold].index 
+    value_counts[value_counts <= 5].index
+    fivedaysago = datetime.today().date() - timedelta(days=oldDays) # if older than 5 days 
+    pp = watchlist[watchlist['end.1H'].isin(to_remove)]['end.1H']
+    removelist = pp[pp < fivedaysago].index
+    print ( f"Symbol to remove (probably delisted): {removelist}")
+    if len(removelist) == 0 : 
+        print ("No delisted symbol found. Nothing to remove. Quitting.")
+        return 
+
+    delist = watchlist.loc[removelist] # add to delistwatchlist 
+    # print (delist)
+    delistwatchList = getWatchlist('delistedWatchList.pickle')
+    # print (delistwatchList, delist)
+    delistwatchList = pd.concat([delistwatchList, delist]) ## add to watchlist 
+    delistwatchList = delistwatchList[~delistwatchList.index.duplicated(keep='last')] ## remove duplicates     
+    delistwatchList.to_pickle(DATAROOT+'delistedWatchList.pickle') ## persist to disk 
+
+    watchlist.drop(removelist, inplace = True) ## drop these from watchlist 
+    if persist : saveWatchlist(watchlist=watchlist, watchlistName=watchlistName)
+    
+
 def getWatchlist (watchlistName=None, interval='1H') : 
     symbols = None 
 
@@ -371,6 +433,55 @@ def getWatchlist (watchlistName=None, interval='1H') :
     watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
     return watchlist    
 
+def showWatchlist (watchlistName=None, interval='1H') : 
+    """Describe frequency of a watchlist -> value counts 
+    """
+    symbols = None 
+
+    if not watchlistName : 
+        # read default watchlist 
+        # read watchlist
+        watchlistName = "WatchListDB.pickle"  # initialize
+
+    watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+    # print (watchlist)
+    filter_col = [col for col in watchlist if col.startswith('end')]
+    df = watchlist[filter_col]
+    value_counts = df.stack().value_counts()
+    print ("Listing Value Counts", value_counts)
+
+
+
+
+def saveWatchlist (watchlist=None, watchlistName=None) : 
+    if (watchlist is not None) and (watchlistName is not None) : 
+        watchlist.to_pickle(DATAROOT+watchlistName)
+        print (f"Saved Watchlist to {watchlistName}")
+    
+    elif (watchlist is not None) and (watchlistName is None) : 
+            # read default watchlist 
+            # read watchlist
+            watchlistName = "WatchListDB.pickle"  # initialize  
+            watchlist.to_pickle(DATAROOT+watchlistName)
+            print (f"Saved Watchlist to {watchlistName}")  
+    else : 
+        print ("ERROR Saving. Watchlist or WatchlistName not provided.")
+        return 
+
+
+def addToWatchlist (watchlistName=None, symbols=None) :
+    if watchlistName is not None: 
+        # read default watchlist 
+        # read watchlist
+        watchlistName = "WatchListDB.pickle"  # initialize
+
+    watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+    watchlist.append(pd.DataFrame(symbols, columns=['TICK']), ignore_index=True)
+    watchlist['id'] = watchlist['TICK']
+    watchlist.set_index('id', inplace=True)  # prevent duplicates 
+    watchlist = watchlist[~watchlist.index.duplicated(keep='last')]
+    
+
 
 def loadDatatoMemory (watchlistName=None, interval='1H') : 
     """Reads all pickles to memory and return dictionary {symbol: dataframe}
@@ -378,7 +489,7 @@ def loadDatatoMemory (watchlistName=None, interval='1H') :
     """
     symbols = None 
 
-    if not watchlistName : 
+    if watchlistName is not None: 
         # read default watchlist 
         # read watchlist
         watchlistName = "WatchListDB.pickle"  # initialize
@@ -388,16 +499,33 @@ def loadDatatoMemory (watchlistName=None, interval='1H') :
     
     ddr = {} # define empty 
     for symbol in symbols:  # load all data to memory 
-        ddr[symbol] = getData (symbol=symbol, interval=interval).dropna()
+        ddr[symbol] = getDataFromPickle(symbol=symbol, interval=interval).dropna()
     
     return ddr, symbols 
+
+## new watchlist 
+def createWatchlist (watchlistName='DefaultWatchlist.pickle', symbols= None) :
+    watchlist = pd.DataFrame(columns=['TICK', 'info' ])
+
+    for symbol in symbols: 
+        watchlist=watchlist.append({
+            'TICK' : symbol        
+        }, ignore_index=True)
+
+    watchlist['id'] = watchlist['TICK']
+    watchlist.set_index('id', inplace=True)  # prevent duplicates 
+    print (watchlist)
+    watchlist.to_pickle(DATAROOT+watchlistName)
+    return watchlist
+
+
 
 ## Helper 
 def updateWatchlistLastUpdated(watchlistName=None, interval=None, symbol=None) : 
     """ Update watchlists with lastupdated column for interval : 1H, 1D, 4H, 5m  
         column name format: start.<interval> 
     """
-    if not watchlistName : 
+    if watchlistName is None: 
         # read default watchlist 
         # read watchlist
         watchlistName = "WatchListDB.pickle"  # initialize
@@ -430,16 +558,13 @@ def updateWatchlistLastUpdated(watchlistName=None, interval=None, symbol=None) :
         end = d.index[-1] # last datetime index 
         watchlist.loc[symbol, ['start.' + interval, 'end.' +interval]] = [start, end]  # update start and end time 
 
-
-
-
     #  Save watchlist to disk 
     watchlist.to_pickle(DATAROOT+watchlistName)
     print (f"Successfully updated and saved watchlist {watchlistName} to disk")
 
     return watchlist  
 
-pd.options.mode.chained_assignment = None
+pd.options.mode.chained_assignment = None  ## Suppress copy slice warning 
 
 def fix_timezone (dfdata) : # for a single DF : dfdata
     """Timezone/ daylight saving fix for US instruments: 
@@ -453,5 +578,6 @@ def fix_timezone (dfdata) : # for a single DF : dfdata
     return dfdata
 
     
-
+def analyseDatabaseIntegrity () : 
+    pass
 
