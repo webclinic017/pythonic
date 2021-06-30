@@ -540,20 +540,20 @@ def updateWatchlistLastUpdated(watchlistName=None, interval=None, symbol=None) :
     if not interval and not symbol : # when not specified default = all     
         for interval in ['1H', '1D', '5m'] : 
             for symbol in symbols:  # load all data to memory 
-                d = getData (symbol=symbol, interval=interval).dropna()
+                d = getDataFromPickle (symbol=symbol, interval=interval).dropna()
                 start = d.index[0] # first datetime index 
                 end = d.index[-1] # last datetime index 
                 watchlist.loc[symbol, ['start.' + interval, 'end.' +interval]] = [start, end]  # update start and end time 
     
     elif symbol and not interval : 
         for interval in ['1H', '1D', '5m'] :             
-            d = getData (symbol=symbol, interval=interval).dropna()
+            d = getDataFromPickle (symbol=symbol, interval=interval).dropna()
             start = d.index[0] # first datetime index 
             end = d.index[-1] # last datetime index 
             watchlist.loc[symbol, ['start.' + interval, 'end.' +interval]] = [start, end]  # update start and end time 
     
     elif symbol and interval : ## if single signal and interval is specified          
-        d = getData (symbol=symbol, interval=interval).dropna()
+        d = getDataFromPickle (symbol=symbol, interval=interval).dropna()
         start = d.index[0] # first datetime index 
         end = d.index[-1] # last datetime index 
         watchlist.loc[symbol, ['start.' + interval, 'end.' +interval]] = [start, end]  # update start and end time 
