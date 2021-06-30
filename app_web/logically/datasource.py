@@ -112,6 +112,7 @@ def getDataFromPickle (symbol='SPY', interval='1H', dates=None, period=None) : #
         # exit loop             
     else : # read from pickle 
         dfdata = pd.read_pickle(flink)
+        
     return dfdata.dropna()
 
 
@@ -167,6 +168,7 @@ def downloadData (symbol='SPY', interval='1H', dates=None, bars=None, period=Non
     return df
 
 
+
 def getupdatedData (symbol='SPY', interval='1H', watchlistName=None) :  
     """ Append live data to pickle and show
         Will update symbol and return df to latest combining pickles and latest live
@@ -190,7 +192,7 @@ def getupdatedData (symbol='SPY', interval='1H', watchlistName=None) :
         
         print (f"End:{end}")
         
-        if end.date() < datetime.today().date() : ## Update if data us outdated 
+        if end.date() < datetime.today().date() : ## Update if data is outdated 
             print ("DB outdated. Update started")
 
             ######################      DOWNLOAD  module    ###########################
@@ -225,7 +227,7 @@ def getupdatedData (symbol='SPY', interval='1H', watchlistName=None) :
                        
             # Append to the existing dataframe 
             dfdata = pd.concat( [dfdata, df])
-            dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
+            dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
 
             return dfdata
 
@@ -318,7 +320,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
                         d = fix_timezone(d) # extract Df from download and fixtimezone
                         # Append to the existing dataframe 
                         dfdata = pd.concat( [dfdata, d])
-                        dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
+                        dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
                         ddr[symbol] = dfdata  # append to local dict # debub only 
 
                         # Write to disk as pickle 
@@ -338,6 +340,33 @@ def chunks(mylist, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(mylist), n):
         yield mylist[i:i + n]
+
+
+def gen4Hdata (symbol=None, persist=False) : 
+
+    if symbol is None : return None
+    dfdata = getDataFromPickle(symbol=symbol, interval='1H')
+    if dfdata is None : 
+        print (f"{symbol} is incorrect/delisted/not-avaiable. Check source.")
+        return None
+
+
+    interval = "4H"
+    # Resampling Code 
+    ## Resample to 4H timefeame 
+    aggregation = {'Open'  :'first',
+                'High'  :'max',
+                'Low'   :'min',
+                'Close' :'last',
+                'Volume':'sum'}
+    dfdata = dfdata.resample('4H').agg(aggregation).dropna()
+
+    if persist : 
+        flink = TICKDATA + symbol+'.'+interval+'.pickle'
+        pd.to_pickle(dfdata, flink) # save pickle to disk 
+    
+    return dfdata
+
 
 ###########################################################################################
 
@@ -452,7 +481,6 @@ def showWatchlist (watchlistName=None, interval='1H') :
 
 
 
-
 def saveWatchlist (watchlist=None, watchlistName=None) : 
     if (watchlist is not None) and (watchlistName is not None) : 
         watchlist.to_pickle(DATAROOT+watchlistName)
@@ -470,7 +498,7 @@ def saveWatchlist (watchlist=None, watchlistName=None) :
 
 
 def addToWatchlist (watchlistName=None, symbols=None) :
-    if watchlistName is not None: 
+    if watchlistName is None: 
         # read default watchlist 
         # read watchlist
         watchlistName = "WatchListDB.pickle"  # initialize
@@ -483,23 +511,45 @@ def addToWatchlist (watchlistName=None, symbols=None) :
     
 
 
+def searchWatchlist (watchlistName=None, symbols=None) : 
+    """Search if symbol or list of symbols are in a watchlist 
+    """
+    if watchlistName is None: 
+        watchlistName = "WatchListDB.pickle"  # initialize
+    watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+    flist = []
+    for symbol in symbols : 
+        if symbol in watchlist.index.tolist() : 
+            flist.append(symbol)
+    if len(flist) > 0: 
+        print (f"Watchlists query: {symbols} ", watchlist.loc[flist])
+    else: 
+        print (f" {symbols} Not found")
+
+
+
 def loadDatatoMemory (watchlistName=None, interval='1H') : 
     """Reads all pickles to memory and return dictionary {symbol: dataframe}
     defaults: interval = 1H 
     """
     symbols = None 
 
-    if watchlistName is not None: 
+    if watchlistName is None: 
         # read default watchlist 
         # read watchlist
-        watchlistName = "WatchListDB.pickle"  # initialize
+        watchlistName = 'WatchListDB.pickle'  # initialize
+    print (f"Reading watchlist {watchlistName}")
 
     watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file    
     symbols = watchlist.TICK.to_list()
     
     ddr = {} # define empty 
     for symbol in symbols:  # load all data to memory 
-        ddr[symbol] = getDataFromPickle(symbol=symbol, interval=interval).dropna()
+        try : 
+            ddr[symbol] = getDataFromPickle(symbol=symbol, interval=interval).dropna()
+        except : 
+            print (f"Error reading symbolo {symbol}")
+            pass
     
     return ddr, symbols 
 

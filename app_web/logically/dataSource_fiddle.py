@@ -25,6 +25,8 @@ from datasource import *  ### import all variables and methods # dont use in pro
 ddr, symbols = data.loadDatatoMemory(interval='1D') 
 ddr['SAIA']
 
+DATAROOT
+
 d = ddr['SAIA']
 ddr['AMD'].iloc[-1]
 d.iloc[-1]
@@ -51,8 +53,18 @@ data.getWatchlist(watchlistName='WatchListDBFull.pickle')
 # data.createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
 download = data.updateDataEOD(interval='1H',persist=False)
 
+d = data.getWatchlist()
 
+## search watchlist 
+'SPT' in d.index.tolist() # True or False 
 
+watchlist = data.getWatchlist()
+data.searchWatchlist(symbols=['SPT', 'AAL'])
+
+s = ['AMD', 'AAL']
+s.append('AAPL')
+s
+watchlist.loc[s]
 
 ######################################################## sanitize watchlist [Notes] 
 
@@ -133,7 +145,7 @@ df[filter_col].value_counts().index.tolist()
 df[filter_col].nunique()
 
 
-
+### getData tests and Download functions 
 w['end.1H'].min()
 
 data.getData('WSM', '1h')
@@ -159,6 +171,9 @@ download = data.getupdatedData('NVDA', '5m')
 download.loc['2021-06-28' :  ].tail(25)
 download.loc['2021-06-28 11:30:00'] ## check fro multiple entries 
 
+data.gen4Hdata('SPY')
+data.gen4Hdata('SPT')
+data.getData('SPY')
 
 
 data.getupdatedData('BK', '1D')
@@ -184,8 +199,8 @@ download['JNUG'].loc['2021-04-15']
 download['JNUG'].loc['2021-04-14' : '2021-04-21' ]
 download['JNUG'].loc['2021-04-14' :  ]
 
-
-
+dfdata = getDataFromPickle('SPT')
+dfdata
 
 watchlist = getWatchlist('WatchListDBFull.pickle') # defaults to default watclist 
 watchlist
@@ -196,12 +211,17 @@ data.updateDataEODAll(watchlistName='WatchListLive.pickle')
 
 data.updateDataEODAll(watchlistName='WatchListDBFull.pickle')
 data.updateDataEODAll()
-data.getDataFromPickle('SPT', '1H')
+
+##############################          DIAGNOSTICS 
+
+data.getDataFromPickle('SPT', '1D')
 data.getDataFromPickle('AMD', '1H')
 data.getDataFromPickle('MIK', '1H')
 data.getDataFromPickle('SPY', '5m')
 data.getupdatedData('SNA', '5m')
-# data.getData('MIK', '1h').dropna()
+# data.getData('MIK', '1h')
+data.getupdatedData('MIK', '1h')
+data.getupdatedData('THI', '1D')
 
 # import pickle
 # df=pickle.load(open(TICKDATA+'SNA.5m.pickle','rb'))
@@ -257,15 +277,17 @@ for symbol in symbols :
         dfdata = dfdata[~dfdata.index.duplicated(keep='first')] # remove duplicated by index
         ddr[symbol] = dfdata  # append to local dict # debub only 
 
-
-
 fix_timezone(df)
 if len(df)>0: df.drop(df[(df.index.hour ==16) & (df.index.minute == 0)].index, inplace=True)
-
 
 yf.download(tickers='^HSI', interval='5m', period='60d', group_by="Ticker")
 
 getDataFromPickle('^GSPC', '5m')
+
+## foreign -> fix_timezone will not work for these instruments. 
 getDataFromPickle('^HSI', '5m')
 getDataFromPickle('^FTSE', '5m')
 getDataFromPickle('^GDAXI', '5m')
+##
+
+
