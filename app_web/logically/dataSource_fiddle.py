@@ -504,10 +504,11 @@ interval='5m'
 ddr, symbols = data.loadDatatoMemory(interval=interval)
 
 random.shuffle(symbols)
-finaldict = data.getTodayOnly (symbolsList=symbols,interval=interval, prepost=True, chunksize=100)
+finaldict = data.getTodayOnly (symbolsList=symbols,interval=interval, prepost=False, chunksize=100)
 
-ramdom
 rsymbol = symbols[6:7][0] # select a random symbol from shuffled list 
 print(rsymbol)
 
 finaldict[rsymbol]
+finaldict.keys()  # all symbol names 
+finaldict['AAPL']
