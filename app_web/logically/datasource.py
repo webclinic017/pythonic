@@ -126,7 +126,7 @@ def getDataFromPickle (symbol='SPY', interval='1H', dates=None, period=None) : #
     return dfdata.dropna()
 
 
-def getToday (symbolsList=None, dfdict=None, interval='1H', prepost=False) : 
+def getTodayAll (symbolsList=None, dfdict=None, interval='1H', prepost=False, chunksize=25) : 
     """ Get todays Live data and append to dfdict 
         Assumption: data in dfdict is updated to previous EOD 
         No Time check will be included for performance reasons. 
@@ -139,7 +139,7 @@ def getToday (symbolsList=None, dfdict=None, interval='1H', prepost=False) :
     # Start 
     start = datetime.today().date() # today only 
 
-    symArray = list(chunks (symbolsList, 25))  # generate chunks of symbol list, length 25 each
+    symArray = list(chunks (symbolsList, chunksize))  # generate chunks of symbol list, length 25 each
     
     for symbols in symArray : # symArray[:1]
     
@@ -166,7 +166,49 @@ def getToday (symbolsList=None, dfdict=None, interval='1H', prepost=False) :
                 pass
     
     return dfdict
+
+
+def getTodayOnly (symbolsList=None, interval='1H', prepost=False, chunksize=25) : 
+    """ Get todays Live data of list of symbols and return dict of symbols:DFs
+    """
+    if symbolsList is None : 
+        print ( "Argument Error. No symbols list provided.")
+        return 
     
+    dfdict = {} 
+    # Start 
+    start = datetime.today().date() # today only 
+
+    symArray = list(chunks (symbolsList, chunksize))  # generate chunks of symbol list, length 25 each
+    
+    for symbols in symArray : # symArray[:1]
+    
+        # start bulk download using yf only for TODAY
+        download = yf.download(tickers=symbols, interval=interval, start=start, group_by="Ticker", prepost=prepost)
+
+        print (download.info(verbose=False, memory_usage="deep"))
+
+        ## Update all the pickles
+        for symbol in symbols :
+            try :
+                d = download[symbol].dropna() ## drop na from extracted df
+                
+                if len (d) > 0 :
+                    d = fix_timezone(d) # extract Df from download and fixtimezone
+
+                    # # Append to the existing dataframe
+                    # dfdata = pd.concat( [dfdata, d])
+                    # dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
+                    
+                    dfdict[symbol] = d  # append to local dict # debub only
+            except:
+                print (f"Error processing {symbol} {interval}")
+                pass
+    
+    return dfdict
+
+
+
 
 def downloadlastEODData (symbol='SPY', interval='1H', persist=True) : # only 1 symbol ata a time # download if does not exist
 
