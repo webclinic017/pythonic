@@ -406,13 +406,13 @@ def dataConsistencyCheck (dfdata=None, interval=None ) :
 
 ########################    MODULES FOR EOD DATABASE UPDATE    ###########################
 
-def updateDataEODAll (watchlistName=None, persist=True) :
+def updateDataEODAll (watchlistName=None, persist=True, chunksize=25) :
     """ Update database end of day (EOD) data for
     default (all): 1H, 1D, 4H, 5m intervals unless specified
     persists (to disk) : False (default)
     """
     for interval in ['1D', '1H', '5m'] :
-        updateDataEOD (watchlistName=watchlistName, interval=interval, persist=persist)
+        updateDataEOD (watchlistName=watchlistName, interval=interval, persist=persist, chunksize=chunksize)
 
     # Update data for interval = '4H'
     # get the latest updated watchlist
@@ -427,8 +427,8 @@ def updateDataEODAll (watchlistName=None, persist=True) :
     sanitizeWatchlist(watchlistName=watchlistName, persist=persist)
 
 
-def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
-    """ Update database end of day (EOD) data for
+def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=25) :
+    """ Update database end of day (EOD) data and returns dict {symbol: DF} 
         default : 1H interval unless specified
         persists (to disk) : False (default)
     """
@@ -455,7 +455,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
     # sort by time lastupdated and then generate list: to improve performance
     symbolslist = watchlist.sort_values(by='end.'+interval, ascending=True).TICK.to_list()
 
-    symArray = list(chunks (symbolslist, 25))  # generate a list of symbol list of length 25 each
+    symArray = list(chunks (symbolslist, chunksize))  # generate a list of symbol list of length 25 each
     # print ( symArray)
 
     for symbols in symArray : # symArray[:1]
@@ -504,6 +504,8 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=True) :
                     pass
         else:
             print (f"DB already upto date | End Date {minDate.date()}. Skipping")
+            # load symbols to dict 
+            
 
     return ddr  ## return dict of DFs
 
@@ -668,8 +670,13 @@ def getWatchlist (watchlistName=None, interval='1H') :
         # read default watchlist
         # read watchlist
         watchlistName = "WatchListDB.pickle"  # initialize
+    
+    watchlist = None
+    try: 
+        watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+    except : 
+        watchlist = createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
 
-    watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
     return watchlist
 
 
