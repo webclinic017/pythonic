@@ -442,7 +442,7 @@ getDataFromPickle('^GDAXI', '5m')
 
 ddr, symbols = data.loadDatatoMemory(interval='1H')
 # symbols[:10]
-finaldict = data.getToday(symbolsList=symbols[:10], dfdict=ddr, interval='1H', prepost=True)
+finaldict = data.getTodayAll(symbolsList=symbols[:10], dfdict=ddr, interval='1H', prepost=True)
 
 ddr['AAPL']
 finaldict['AAPL'].tail(20)
@@ -462,13 +462,14 @@ rtd ['AMD']
 
 
 
-# more tests on live using prepost function offline 
+#### more tests on live using prepost function offline 
 
+# test today + old = todayAll()
 import random 
 interval='1H'
 ddr, symbols = data.loadDatatoMemory(interval=interval)
 random.shuffle(symbols)
-finaldict = data.getToday(symbolsList=symbols[:10], dfdict=ddr, interval=interval, prepost=True)
+finaldict = data.getTodayAll(symbolsList=symbols[:10], dfdict=ddr, interval=interval, prepost=True)
 symbols[:10]
 rsymbol = symbols[6:7][0] # select a random symbol from shuffled list 
 print(rsymbol)
@@ -481,10 +482,25 @@ import random
 interval='5m'
 ddr, symbols = data.loadDatatoMemory(interval=interval)
 random.shuffle(symbols)
-finaldict = data.getToday(symbolsList=symbols[:10], dfdict=ddr, interval=interval, prepost=True)
+finaldict = data.getTodayAll(symbolsList=symbols[:10], dfdict=ddr, interval=interval, prepost=True)
 symbols[:10]
 rsymbol = symbols[6:7][0] # select a random symbol from shuffled list 
 print(rsymbol)
 
 ddr[rsymbol]
+finaldict[rsymbol]
+
+
+# test todayOnly()
+import random 
+interval='5m'
+ddr, symbols = data.loadDatatoMemory(interval=interval)
+
+random.shuffle(symbols)
+finaldict = data.getTodayOnly (symbolsList=symbols,interval=interval, prepost=True, chunksize=100)
+
+ramdom
+rsymbol = symbols[6:7][0] # select a random symbol from shuffled list 
+print(rsymbol)
+
 finaldict[rsymbol]
