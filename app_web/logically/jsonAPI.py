@@ -150,8 +150,8 @@ w['end.1H'].min()
 data.getData('WSM', '1h')
 data.getLiveData(interval='5m', period='1d')
 
-data.downloadData('SPT', "1D")
-data.downloadData('AAL', "5m")
+data.downloadlastEODData('SPT', "1D")
+data.downloadlastEODData('AAL', "5m")
 
 data.getData('SPT', '5m')
 data.getData('SPY', '5m')
@@ -162,7 +162,7 @@ data.getupdatedData('SPT', '1h')
 data.getupdatedData('SPY', '1H')
 data.getupdatedData('AAL', '1H')
 
-data.downloadData('SPY', '1H')
+data.downloadlastEODData('SPY', '1H')
 
 data.getDataFromPickle('NVDA', '5m')
 data.getupdatedData('NVDA', '5m')
