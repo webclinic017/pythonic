@@ -52,7 +52,7 @@ updateWatchlistLastUpdated() # DEFAULT watchlist
 data.getWatchlist()
 data.getWatchlist(watchlistName='WatchListDBFull.pickle')
 
-# data.createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
+data.createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
 download = data.updateDataEOD(interval='1H',persist=False)
 
 d = data.getWatchlist()
@@ -313,6 +313,15 @@ data.getData('JNUG', '1D')
 #################################           EOD BULK UPDATER 
 
 
+##############################
+data.updateDataEODAll() # default watchlist 
+data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=100) #default chunksize=25
+data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+#################################
+data.getWatchlist(watchlistName='delistedWatchList.pickle')
+#################################
+
+
 data.updateDataEODAll() # default watchlist 
 data.getDataFromPickle('AMD', '4H')
 data.getDataFromPickle('AMD', '1D')
@@ -323,8 +332,6 @@ dd = data.getDataFromPickle('AMD', '1H')
 data.generate4Hdata(dd)
 
 
-data.updateDataEODAll(watchlistName='WatchListLive.pickle')
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle')
 
 download = data.updateDataEOD(interval='1D')
 download = data.updateDataEOD(interval='1H')
