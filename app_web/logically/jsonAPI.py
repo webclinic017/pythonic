@@ -8,7 +8,7 @@
 #   marker signals ->           5+ marker series (color codes) 
 #   signal ohlc markers ->      over below ohlc (primary, secondary, final)
 #   multitimeframe 4H,1H, 1D    plots markers 
-#   visual indicator -> 
+#   visual indicator charts -> 
 #                   Type #1:    2 lines, 1 hist, 1 marker       ::  WaveTrend, MACD, VPCI
 #                   Type #2:    3 lines, 1 marker               ::  Volatility, 
 #                   Type #3:    2 lines, 2 hist, 3 marker       ::  Koncorde4.0, 
