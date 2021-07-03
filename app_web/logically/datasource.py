@@ -14,8 +14,7 @@ DATAROOT    = '/home/towshif/code/python/pythonic/database/'
 OLDDATA     = '/home/towshif/code/python/pythonic/database/olddata/'
 
 # Constants
-# correct interval text alternatives
-# for download interval limits for yf.download
+# for download interval limits for yf.download # correct interval text alternatives 
 dinterval = {
     "1H"    : ("60m", "730d"),
     "1h"    : ("60m", "730d"),
@@ -30,7 +29,7 @@ dinterval = {
     "5m"    : ("5m", "60d"),
     "5M"    : ("5m", "60d"),
 }
-# used for file naming conventions
+# use for file naming conventions for storing pickles # text alternatives 
 finterval = {
     "1H"    : "1H",
     "1h"    : "1H",
