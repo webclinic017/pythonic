@@ -4,6 +4,7 @@ from datetime import datetime, time, timedelta
 import numpy as np
 import pandas as pd
 import yfinance as yf
+import traceback
 # Source for data PICKLES
 
 TICKDATA    = '/home/towshif/code/python/pythonic/database/data/'
@@ -146,12 +147,19 @@ def getTodayAll (symbolsList=None, dfdict=None, interval='1H', prepost=False, ch
         # start bulk download using yf only for TODAY
         download = yf.download(tickers=symbols, interval=interval, start=start, group_by="Ticker", prepost=prepost)
 
+        multi = True # if multiple symbols were downloaded: multilevel DF 
+        if len (symbols) <= 1: multi = False 
+
         ## Update all the pickles
         for symbol in symbols :
             try :
                 dfdata = dfdict[symbol]
 
-                d = download[symbol].dropna() ## drop na from extracted df
+                d = None 
+                if multi : 
+                    d = download[symbol].dropna() ## drop na from extracted df
+                else: 
+                    d = download.dropna()
                 
                 if len (d) > 0 :
                     d = fix_timezone(d) # extract Df from download and fixtimezone
@@ -163,6 +171,7 @@ def getTodayAll (symbolsList=None, dfdict=None, interval='1H', prepost=False, ch
                     dfdict[symbol] = dfdata  # append to local dict # debub only
             except:
                 print (f"Error processing {symbol} {interval}")
+                traceback.print_exc()
                 pass
     
     return dfdict
@@ -187,11 +196,19 @@ def getTodayOnly (symbolsList=None, interval='1H', prepost=False, chunksize=25) 
         download = yf.download(tickers=symbols, interval=interval, start=start, group_by="Ticker", prepost=prepost)
 
         print (download.info(verbose=False, memory_usage="deep"))
+        
+        multi = True # if multiple symbols were downloaded: multilevel DF 
+        if len (symbols) <= 1: multi = False 
 
         ## Update all the pickles
         for symbol in symbols :
             try :
-                d = download[symbol].dropna() ## drop na from extracted df
+                # print ("Sym", symbols, len(symbols))
+                d = None 
+                if multi : 
+                    d = download[symbol].dropna() ## drop na from extracted df
+                else: 
+                    d = download.dropna()
                 
                 if len (d) > 0 :
                     d = fix_timezone(d) # extract Df from download and fixtimezone
@@ -201,8 +218,10 @@ def getTodayOnly (symbolsList=None, interval='1H', prepost=False, chunksize=25) 
                     # dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
                     
                     dfdict[symbol] = d  # append to local dict # debub only
-            except:
-                print (f"Error processing {symbol} {interval}")
+                    
+            except Exception as e:
+                print (f"Error processing {symbol} {interval} {e}")
+                traceback.print_exc()
                 pass
     
     return dfdict
@@ -480,12 +499,19 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
                 download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
             else:
                 download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
+            
+            multi = True # if multiple symbols were downloaded: multilevel DF 
+            if len (symbols) <= 1: multi = False 
 
             ## Update all the pickles
             for symbol in symbols :
                 try :
                     dfdata = getDataFromPickle(symbol, interval=interval)
-                    d = download[symbol].dropna() ## drop na from extracted df
+                    d = None 
+                    if multi : 
+                        d = download[symbol].dropna() ## drop na from extracted df
+                    else: 
+                        d = download.dropna()
                     if len (d) > 0 :
                         d = fix_timezone(d) # extract Df from download and fixtimezone
                         if yinterval=='5m': ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
