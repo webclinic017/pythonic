@@ -90,9 +90,9 @@ w.loc['SPY']
 
 
 
-data.getupdatedData('CTB', '1h')
-data.getupdatedData('MIK', '1h')
-data.getupdatedData('GROW', '1h')
+data.getUpdatedData('CTB', '1h')
+data.getUpdatedData('MIK', '1h')
+data.getUpdatedData('GROW', '1h')
 
 
 
@@ -160,11 +160,11 @@ data.downloadlastEODData('AAL', "5m")
 data.getData('SPT', '5m')
 data.getData('SPY', '5m')
 
-data.getupdatedData('SPT', '1D')
-data.getupdatedData('SPT', '5m')
-data.getupdatedData('SPT', '1h')
-data.getupdatedData('SPY', '1H')
-data.getupdatedData('AAL', '1H')
+data.getUpdatedData('SPT', '1D')
+data.getUpdatedData('SPT', '5m')
+data.getUpdatedData('SPT', '1h')
+data.getUpdatedData('SPY', '1H')
+data.getUpdatedData('AAL', '1H')
 
 
 
@@ -175,8 +175,8 @@ dfdata = data.getDataFromPickle('NVDA', '5m')
 dfdata = fix_timezone(dfdata)
 dfdata[(dfdata.index.hour ==16) & (dfdata.index.minute == 0)].index
 
-data.getupdatedData('NVDA', '5m')
-download = data.getupdatedData('NVDA', '5m')
+data.getUpdatedData('NVDA', '5m')
+download = data.getUpdatedData('NVDA', '5m')
 download.loc['2021-06-28' :  ].tail(25)
 download.loc['2021-06-28 11:30:00'] ## check fro multiple entries 
 
@@ -302,8 +302,8 @@ yf.download(tickers='SPY', interval='1D', period='5d', prepost=True).tail(20)  #
 yf.download(tickers='SPY', interval='1WK', period='5d', prepost=True).tail(20)  ## check additional
 
 
-data.getupdatedData('BK', '1H')
-data.getupdatedData('SPY', '5m').tail(20)
+data.getUpdatedData('BK', '1H')
+data.getUpdatedData('SPY', '5m').tail(20)
 data.getData('JNUG', '1D')
 data.getData('JNUG', '1H')
 data.getTodayOnly(symbolsList=['AAL'], interval='5m')
@@ -346,7 +346,7 @@ download = data.updateDataEOD(interval='5m')
 download, sm = data.loadDatatoMemory('WatchListDBFull.pickle', interval='5m')
 download['BK']
 data.getDataFromPickle('BK', '1D')
-p = data.getupdatedData('BK', '1D')
+p = data.getUpdatedData('BK', '1D')
 
 download['JNUG'].loc['2021-04-15']
 download['JNUG'].loc['2021-04-14' : '2021-04-21' ]
@@ -375,10 +375,10 @@ data.getDataFromPickle('SPT', '1D')
 data.getDataFromPickle('AMD', '1H')
 data.getDataFromPickle('MIK', '1H')
 data.getDataFromPickle('SPY', '5m')
-data.getupdatedData('SNA', '5m')
+data.getUpdatedData('SNA', '5m')
 # data.getData('MIK', '1h')
-data.getupdatedData('MIK', '1h')
-data.getupdatedData('THI', '1D')
+data.getUpdatedData('MIK', '1h')
+data.getUpdatedData('THI', '1D')
 
 # import pickle
 # df=pickle.load(open(TICKDATA+'SNA.5m.pickle','rb'))
