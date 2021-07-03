@@ -316,7 +316,7 @@ def downloadlastEODData (symbol='SPY', interval='1H', persist=True) : # only 1 s
 
 
 
-def getupdatedData (symbol='SPY', interval='1H', watchlistName=None) :
+def getUpdatedData (symbol='SPY', interval='1H', watchlistName=None) :
     """ Append live data to pickle and show
         Will update symbol and return df to latest combining pickles and latest live
         !! this will NOT persist to disk
