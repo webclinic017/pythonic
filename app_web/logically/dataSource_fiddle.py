@@ -305,7 +305,10 @@ yf.download(tickers='SPY', interval='1WK', period='5d', prepost=True).tail(20)  
 data.getupdatedData('BK', '1H')
 data.getupdatedData('SPY', '5m').tail(20)
 data.getData('JNUG', '1D')
+data.getData('JNUG', '1H')
+data.getTodayOnly(symbolsList=['AAL'], interval='5m')
 
+data.getTodayAll(['AAL'], {})
 # df = data.updateData('SPT', '5m')
 # df.drop(df[(df.index.hour ==16) & (df.index.minute == 0)].index, inplace=True)
 
@@ -315,7 +318,7 @@ data.getData('JNUG', '1D')
 
 ##############################
 data.updateDataEODAll() # default watchlist 
-data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=100) #default chunksize=25
+data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25) #default chunksize=25
 data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
 #################################
 data.getWatchlist(watchlistName='delistedWatchList.pickle')
