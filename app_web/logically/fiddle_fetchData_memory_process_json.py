@@ -115,7 +115,7 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
     # print (df)
     print (f"Compute {i} done with {k} secs")
 
-    return df
+    # return df
 
 
 
@@ -136,31 +136,38 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 
 ## troubleshoot -> some symbols delisted will have smaller length - remove them
 
+ddr['JNUG'].info(verbose=False, memory_usage="deep")
+ddr['JNUG']
 
-# processThread.initialize(21)
+processThread.initialize(21)
 
 for symbol in symbols[:4]:
     df = ddr[symbol]
     # df = df.copy()
     compute (df,symbol,10)
-    # package = compute, (df, symbol, 10), symbol+" compute"
 
+    # package = compute, (df, symbol, 10), symbol+" compute"
+    # ddr[symbol] = df
     # processThread.putQ (package)  # format: (func, (*args), jobName)
+
+processThread.processQ.qsize()
 
 # q.qsize()
 
 ddr['JNUG'].info(verbose=False, memory_usage="deep")
+ddr['JNUG']
+
 mpfdf = ddr['JNUG']
 
-squeezes = [col for col in mpfdf if col.startswith('SQZ')]
-mpfdf[squeezes][-2:].to_json(orient='split', double_precision=2)
-mpfdf[['open', 'high', 'low','close']][-10:].to_json(orient='split', double_precision=2)
+# squeezes = [col for col in mpfdf if col.startswith('SQZ')]
+# mpfdf[squeezes][-2:].to_json(orient='split', double_precision=2)
+# mpfdf[['open', 'high', 'low','close']][-10:].to_json(orient='split', double_precision=2)
 mpfdf[['open', 'high', 'low','close']][-50:].to_json(orient='columns', double_precision=2, date_unit='s')
 
 import json
 from json import encoder
 encoder.FLOAT_REPR = lambda o: format(o, '.2f')
-json.dumps(js)
+json.dumps(symbols)
 
 def fix_timezone (dfdata) : # multi index 'df'
     # Timezone/ daylight saving fix

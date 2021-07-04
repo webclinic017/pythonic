@@ -16,26 +16,83 @@
 #   Filter timeframe API ->   
 
 
-import os
-import queue
-import time
-from datetime import date, datetime, timedelta
+"""The Algo Test API.
+Impl: 
+1. pandas to HTML Table 
+2. mplfinance img to web render 
+"""
 
-import finta as ft
-import numpy as np
-import pandas as pd
-import pandas_ta as ta
-import yfinance as yf
+# pylint: disable=broad-except
 
-import genericProcessConsumerPool as processThread  # # communicate using q
+from flask import Flask, abort, jsonify, request, send_file, make_response 
+from flask import Blueprint, render_template
 import datasource as data
-from datasource import *  ### import all variables and methods # dont use in production
+import pandas as pd 
+import json
+from json import encoder
 
-# %load_ext autoreload
-# %autoreload 2
+from computeIndicator import compute_all
 
-ddr, symbols = data.loadDatatoMemory(interval='1D') 
-ddr['SAIA']
-len (ddr)
-ddr.keys()
+pd.options.display.float_format = '{:,.2f}'.format
 
+# from rq.job import Job
+# from redis_resc import redis_conn, redis_queue
+
+# from functions import some_long_function
+
+app = Flask(__name__)
+
+@app.route("/test")
+def apiTest():
+    """Show the app is working."""
+    return "JSON API is Running!"
+
+
+# initialize globals / shared 
+# ddr1H, symbols = data.loadDatatoMemory(interval='1H', filter=10)
+ddr1H, symbols = data.loadDatatoMemory(interval='1H')
+ddr1D, symbols = data.loadDatatoMemory(interval='1D')
+ddr5m, symbols = data.loadDatatoMemory(interval='5m')
+ddr4H, symbols = data.loadDatatoMemory(interval='4H')
+# inDict = compute_all(ddr1H,symbols) # dict of indicators updated 
+
+@app.route("/")
+def index():
+    """Show the app is working."""
+    # mpfdf = 
+    # mpfdf[['open', 'high', 'low','close']][-50:].to_json(orient='columns', double_precision=2, date_unit='s')
+    return json.dumps(symbols)
+
+@app.route("/ohlc/<string:symbol>/", methods=['GET', 'POST']) # '/<string:name>/')
+def ohlc0 (symbol) : 
+    # data = request.get_json()
+    # print ( data)
+    # symbol = data['symbol']
+    mpfdf = ddr1H[symbol]
+    output = mpfdf[['Open', 'High', 'Low','Close']][-50:].to_json(orient='split', double_precision=2, date_unit='s')
+
+    return output # jsonify(output) 
+
+# this dict selects which variable to use 
+finterval = {
+    "1H"    : ddr1H,
+    "1D"    : ddr1D,
+    "4H"    : ddr4H,
+    "5m"    : ddr5m,
+}
+
+@app.route("/ohlc/<string:symbol>/<string:interval>", methods=['GET', 'POST']) # '/<string:name>/')
+def ohlc1 (symbol, interval) : 
+    # data = request.get_json()
+    # print ( data)
+    # symbol = data['symbol']
+    mpfdf = finterval.get(interval, None)[symbol]
+    output = mpfdf[['Open', 'High', 'Low','Close']][-50:].to_json(orient='split', double_precision=2, date_unit='s')
+
+    return output # jsonify(output) 
+
+
+
+# if __name__ == "__main__":
+    # app.run(debug=True)
+app.run(host="0.0.0.0", port=9502, debug=True)
