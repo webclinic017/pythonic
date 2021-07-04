@@ -24,8 +24,21 @@ from datasource import *  ### import all variables and methods # dont use in pro
 
 
 
+#############           Generating indicator calculations       ##################
+from computeIndicator import * 
 ddr, symbols = data.loadDatatoMemory(interval='5m') 
+ddr, symbols = data.loadDatatoMemory(interval='4H', filter=10) 
+
+len(ddr)
+
+inDict = compute_all(ddr,symbols) # dict of indicators updated 
+
+inDict['AMD'] # check 
+
+
+
 ddr['SAIA']
+ddr['AMD']
 
 DATAROOT
 

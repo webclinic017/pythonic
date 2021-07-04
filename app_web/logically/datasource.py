@@ -803,7 +803,7 @@ def inWatchlist (symbol=None, watchlistName=None) :
         return False
 
 
-def loadDatatoMemory (watchlistName=None, interval='1H') :
+def loadDatatoMemory (watchlistName=None, interval='1H', filter=None) :
     """Reads all pickles to memory and return dictionary {symbol: dataframe}
     defaults: interval = 1H
     """
@@ -816,7 +816,11 @@ def loadDatatoMemory (watchlistName=None, interval='1H') :
     print (f"Reading watchlist {watchlistName}")
 
     watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
-    symbols = watchlist.TICK.to_list()
+    if filter is None : 
+        symbols = watchlist.TICK.to_list() 
+    else : 
+        symbols = watchlist.TICK.to_list() [:filter]
+
 
     ddr = {} # define empty
     for symbol in symbols:  # load all data to memory
