@@ -61,10 +61,10 @@ def index():
     """Show the app is working."""
     # mpfdf = 
     # mpfdf[['open', 'high', 'low','close']][-50:].to_json(orient='columns', double_precision=2, date_unit='s')
-    return json.dumps(symbols)
+    return json.dumps({'symbols' : symbols})
 
 @app.route("/ohlc/<string:symbol>/", methods=['GET', 'POST']) # '/<string:name>/')
-def ohlc0 (symbol) : 
+def ohlcLast (symbol) : 
     # data = request.get_json()
     # print ( data)
     # symbol = data['symbol']
@@ -82,14 +82,41 @@ finterval = {
 }
 
 @app.route("/ohlc/<string:symbol>/<string:interval>", methods=['GET', 'POST']) # '/<string:name>/')
-def ohlc1 (symbol, interval) : 
+def ohlcIntervalSelector (symbol, interval) : 
     # data = request.get_json()
     # print ( data)
     # symbol = data['symbol']
-    mpfdf = finterval.get(interval, None)[symbol]
-    output = mpfdf[['Open', 'High', 'Low','Close']][-50:].to_json(orient='split', double_precision=2, date_unit='s')
+    dfdata = finterval.get(interval, None)[symbol] # select interval and symbol from dict
+    output = dfdata[['Open', 'High', 'Low','Close']][-50:].to_json(orient='split', double_precision=2, date_unit='s')
 
     return output # jsonify(output) 
+
+
+
+
+#   squeeze API ->              1 histogram (color codes), 1 marker series (color codes)
+
+
+
+
+#   marker signals ->           5+ marker series (color codes) 
+
+
+
+#   signal ohlc markers ->      over below ohlc (primary, secondary, final)
+
+
+
+
+#   multitimeframe 4H,1H, 1D    plots markers in multitimeframe 
+
+
+
+
+### Filter date API 
+### Filter signal API 
+
+
 
 
 
