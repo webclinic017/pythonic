@@ -95,29 +95,14 @@ def ohlcIntervalSelector (symbol, interval) :
 
 
 #   squeeze API ->              1 histogram (color codes), 1 marker series (color codes)
-
-
-
-
 #   marker signals ->           5+ marker series (color codes) 
-
-
-
 #   signal ohlc markers ->      over below ohlc (primary, secondary, final)
-
-
-
-
 #   multitimeframe 4H,1H, 1D    plots markers in multitimeframe 
 
 
 
-
-### Filter date API 
-### Filter signal API 
-
-
-
+#   Filter date API 
+#   Filter signal API  
 
 
 # if __name__ == "__main__":
