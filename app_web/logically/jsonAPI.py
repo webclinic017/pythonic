@@ -47,7 +47,15 @@ def apiTest():
     """Show the app is working."""
     return "JSON API is Running!"
 
+## initialize vars for global placeholders 
+symbols = None
+ddr1H = None
+ddr1D = None
+ddr5m = None
+ddr4H = None
 
+
+# def initializeGlobals (): 
 # initialize globals / shared 
 # ddr1H, symbols = data.loadDatatoMemory(interval='1H', filter=10)
 ddr1H, symbols = data.loadDatatoMemory(interval='1H')
@@ -55,6 +63,8 @@ ddr1D, symbols = data.loadDatatoMemory(interval='1D')
 ddr5m, symbols = data.loadDatatoMemory(interval='5m')
 ddr4H, symbols = data.loadDatatoMemory(interval='4H')
 # inDict = compute_all(ddr1H,symbols) # dict of indicators updated 
+
+
 
 @app.route("/")
 def index():
@@ -105,6 +115,8 @@ def ohlcIntervalSelector (symbol, interval) :
 #   Filter signal API  
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # app.run(debug=True)
-app.run(host="0.0.0.0", port=9502, debug=True)
+    # initializeGlobals()
+
+    app.run(host="0.0.0.0", port=9502, debug=False)

@@ -1,4 +1,8 @@
-# computeIndicator.py
+#   computeIndicator.py
+##  - All common indicators, 
+#   - Special indicators
+#   - Stop functions    : 
+#   - Targets:          : Auto FIB  
 
 
 import finta as ft
@@ -11,14 +15,17 @@ import yfinance as yf
 def compute_all(ddr=None, symbols=None) :
 
     inDict = {}
-    for symbol, dfdata in ddr.items() : 
-        inDict[symbol] = calculate_indicator(dfdata, 1,0)
+    for symbol, dfdata in ddr.items() :
+        inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)
 
-    return inDict 
-    
+    return inDict
 
 
-def calculate_indicator (df,i,k) : # simulate a high compute or low latency IO process
+def compute_indicatorsA (df,i,k) : # simulate a high compute or low latency IO process
+    """ Comprises of common compute items 
+        1. basic indicators calculations
+        2. indicator settings per (stock, timeframe)
+    """
     # print (f"Compute {i} started with {k} secs")
     df.ta.ha(append=True) # heikinashi bars
     df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
