@@ -69,7 +69,7 @@ def ohlcLast (symbol) :
     # print ( data)
     # symbol = data['symbol']
     mpfdf = ddr1H[symbol]
-    output = mpfdf[['Open', 'High', 'Low','Close']][-50:].to_json(orient='split', double_precision=2, date_unit='s')
+    output = mpfdf[['Open', 'High', 'Low','Close']][-1000:].to_json(orient='split', double_precision=2, date_unit='s')
 
     return output # jsonify(output) 
 
@@ -87,7 +87,7 @@ def ohlcIntervalSelector (symbol, interval) :
     # print ( data)
     # symbol = data['symbol']
     dfdata = finterval.get(interval, None)[symbol] # select interval and symbol from dict
-    output = dfdata[['Open', 'High', 'Low','Close']][-50:].to_json(orient='split', double_precision=2, date_unit='s')
+    output = dfdata[['Open', 'High', 'Low','Close']][-1500:].to_json(orient='split', double_precision=2, date_unit='s')
 
     return output # jsonify(output) 
 
