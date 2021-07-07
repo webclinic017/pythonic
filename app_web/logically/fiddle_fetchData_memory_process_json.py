@@ -43,6 +43,19 @@ symbols = watchlist.TICK.to_list()
 ## Memory usage
 # download.info(verbose=False, memory_usage="deep")
 
+from computeIndicator import *
+ddr4H = {}
+Addr4H = {}
+
+ddr4H, symbols = data.loadDatatoMemory(interval='4H')
+
+symbols
+
+compute_all(ddr=ddr4H, symbols=symbols, Addr=Addr4H)
+
+
+
+
 
 
 # ## troubleshoot -> some symbols delisted will have smaller length - remove them
@@ -139,7 +152,7 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 ddr['JNUG'].info(verbose=False, memory_usage="deep")
 ddr['JNUG']
 
-processThread.initialize(21)
+processThread.initialize_processPool(21)
 
 for symbol in symbols[:4]:
     df = ddr[symbol]

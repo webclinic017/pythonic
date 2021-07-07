@@ -31,7 +31,7 @@ ddr, symbols = data.loadDatatoMemory(interval='4H', filter=10)
 
 len(ddr)
 
-inDict = compute_all(ddr,symbols) # dict of indicators updated 
+inDict = compute_all_seq(ddr,symbols) # dict of indicators updated 
 
 inDict['AMD'] # check 
 
