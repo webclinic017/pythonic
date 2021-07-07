@@ -14,6 +14,7 @@ import pandas_ta as ta
 import yfinance as yf
 
 import genericProcessConsumerPool  as processThread # # communicate using q
+import datasource as data 
 
 # Source for data PICKLES
 
@@ -109,7 +110,6 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
     print (f"Compute {i} done with {k} secs")
 
 
-
 # ## troubleshoot -> some symbols delisted will have smaller length - remove them
 #tic = time.perf_counter()
 #for symbol in symbols:
@@ -128,14 +128,21 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 ## troubleshoot -> some symbols delisted will have smaller length - remove them
 
 
+
+### test start ============> Benchmark (50 items -> 16 secs)
+download, symbols = data.loadDatatoMemory(interval='4H', filter=100)
+
+
+def call_back (data) : 
+    pass
+
 processThread.initialize_processPool(21)
 
 for symbol in symbols:
     df = download[symbol].dropna()
     df = df.copy()
     # compute (df,symbol,10)
-    package = compute, (df, symbol, 10), symbol+" compute"
-
+    package = compute, (df, symbol, 10), symbol+" compute", call_back
     processThread.putQ (package)  # format: (func, (*args), jobName)
 
 # q.qsize()
