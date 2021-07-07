@@ -40,22 +40,27 @@ symbols = watchlist.TICK.to_list()
 # import computeIndicator as cp
 from computeIndicator import * 
 
-ddr4H = {}
-ddr1D = {}
+ddr4H  = {}
+ddr1H  = {}
+ddr1D  = {}
 Addr4H = {}
+Addr1H = {}
 Addr1D = {}
 
 
-ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=50)
-ddr1D, symbols = data.loadDatatoMemory(interval='1H', filter=50)
+ddr1D, symbols = data.loadDatatoMemory(interval='1D', filter=75)
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=35)
+ddr1H, symbols = data.loadDatatoMemory(interval='1H', filter=22)
 
 symbols
 
 # Addr4H = cp.compute_all(ddr=ddr4H, symbols=symbols, Addr=Addr4H)
-# Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')
-# print ("Compute started 4H..... plplease wait .... ")
-Addr1D = compute_all(ddr=ddr1D, symbols=symbols, interval='1H')
-print ("Compute started 1D..... plplease wait .... ")
+Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')
+print ("Compute Done 4H.....")
+Addr1H = compute_all(ddr=ddr1H, symbols=symbols, interval='1H')
+print ("Compute Done 1H.....")
+Addr1D = compute_all(ddr=ddr1D, symbols=symbols, interval='1D')
+print ("Compute Done 1D.....")
 
 
 # putQ("SENTINEL")

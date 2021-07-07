@@ -41,12 +41,17 @@ def call_back(data):  # return from process pool
 
 
 # process pool compute 
-initialize_processPool(15) # 20 process threads
+initialize_processPool(25) # 20 process threads
 
+# Parallel Compute : MultiProcessing 
 def compute_all (ddr=None, symbols=None, interval=None) :
-    # Algoddr = Addr
-    print (f"Revceived {ddr.keys()}. count ={len(ddr)}")
-
+    
+    global Algoddr
+    Algoddr = {} # reset local algodf to a `new` empty dict
+    
+    print (f"Revceived {ddr.keys()} \nDict Count ={len(ddr)}")
+    
+    setProcessLock (has_process) # set the semaphore to consumer. 
     # has_algoq.release()
 
     for symbol, df in ddr.items() : 
@@ -59,12 +64,13 @@ def compute_all (ddr=None, symbols=None, interval=None) :
 
     
     
-    print ("Locking thread.", processQ.qsize())
+    print (f"Locking thread. [ Compute process count {len(ddr)} ]" )
 
-    # while has_process.acquire():  # lock thread until complete execution 
-    #     break 
-    # print ("Unlocked thread.", processQ.qsize())
+    while has_process.acquire():  # lock thread until complete execution 
+        break 
 
+    print (f"Unlocked thread. | QSIZE: {processQ.qsize()} ")
+    print (f"AlgoDF Count {len(Algoddr)} | interval {interval} ")
     #     sleep(1)
     # #     # has_algoq.release()
     # #     print ("QSize", processQ.qsize())
@@ -72,7 +78,7 @@ def compute_all (ddr=None, symbols=None, interval=None) :
     # # # sleep (2)
     # print ("QSize is zero. ==> Returning... to main thread")
     # # # putQ("END") # kill the processPool 
-
+    
     return Algoddr
 
 
@@ -84,7 +90,7 @@ def compute_all_seq (ddr=None, symbols=None) :
         inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)    
     return inDict
 
-def compute_indicatorsA (df, symbol, interval) : # simulate a high compute or low latency IO process
+def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a high compute or low latency IO process
     """ Comprises of common compute items 
         1. basic indicators calculations
         2. indicator settings per (stock, timeframe)
@@ -135,7 +141,7 @@ def compute_indicatorsA (df, symbol, interval) : # simulate a high compute or lo
     psar = df.ta.psar( append=True)
     # print (df)
     
-    print (f"Compute {symbol} done with {interval} interval.")
+    if verbose: print (f"Compute {symbol} done with {interval} interval.")
     
     return (df, symbol, interval)
 

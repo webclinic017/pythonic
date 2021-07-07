@@ -4,7 +4,7 @@ import time
 from threading import Semaphore, Thread
 
 max_workers = 10  # global max_worker count 
-
+sema = None 
 processQ = queue.Queue()
 has_q = Semaphore(value=0)  # Allow consumers to sleep while waiting for an event (pause infinite loop)
 SENTINEL = "END"
@@ -20,6 +20,10 @@ def endQ () :
 def setMaxWorker(maxWorkers) :
     global max_workers
     max_workers = maxWorkers 
+
+def setProcessLock (s) : 
+    global sema
+    sema = s
 
 # def call_back(arg):
 #     # print(arg.result())
@@ -118,6 +122,10 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
 
             toc = time.perf_counter()
             print (f"Finished in  {toc - tic:0.4f} seconds")
+            
+            if sema is not None:
+                sema.release() # release semaphore if available
+
             print ("Waiting for Queue ......")
 
 def initialize_processPool(maxWorkers=max_workers) : 
