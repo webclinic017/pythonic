@@ -31,7 +31,7 @@ import pandas as pd
 import json
 from json import encoder
 
-from computeIndicator import compute_all
+from computeIndicator import *
 
 pd.options.display.float_format = '{:,.2f}'.format
 
@@ -49,11 +49,16 @@ def apiTest():
 
 ## initialize vars for global placeholders 
 symbols = None
-ddr1H = None
-ddr1D = None
-ddr5m = None
-ddr4H = None
+ddr1H = {}
+ddr1D = {}
+ddr5m = {}
+ddr4H = {}
 
+### initializing Algo dataframes 
+Addr1H = {}
+Addr1D = {}
+Addr5m = {}
+Addr4H = {}
 
 # def initializeGlobals (): 
 # initialize globals / shared 

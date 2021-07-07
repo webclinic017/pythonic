@@ -147,7 +147,7 @@ def compute (df,i,k) : # simulate a high compute or low latency IO process
 
 # processThread.max_workers = 20  # Set Global thread count 
 # processThread.setMaxWorker(30)
-processThread.initialize(8)
+processThread.initialize_processPool(8)
 
 for symbol in symbols: 
     df = download[symbol].dropna()

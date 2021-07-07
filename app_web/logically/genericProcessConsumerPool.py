@@ -21,6 +21,10 @@ def setMaxWorker(maxWorkers) :
     global max_workers
     max_workers = maxWorkers 
 
+# def call_back(arg):
+#     # print(arg.result())
+#     print (f"Completed {arg}")
+
 def genericConsumer (queue): ## create a live consumer thread with has_q semaphore 
     
     print (f'Staring CPU bound tasks with {max_workers} process workers.')
@@ -51,7 +55,7 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
                 # Start the load operation and mark the future with its URL
                 # this is a dictionary for future_to_func = { `executorobject` : `job ID`}
                 
-                myfunc, args, name = job 
+                myfunc, args, name, call_back = job 
                 
                 future_to_func[executor.submit(myfunc, *args)] = name
         
@@ -84,7 +88,7 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
 
                     # fetch a url from the queue
                     job = queue.get()
-                    myfunc, args, name = job 
+                    myfunc, args, name, call_back = job 
 
                     # Start the load operation and mark the future with its URL
                     future_to_func[executor.submit(myfunc, *args)] = name
@@ -93,10 +97,14 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
                 for future in done:
                     job = future_to_func[future]
                     try:
-                        data = future.result()             
+                        data = future.result() # return data stored here
                         queue.task_done() # update task counter in queue if result true
+                        call_back(data) # callback function to retrieve data returned
+
                     except Exception as exc:
-                        print("%r generated an exception: %s" % (job, exc))                        
+                        print("%r generated an exception: %s" % (job, exc))
+                        call_back(None)   # return None and exit process 
+                        pass                     
                     else:
                         if job == "FEEDER DONE":
                             # print(data)
@@ -112,7 +120,7 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
             print (f"Finished in  {toc - tic:0.4f} seconds")
             print ("Waiting for Queue ......")
 
-def initialize(maxWorkers=max_workers) : 
+def initialize_processPool(maxWorkers=max_workers) : 
     global max_workers
     max_workers = maxWorkers  # init # of workers    
     print (max_workers)

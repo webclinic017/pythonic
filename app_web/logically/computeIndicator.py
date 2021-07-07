@@ -10,18 +10,84 @@ import numpy as np
 import pandas as pd
 import pandas_ta as ta
 import yfinance as yf
+from time import sleep
+from genericProcessConsumerPool import * # # communicate using q
+
+Algoddr = {}
+process_counter=0
+
+has_algoq = Semaphore(value=0)
+has_process = Semaphore(value=0)
+
+def call_back(data):  # return from process pool
+    symbol = None 
+    interval = None 
+
+    if data is not None: 
+        df, symbol, interval = data    
+        Algoddr[symbol] = df    
+    else: 
+        print ("Algo expection occured in process pool. check logs.")
+    
+    print (f"Completed {symbol} {interval}")
+
+    # has_algoq.acquire()
+
+    # if (process_counter == 0): 
+    #     has_process.release() # release main thread lock 
+
+    # Add to Queue # etc etc 
 
 
-def compute_all(ddr=None, symbols=None) :
+
+# process pool compute 
+initialize_processPool(15) # 20 process threads
+
+def compute_all (ddr=None, symbols=None, interval=None) :
+    # Algoddr = Addr
+    print (f"Revceived {ddr.keys()}. count ={len(ddr)}")
+
+    # has_algoq.release()
+
+    for symbol, dfdata in ddr.items() :
+        
+        print (f"{symbol} found ")
+
+        package = compute_indicatorsA, (dfdata, symbol, interval), symbol+" compute", call_back
+        putQ (package)  # format: (func, (*args), jobName)
+
+        # has_algoq.release()
+
+        # inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)
+        # ddr[symbol] = df
+    
+    
+    print ("Locking thread.", processQ.qsize())
+
+    # while has_process.acquire():  # lock thread until complete execution 
+    #     break 
+    # print ("Unlocked thread.", processQ.qsize())
+
+    #     sleep(1)
+    # #     # has_algoq.release()
+    # #     print ("QSize", processQ.qsize())
+    
+    # # # sleep (2)
+    # print ("QSize is zero. ==> Returning... to main thread")
+    # # # putQ("END") # kill the processPool 
+
+    return Algoddr
+
+
+# Sequencial compute 
+def compute_all_seq (ddr=None, symbols=None) :
 
     inDict = {}
     for symbol, dfdata in ddr.items() :
-        inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)
-
+        inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)    
     return inDict
 
-
-def compute_indicatorsA (df,i,k) : # simulate a high compute or low latency IO process
+def compute_indicatorsA (df, symbol, interval) : # simulate a high compute or low latency IO process
     """ Comprises of common compute items 
         1. basic indicators calculations
         2. indicator settings per (stock, timeframe)
@@ -71,7 +137,8 @@ def compute_indicatorsA (df,i,k) : # simulate a high compute or low latency IO p
     # PSAR Stop Reverse (based on pandas_TA)
     psar = df.ta.psar( append=True)
     # print (df)
-    print (f"Compute {i} done with {k} secs")
-
-    return df
+    
+    print (f"Compute {symbol} done with {interval} interval.")
+    
+    return (df, symbol, interval)
 
