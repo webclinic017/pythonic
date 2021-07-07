@@ -46,15 +46,15 @@ Addr4H = {}
 Addr1D = {}
 
 
-ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=35)
-ddr1D, symbols = data.loadDatatoMemory(interval='1H', filter=25)
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=50)
+ddr1D, symbols = data.loadDatatoMemory(interval='1H', filter=50)
 
 symbols
 
 # Addr4H = cp.compute_all(ddr=ddr4H, symbols=symbols, Addr=Addr4H)
-Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')
+# Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')
 # print ("Compute started 4H..... plplease wait .... ")
-# Addr1D = compute_all(ddr=ddr1D, symbols=symbols, interval='1H')
+Addr1D = compute_all(ddr=ddr1D, symbols=symbols, interval='1H')
 print ("Compute started 1D..... plplease wait .... ")
 
 

@@ -29,7 +29,7 @@ def call_back(data):  # return from process pool
     else: 
         print ("Algo expection occured in process pool. check logs.")
     
-    print (f"Completed {symbol} {interval}")
+    # print (f"Completed {symbol} {interval}")
 
     # has_algoq.acquire()
 
@@ -49,17 +49,14 @@ def compute_all (ddr=None, symbols=None, interval=None) :
 
     # has_algoq.release()
 
-    for symbol, dfdata in ddr.items() :
-        
-        print (f"{symbol} found ")
+    for symbol, df in ddr.items() : 
 
+        dfdata = df.copy()
+        # print (f"{symbol} found ")
         package = compute_indicatorsA, (dfdata, symbol, interval), symbol+" compute", call_back
         putQ (package)  # format: (func, (*args), jobName)
-
         # has_algoq.release()
 
-        # inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)
-        # ddr[symbol] = df
     
     
     print ("Locking thread.", processQ.qsize())

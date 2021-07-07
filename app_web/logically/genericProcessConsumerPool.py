@@ -103,7 +103,7 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
 
                     except Exception as exc:
                         print("%r generated an exception: %s" % (job, exc))
-                        call_back(None)   # return None and exit process 
+                        # call_back(None)   # return None and exit process 
                         pass                     
                     else:
                         if job == "FEEDER DONE":
