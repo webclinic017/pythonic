@@ -69,13 +69,13 @@ var chart = null;
 var axis = null;
 var axis2 = null;
 var cwidth = $(window).width(); //1500
-var cheight = $(window).width() * 0.4;    //400
+var cheight = $(window).height() * 0.4;    //400
 
 
 function initializechart() {
     chart = LightweightCharts.createChart(chartElement, {
         width: cwidth,
-        height: 400,
+        height: cheight,
         /*   crosshair: {
             mode: 0, // notrmal mode to magnet 
         }, */
@@ -397,7 +397,6 @@ function createStockChart(symbol, jd) {
         ////////////////////////////////////////////
 
 
-
         lineSeries.setData(data.map(x => {
             return {
                 time: x.time,
@@ -576,12 +575,25 @@ function createStockChart(symbol, jd) {
         var markers = [];
         for (var i = 0; i < datesForMarkers.length; i++) {
             if (i !== indexOfMinPrice) {
-                markers.push({ time: datesForMarkers[i].time, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ ' + Math.floor(datesForMarkers[i].high + 2) });
+                markers.push({ 
+                    time: datesForMarkers[i].time, 
+                    position: 'aboveBar', 
+                    color: '#e91e63', 
+                    shape: 'arrowDown', 
+                    text: 'Sell @ ' + Math.floor(datesForMarkers[i].high + 2) });
             } else {
-                markers.push({ time: datesForMarkers[i].time, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ ' + Math.floor(datesForMarkers[i].low - 2) });
+                markers.push({ time: datesForMarkers[i].time,
+                    position: 'belowBar',
+                    color: '#2196F3',
+                    shape: 'arrowUp',
+                    text: 'Buy @ ' + Math.floor(datesForMarkers[i].low - 2) });
             }
         }
-        markers.push({ time: data[data.length - 48].time, position: 0, color: '#f68410', shape: 'circle', text: 'D' });
+        markers.push({ time: data[data.length - 48].time,
+                    position: 0,
+                    color: '#f68410',
+                    shape: 'circle',
+                    text: 'D' });
 
         /* console.log(markers) */
         barSeries.setMarkers(markers);
