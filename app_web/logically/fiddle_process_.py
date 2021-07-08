@@ -16,6 +16,7 @@ import yfinance as yf
 import genericProcessConsumerPool as processThread  # # communicate using q
 import datasource as data
 
+
 # Source for data PICKLES
 
 TICKDATA    = '/home/towshif/code/python/pythonic/database/data/'
@@ -40,27 +41,27 @@ symbols = watchlist.TICK.to_list()
 # import computeIndicator as cp
 from computeIndicator import * 
 
+ddr1D  = {}
 ddr4H  = {}
 ddr1H  = {}
-ddr1D  = {}
+Addr1D = {}
 Addr4H = {}
 Addr1H = {}
-Addr1D = {}
 
 
 ddr1D, symbols = data.loadDatatoMemory(interval='1D', filter=75)
-ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=35)
-ddr1H, symbols = data.loadDatatoMemory(interval='1H', filter=22)
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=10)
+ddr1H, symbols = data.loadDatatoMemory(interval='1H', filter=75)
 
 symbols
 
-# Addr4H = cp.compute_all(ddr=ddr4H, symbols=symbols, Addr=Addr4H)
 Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')
 print ("Compute Done 4H.....")
-Addr1H = compute_all(ddr=ddr1H, symbols=symbols, interval='1H')
-print ("Compute Done 1H.....")
-Addr1D = compute_all(ddr=ddr1D, symbols=symbols, interval='1D')
-print ("Compute Done 1D.....")
+# Addr1H = compute_all(ddr=ddr1H, symbols=symbols, interval='1H')
+# print ("Compute Done 1H.....")
+# Addr1D = compute_all(ddr=ddr1D, symbols=symbols, interval='1D')
+# print ("Compute Done 1D.....")
+
 
 
 # putQ("SENTINEL")
@@ -81,3 +82,22 @@ print ("Compute Done 1D.....")
 # processThread.processQ.qsize()
 
 # # q.qsize()
+
+
+
+
+
+###############         IPYTHON  SHELL      ##################
+# start a python debug shell and embed to application 
+# read: https://stackoverflow.com/questions/66121284/ipython-repl-anywhere-how-to-share-application-context-with-ipython-console-for
+
+import ipdb
+from IPython import embed
+
+ipdb.set_trace()
+# ipdb.set_trace()
+
+# ipdb> from IPython import embed
+# ipdb> embed()
+###############################################################
+

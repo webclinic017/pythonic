@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="x_window" content={{x_window}}>
-    <title>Flask data vizualizer</title>
-    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <title>Signal Visualizer</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -20,38 +20,23 @@
     <script
         src="https://cdn.jsdelivr.net/gh/h0wXD/lightweight-charts@master/dist/lightweight-charts.standalone.production.js"></script>
 
-        <style>
-            .tv-lightweight-charts { 
-                border-left: 0.5px solid slategrey;
-            }
-        </style>
+    <style>
+        .tv-lightweight-charts {
+            border-left: 0.5px solid slategrey;            
+        }
+    </style>
+
 </head>
 
-
 <body>
-
+  
     <div class="container-fluid">
+        <!-- Only one row for charts only -->
         <div class="row">
-            <!-- placeholder for symbol list  -->            
-            <div id="symbolTable" style="width:20%;" class="col-sm">
-                <table style="cursor: pointer;" class="table-sm table-bordered width table-hover">
-                    <thead>
-                        <tr>
-                            <th>Symbol</th>
-                            <th>Delta</th>
-                            <th>SQZ 1W</th>
-                            <th>SQZ 1D</th>
-                            <th>SQZ 4H</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            
             <!-- placeholder for lightweight interactive charts  from API -->
-            <div style="margin:10px;" class="col">
-                <div id="ctitle"></div>
+            <div style="" class="col">
+                <h2 id="ctitle" style="float:left"></h2>
+                <span id="c2title" style="float:right"></span>
 
                 <div id="chart">
                 </div>
@@ -60,21 +45,16 @@
                 <!-- <div id="axis2">
                 </div> -->
             </div>
-
         </div>
     </div>
     <div class="result" style="clear:both"></div>
-
     <!-- placeholder for chart img from socket -->
     <div id="chartimg">
         <p id="tick"></p>
         <img id="img" max-width="100%" , max-height="100%" ;>
     </div>
 
-    <script src="./charting.js"></script>
-
-    <!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
-    <!-- <script src="{{ url_for('static', filename='plot.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='plot.js') }}"></script>
 </body>
 
 </html>

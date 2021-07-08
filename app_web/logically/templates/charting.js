@@ -43,8 +43,8 @@ var axisElement = document.getElementById('axis');
 var chart = null;
 var axis = null;
 var axis2 = null;
-cwidth = 1200;
-cheight = 400;
+var cwidth = 1200;
+var cheight = 400;
 
 
 function initializechart() {
