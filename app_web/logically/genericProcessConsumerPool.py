@@ -21,7 +21,9 @@ def setMaxWorker(maxWorkers) :
     global max_workers
     max_workers = maxWorkers 
 
+
 def setProcessLock (s) : 
+    # use this when you need futures to lock until all the processQ is emptied.
     global sema
     sema = s
 
