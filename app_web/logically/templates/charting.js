@@ -50,7 +50,7 @@ var cheight = 400;
 function initializechart() {
     chart = LightweightCharts.createChart(chartElement, {
         width: cwidth,
-        height: 400,
+        height: cheight,
         /*   crosshair: {
             mode: 0, // notrmal mode to magnet 
         }, */
