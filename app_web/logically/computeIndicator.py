@@ -12,6 +12,7 @@ import pandas_ta as ta
 import yfinance as yf
 from time import sleep
 from genericProcessConsumerPool import * # # communicate using q
+import dfutils as dutil 
 
 Algoddr = {}
 process_counter=0
@@ -69,7 +70,10 @@ def compute_all (ddr=None, symbols=None, interval=None) :
     while has_process.acquire():  # lock thread until complete execution 
         break 
 
-    print (f"Unlocked thread. | QSIZE: {processQ.qsize()} ")
+    text = f"\nQueue Compute Process Complete. \nUnlocked thread. => QSIZE: {processQ.qsize()} "
+    # print (text)
+    dutil.printInColor(text)
+
     print (f"AlgoDF Count {len(Algoddr)} | interval {interval} ")
     #     sleep(1)
     # #     # has_algoq.release()
@@ -89,6 +93,8 @@ def compute_all_seq (ddr=None, symbols=None) :
     for symbol, dfdata in ddr.items() :
         inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)    
     return inDict
+
+
 
 def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a high compute or low latency IO process
     """ Comprises of common compute items 
