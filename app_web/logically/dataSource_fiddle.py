@@ -48,6 +48,8 @@ d.iloc[-1]
 start = d.index[0] # first datetime index 
 end = d.index[-1] # last datetime index 
 
+#####################################   WATCHLIST OPERATIONS    ####################################
+
 # data.getData('AMD', '1D').tail()
 watchlistName = "WatchListDB.pickle"  # initialize
 watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file  
@@ -80,6 +82,17 @@ s = ['AMD', 'AAL']
 s.append('AAPL')
 s
 watchlist.loc[s]
+
+
+##########      MERGE WATCHLIST 
+data.getWatchlist(watchlistName='WatchListDBFull.pickle')
+data.getWatchlist()
+data.mergeWatchList(source=["WatchListDB.pickle", "WatchListLive.pickle"], destination="WatchListDBFull.pickle")
+data.getWatchlist(watchlistName='WatchListDBFull.pickle')
+
+
+
+
 
 ######################################################## sanitize watchlist [Notes] 
 
@@ -309,6 +322,8 @@ data.getDataFromPickle('SPY', '1D').tail(20)
 data.getDataFromPickle('SPY', '1H').tail(20)
 data.getDataFromPickle('SPY', '5m').tail(20)
 
+import yfinance as yf
+# pip install yfinance -U--no-cache-dir  # upgrade required to v *.62 
 ## debug behavior from yf 
 yf.download(tickers='SPY', interval='1h', period='5d', prepost=True).tail(20)  ## check additional
 yf.download(tickers='SPY', interval='1D', period='5d', prepost=True).tail(20)  ## check additional

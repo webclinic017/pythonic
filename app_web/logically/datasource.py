@@ -763,7 +763,7 @@ def addToWatchlist (symbols=None, watchlistName=None) :
         watchlist['id'] = watchlist['TICK']
         watchlist.set_index('id', inplace=True)  # prevent duplicates
         watchlist = watchlist[~watchlist.index.duplicated(keep='first')]
-        print (watchlist.tail())
+        print (watchlist.tail(40))
 
         saveWatchlist(watchlist, watchlistName=watchlistName) # save to disk 
         print (f"Added{symbols} to {watchlistName}")
@@ -847,6 +847,31 @@ def createWatchlist (watchlistName='DefaultWatchlist.pickle', symbols= None) :
     print (watchlist)
     watchlist.to_pickle(DATAROOT+watchlistName)
     return watchlist
+
+
+def mergeWatchList(source=[], destination=None) : 
+    """ Merge one or more watchlist (list or names) to a destination (name). Watchlist names include full filename `*.pickle`
+    """
+    if not isinstance(source, list):
+        print ("Argument Error. Expecting List.")
+        return None
+    
+    symbols = []
+    ## read an create a list of symbols from all input watchlist sources
+    for watchlistname in source:
+        sm = getWatchlist(watchlistName=watchlistname).index.tolist()
+        symbols.extend(sm) # extend ; NOT append 
+    
+    # remove duplicates from list 
+    symbols = list(set(symbols))
+
+    # add this to destination watchlist 
+    addToWatchlist(symbols=symbols, watchlistName=destination)
+
+    print (f"Adding: {len(symbols)} symbols \n{symbols}")
+    print (f"Added {source} to {destination}")
+
+    return True
 
 
 
