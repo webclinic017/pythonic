@@ -15,21 +15,25 @@ ddr4H  = {}
 Addr4H = {}
 
 # load data 
-ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=10)
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=10, randomize=False)
 
 # Compute all Signals 
-Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')
+Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
 
 # display all computed columns 
 Addr4H['AMD'].columns
+len(Addr4H['AMD'].columns)
+
 ddr4H['AMD'].columns
 dfAlgo = Addr4H['AMD']
 
-endQ() # quit the multiprocessing thread ## run multiple times to exit all 
+endQ()
+processQ.empty()
+endCompute() # quit the multiprocessing thread ## run multiple times to exit all 
 
 # manual initialize pool of 20 process CPU threads 
 initialize_processPool(20)
-endQ()
+endCompute()
 
 # select a working DF 
 dfdata = ddr4H['AMD'].copy() ; dfdata
@@ -46,19 +50,86 @@ dutil.showColumns(dfAlgo,startswith='SQZ')
 # recompute indicators 
 dfAlgo, _, _ = compute_indicatorsA(df=dfdata.copy(),symbol=..., interval=...)
 
-# reduce DF memory footprint 
+# reduce DF memory footprint # if you dont make copy will impact original DF 
 dfAlgo2 = dutil.reduce_mem_usage(dfAlgo); dfAlgo2  ## reduce memory dfAlgo
 dfdata2 = dutil.reduce_mem_usage(dfdata); dfdata2  ## reduce memory dfdata
 
 #################   NOW WE ARE READY TO PLAY WITH SIGNAL AND ALGOS ###############
 
-r = dutil.showColumns(dfAlgo,startswith='SQZ').tail(50) # original SQZ (TOS)
+
+# dfAlgo, _, _ = compute_indicatorsA(df=dfdata.copy(),symbol=..., interval=...)
+
+dutil.showColumns(dfAlgo,startswith='SQZ')
 dutil.showColumns(dfAlgo,startswith='squee') # squeeze: manual BB,KC calc 
 dfAlgo.columns
 
 
+dfAlgo, _, _ = compute_indicatorsA(df=dfdata.copy(),symbol=..., interval=..., verbose=True)
+
+dutil.showColumns(dfAlgo,startswith='SQZ').tail(50)
+r = dutil.showColumns(dfAlgo,startswith='SQZ').tail(50) # original SQZ (TOS)
+
+r['SQZ_INC'].notnull()
+
+np.where(r['SQZ_PINC'].notnull(), 1, np.nan)
+
+r['SQZC'] = np.where(r['SQZ_PINC'].notnull(), 2, r['SQZC'])
+r['SQZC'] = np.where(r['SQZ_PDEC'].notnull(), 1, r['SQZC'])
+r['SQZC'] = np.where(r['SQZ_NDEC'].notnull(), -1, r['SQZC'])
+r['SQZC'] = np.where(r['SQZ_NINC'].notnull(), -2, r['SQZC'])
 
 
+dutil.showColumns(r,startswith='SQZ').tail(50) # original SQZ (TOS)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################      Execution Time Comparison  #################
+#                         Sequential vs Multiprocessing  
+
+# time a sequential execution function 
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=50, randomize=True)
+print (ddr4H.keys())
+print (len(ddr4H)) # length 10 instruments 
+
+### time the multiprocessing function 
+initialize_processPool(4)
+p = compute_all(ddr=ddr4H.copy(), symbols=..., interval=...) # 7s/25 stock ->run 4 times 
+endQ()
+
+### time the sequential function 
+p = compute_all_seq(ddr=ddr4H.copy(), symbols=..., verbose=True) # manual time calc  # run 3 times
+
+# %timeit compute_all_seq (ddr=ddr4H.copy(), symbols=...)  ## 17s/25 stock
+
+# %timeit compute_all(ddr=ddr4H.copy(), symbols=..., interval=...)
+
+
+########################################################################
 
 
 

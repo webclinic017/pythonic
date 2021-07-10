@@ -803,7 +803,7 @@ def inWatchlist (symbol=None, watchlistName=None) :
         return False
 
 
-def loadDatatoMemory (watchlistName=None, interval='1H', filter=None) :
+def loadDatatoMemory (watchlistName=None, interval='1H', filter=None, randomize=False) :
     """Reads all pickles to memory and return dictionary {symbol: dataframe}
     defaults: interval = 1H
     """
@@ -819,7 +819,12 @@ def loadDatatoMemory (watchlistName=None, interval='1H', filter=None) :
     if filter is None : 
         symbols = watchlist.TICK.to_list() 
     else : 
-        symbols = watchlist.TICK.to_list() [:filter]
+        if randomize : 
+            from random import sample
+            symbols = sample(watchlist.TICK.to_list(), filter) # random sample `filter` items from the TICK list 
+            
+        else: 
+            symbols = watchlist.TICK.to_list() [:filter]
 
 
     ddr = {} # define empty
