@@ -40,13 +40,25 @@ def call_back(data):  # return from process pool
     # Add to Queue # etc etc 
 
 
+# # initialize process pool compute threads 
+initialized = False
+# initialize_processPool(25) # 20 process threads
+def endCompute() :     
+    global initialized
+    if initialized: 
+        endQ() # do not double queue endQ
+        initialized = False 
+    else: 
+        print ("Warn: Compute Nodes already terminated.")
 
-# process pool compute 
-initialize_processPool(25) # 20 process threads
 
 # Parallel Compute : MultiProcessing 
 def compute_all (ddr=None, symbols=None, interval=None) :
-    
+    global initialized
+    if not initialized : 
+        initialize_processPool(25) # 20 process threads
+        initialized = True
+
     global Algoddr
     Algoddr = {} # reset local algodf to a `new` empty dict
     
@@ -63,18 +75,18 @@ def compute_all (ddr=None, symbols=None, interval=None) :
         putQ (package)  # format: (func, (*args), jobName)
         # has_algoq.release()
 
-    
-    
     print (f"Locking thread. [ Compute process count {len(ddr)} ]" )
 
     while has_process.acquire():  # lock thread until complete execution 
         break 
 
-    text = f"\nQueue Compute Process Complete. \nUnlocked thread. => QSIZE: {processQ.qsize()} "
+    text = f"\nCompute Queue Process Complete. \nUnlocked thread. => QSIZE: {processQ.qsize()} "
     # print (text)
     dutil.printInColor(text)
 
-    print (f"AlgoDF Count {len(Algoddr)} | interval {interval} ")
+    print (f"AlgoDF Count {len(Algoddr)} | interval {interval} \n{Algoddr.keys()}")
+    if len(Algoddr) ==0 : 
+        dutil.printWarning(f"Some Error occurred. Algo count is Zero.")
     #     sleep(1)
     # #     # has_algoq.release()
     # #     print ("QSize", processQ.qsize())
@@ -87,11 +99,16 @@ def compute_all (ddr=None, symbols=None, interval=None) :
 
 
 # Sequencial compute 
-def compute_all_seq (ddr=None, symbols=None) :
-
+def compute_all_seq (ddr=None, symbols=None, verbose=False) :
+    tic = time.perf_counter()
+    
     inDict = {}
     for symbol, dfdata in ddr.items() :
         inDict[symbol] = compute_indicatorsA(dfdata, 1, 0)    
+    
+    if verbose: 
+        toc = time.perf_counter()
+        print (f"Compute Time :: {toc - tic:0.4f} seconds")
     return inDict
 
 
@@ -99,11 +116,19 @@ def compute_all_seq (ddr=None, symbols=None) :
 def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a high compute or low latency IO process
     """ Comprises of common compute items 
         1. basic indicators calculations
-        2. indicator settings per (stock, timeframe)
+        2. indicator settings per (stock, timeframe) // not implemented yet
     """
     # print (f"Compute {i} started with {k} secs")
+    # if verbose: # measure start time  
+    tic = time.perf_counter()
+
+    #############################   Calculation Start 
+
     df.ta.ha(append=True) # heikinashi bars
+
+    # add HA_Color to signal -1 0 +1 
     df['HA_color'] = np.where(df.HA_close > df.HA_open, 1, -1)
+    
     # ema21HA = df['EMA_21HA'] = ta.ema( df.HA_close, length=21, append=True)
     ema9 = df.ta.ema(length=9, append=True)
     ema21 = df.ta.ema(length=21, append=True)
@@ -146,8 +171,49 @@ def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a hig
     # PSAR Stop Reverse (based on pandas_TA)
     psar = df.ta.psar( append=True)
     # print (df)
-    
-    if verbose: print (f"Compute {symbol} done with {interval} interval.")
+
+    # add HA_Color to signal -1 0 +1 
+    # df['signal_trHAcolor'] = df['HA_color']
+
+    # define stack EMA Extreme:base=9 ::  +1: positive bullish, 0:undecided, -1:negative bearish
+    df['signal_StackEMA'] = np.where(
+        (df.EMA_9 > df.EMA_21) & 
+        (df.EMA_21 > df.EMA_50) & 
+        (df.EMA_50 > df.EMA_100) &
+        (df.EMA_100 > df.EMA_150)      
+        ,1, np.where(
+        (df.EMA_9 < df.EMA_21) & 
+        (df.EMA_21 < df.EMA_50) & 
+        (df.EMA_50 < df.EMA_100) &
+        (df.EMA_100 < df.EMA_150), -1, 0))
+
+    # define stack EMA Softer:base=21 :: +1: positive bullish, 0:undecided, -1:negative bearish
+    df['signal_StackEMA21'] = np.where(
+        # (df.EMA_9 > df.EMA_21) & 
+        (df.EMA_21 > df.EMA_50) & 
+        (df.EMA_50 > df.EMA_100) &
+        (df.EMA_100 > df.EMA_150)      
+        ,1, np.where(
+        # (df.EMA_9 < df.EMA_21) & 
+        (df.EMA_21 < df.EMA_50) & 
+        (df.EMA_50 < df.EMA_100) &
+        (df.EMA_100 < df.EMA_150), -1, 0))
+
+    # reformat Squeese (Original) for Charting 
+    df['SQZ'] = df['SQZ_ON']    # final SQZ market
+    df['SQZhist'] = df['SQZ_20_2.0_20_1.5_LB'] # final SQZ Hist
+    # mark increasing decreasing : 2 inc blue, 1 dec deep blue, -1 red dec, -2 yellow inc
+    df['SQZhistC'] = np.where(df['SQZ_PINC'].notnull(), 2, np.nan)
+    df['SQZhistC'] = np.where(df['SQZ_PDEC'].notnull(), 1, df['SQZhistC'])
+    df['SQZhistC'] = np.where(df['SQZ_NDEC'].notnull(), -1, df['SQZhistC'])
+    df['SQZhistC'] = np.where(df['SQZ_NINC'].notnull(), -2, df['SQZhistC'])
+
+    #############################   Calculation END 
+
+    if verbose: 
+        toc = time.perf_counter()
+        print (f"Compute Time :: {toc - tic:0.4f} seconds")
+        print (f"Compute {symbol} done with {interval} interval.")
     
     return (df, symbol, interval)
 

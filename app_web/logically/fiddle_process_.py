@@ -101,3 +101,35 @@ ipdb.set_trace()
 # ipdb> embed()
 ###############################################################
 
+
+
+############ Advanced Problems 
+
+# orphaned Nodes Problem (sample output )
+"""
+    25
+    Generic consumer: Threads started ......
+    Staring CPU bound tasks with 25 process workers.Revceived dict_keys(['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD']) 
+    `Dict Count =10`
+
+    Locking thread. [ Compute process count 10 ]
+    Finished in  3.8621 seconds
+    Waiting for Queue ......
+
+    Compute Queue Process Complete. 
+    Unlocked thread. => QSIZE: 0 
+    `AlgoDF Count 9` | interval 4H 
+    [12]
+
+
+    Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
+    Revceived dict_keys(['SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD']) 
+    Dict Count =10
+    Locking thread. [ Compute process count 10 ]
+
+    Compute Queue Process Complete. 
+    Unlocked thread. => QSIZE: 0 
+    AlgoDF Count 0 | interval 4H 
+    Some Error occurred. Algo count is Zero.
+
+"""

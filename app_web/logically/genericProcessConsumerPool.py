@@ -5,6 +5,7 @@ from threading import Semaphore, Thread
 
 max_workers = 10  # global max_worker count 
 sema = None 
+initialized = False
 processQ = queue.Queue()
 has_q = Semaphore(value=0)  # Allow consumers to sleep while waiting for an event (pause infinite loop)
 SENTINEL = "END"
@@ -132,7 +133,9 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
 
 def initialize_processPool(maxWorkers=max_workers) : 
     global max_workers
+    # global initialized 
     max_workers = maxWorkers  # init # of workers    
+    # initialized = True
     print (max_workers)
     ## initialize and start producer, consumer threads 
     threads = [Thread(target=genericConsumer, args=(processQ,))]

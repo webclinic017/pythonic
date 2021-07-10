@@ -54,6 +54,22 @@ def printInColor(mytext="Hello Test!") :
     # cprint(mytext, 'blue', 'on_yellow')
 
 
+
+def printWarning(mytext="Hello Test!") : 
+    # https://pypi.org/project/termcolor/
+    # text: grey,red,green,yellow,blue,magenta,cyan,white
+    # Attributes: bold,dark,underline,blink,reverse,concealed
+    # highlight: on_grey,on_red,on_green,on_yellow,on_blue,on_magenta,on_cyan,on_white,    
+
+    import sys
+    from termcolor import colored, cprint
+
+    # text = colored(mytext, 'green', attrs=['reverse', 'blink'])
+    text = colored(mytext, 'red', attrs=['bold'])
+    print(text)
+    # cprint(mytext, 'blue', 'on_yellow')
+
+
 def printInHighlight(mytext="Hello Test!") : 
     # https://pypi.org/project/termcolor/
     # text: grey,red,green,yellow,blue,magenta,cyan,white
