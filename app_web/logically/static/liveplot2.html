@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="x_window" content={{x_window}}>
+    <title>Signal Visualizer</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+
+    <style>
+        .tv-lightweight-charts {
+            border-left: 0.5px solid slategrey;            
+        }
+    </style>
+
+</head>
+
+<body>
+  
+    <div class="container-fluid">
+        <!-- Only one row for charts only -->
+        <div class="row">
+            <!-- placeholder for lightweight interactive charts  from API -->
+            <div style="" class="col">
+                <h2 id="ctitle" style="float:left"></h2>
+                <span id="c2title" style="float:right"></span>
+
+                <div id="chart">
+                </div>
+                <div id="axis">
+                </div>
+                <!-- <div id="axis2">
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <div class="result" style="clear:both"></div>
+    <!-- placeholder for chart img from socket -->
+    <div id="chartimg">
+        <p id="tick"></p>
+        <img id="img" max-width="100%" , max-height="100%" ;>
+    </div>
+
+    <script src="jquery.min.js"></script>
+    <script src="socket.io.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <script src="lightweight-charts.standalone.production.js"></script>
+    <script src="plot2.js"></script>
+</body>
+
+</html>
