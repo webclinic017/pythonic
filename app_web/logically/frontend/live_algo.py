@@ -47,4 +47,4 @@ socketio, application = create_app()
 
 
 if __name__ == '__main__':
-    socketio.run(application, debug=False)
+    socketio.run(application, debug=True)

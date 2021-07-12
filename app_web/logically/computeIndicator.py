@@ -201,12 +201,12 @@ def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a hig
 
     # reformat Squeese (Original) for Charting 
     df['SQZ'] = df['SQZ_ON']    # final SQZ market
-    df['SQZhist'] = df['SQZ_20_2.0_20_1.5_LB'] # final SQZ Hist
+    df['SQZ_Hist'] = df['SQZ_20_2.0_20_1.5_LB'] # final SQZ Hist
     # mark increasing decreasing : 2 inc blue, 1 dec deep blue, -1 red dec, -2 yellow inc
-    df['SQZhistC'] = np.where(df['SQZ_PINC'].notnull(), 2, np.nan)
-    df['SQZhistC'] = np.where(df['SQZ_PDEC'].notnull(), 1, df['SQZhistC'])
-    df['SQZhistC'] = np.where(df['SQZ_NDEC'].notnull(), -1, df['SQZhistC'])
-    df['SQZhistC'] = np.where(df['SQZ_NINC'].notnull(), -2, df['SQZhistC'])
+    df['SQZ_HistC'] = np.where(df['SQZ_PINC'].notnull(), 2, np.nan)
+    df['SQZ_HistC'] = np.where(df['SQZ_PDEC'].notnull(), 1, df['SQZ_HistC'])
+    df['SQZ_HistC'] = np.where(df['SQZ_NDEC'].notnull(), -1, df['SQZ_HistC'])
+    df['SQZ_HistC'] = np.where(df['SQZ_NINC'].notnull(), -2, df['SQZ_HistC'])
 
     #############################   Calculation END 
 
