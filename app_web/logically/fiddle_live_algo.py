@@ -70,7 +70,7 @@ dfAlgo.columns
 Addr4H.keys()
 
 dfdata = ddr4H['AMD'].copy() ; dfdata
-dfAlgo = Addr4H['AMD'].copy() ; dfAlgo
+dfAlgo = Addr4H['SPY'].copy() ; dfAlgo
 
 dfAlgo, _, _ = compute_indicatorsA(df=dfdata.copy(),symbol=..., interval=..., verbose=True)
 
@@ -94,10 +94,12 @@ dfAlgo.columns # check cols is changes are updated
 # payload = 
 dfAlgo[['open', 'high', 'low','close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-100:].to_json(orient='split', double_precision=2, date_unit='s')
 
-dfAlgo[['open', 'high', 'low','close','HA_open','HA_high','HA_low','HA_close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-100:].to_json(orient='split', double_precision=2, date_unit='s')
+clip = dfAlgo[['open', 'high', 'low','close','HA_open','HA_high','HA_low','HA_close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-1000:].to_json(orient='split', double_precision=2, date_unit='s')
 
-
-
+# write this to file 
+with open('frontend/static/data.json', 'w', encoding='utf-8') as f :
+    f.write(clip) 
+    f.close()
 
 
 # Socket Test with Image Update 
