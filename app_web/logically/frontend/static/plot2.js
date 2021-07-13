@@ -46,18 +46,23 @@ let redata = [];
 // console.log(jdata.values)
 
 /*************************    Configurations    ***************************/
-let config_signal = {
+let config_hist = {
     // value : color 
     SQZ_HistC: { color: { '-1': 'color1', '-2': 'color2' }},
 }
-let config_marker = {
+
+let config_line = {
     // value : color 
-    SQZ: { '0': 'green', '1': 'red' },
-    marker1: {},
-    marker2: {},
-    marker3: {},
+    SQZ_HistC: { color: { '-1': 'color1', '-2': 'color2' }},
 }
 
+let config_marker = {
+    // value : color , position 
+    SQZ     : {color: { '0': 'green', '1': 'red' }, position : {}, shape: {} }, 
+    marker1 : {color: { '0': 'green', '1': 'red' }, position : {}, shape: {} },
+    marker2 : {color: { '0': 'green', '1': 'red' }, position : {}, shape: {} },
+    marker3 : {color: { '0': 'green', '1': 'red' }, position : {}, shape: {} },
+}
 
 
 /*************************     DATA REMAPPING/EXTRACTION Functions    ***************************/
@@ -106,7 +111,8 @@ function getSeriesWithColor(data, col, colorcol, colormodel) {
 }
 
 function getSeriesMarker(data, col, colorcol, colormodel) {
-    // return marker series: {time: '2019-04-09', position: 'aboveBar', color: 'black', shape: 'arrowDown',},
+    // return marker series: 
+    // {time: '2019-04-09', position: 'aboveBar', color: 'black', shape: 'arrowDown', text :(string | undefined)},
     // position (aboveBar | belowBar | inBar) - item position
     // shape (circle | square | arrowUp | arrowDown) - item marker type
     // size (number | undefined) - size multiplier of the marker, 
