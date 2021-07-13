@@ -169,7 +169,7 @@ function populateTable(response) {
 let chartElement = document.getElementById('chart');
 let axisElement = document.getElementById('axis');
 let chart = null;
-let axis1 = null;
+let axis = null;
 let axis2 = null;
 let cwidth = $(window).width(); //1500
 let cheight = $(window).height() * 0.4;    //400
@@ -213,7 +213,7 @@ function initializechart() {
     });
 
 
-    axis1 = LightweightCharts.createChart(chartElement, {
+    axis = LightweightCharts.createChart(chartElement, {
         width: cwidth,
         height: 180,
         /*  crosshair: {
@@ -264,12 +264,27 @@ function createStockChart(symbol, jd) {
     //     // alert( "Load was performed." );
     // }).done(function (jd) {
 
-    
+    // /// Add legends 
+    // document.body.style.position = 'relative';
+    // let legend = document.createElement('div');
+    // legend.style.display = 'block';
+    // legend.style.left = 3 + 'px';
+    // legend.style.top = 3 + 'px';
+    // legend.classList.add('legend');
+    // chartElement.appendChild(legend);
+
+    // let firstRow = document.createElement('div');
+    // firstRow.innerText = symbol + '';
+    // firstRow.style.color = 'black';
+    // legend.appendChild(firstRow);
+    // // end add legends 
+
+
     //  clear previous drawings if any and initalize 
     $('#chart').html('');
     $('#axis').html('');
     chart = null;
-    axis1 = null;
+    axis = null;
     initializechart();
     p = new Date(Date.now());
 
@@ -288,28 +303,70 @@ function createStockChart(symbol, jd) {
 
 
     /* let barSeries = chart.addBarSeries(); // addCandlestickSeries*/
-    let barSeries = chart.addCandlestickSeries({        
+    let barSeries = chart.addCandlestickSeries({
+        /* title: 'Price' */
+        /* autoscaleInfoProvider: original => {
+                const res = original();
+                if (res !== null) {
+                    rr = res.priceRange.maxValue - res.priceRange.minValue; 
+                    res.priceRange.minValue += 0.1 * rr;
+                    res.priceRange.maxValue -= 0.2 * rr;
+                }
+                return res;
+            }, */
         priceLineVisible: true,
         lastValueVisible: true,
     });
 
     let lineSeries1 = axis2.addLineSeries({
+        /* title: 'Price' */
+        /* autoscaleInfoProvider: original => {
+                const res = original();
+                if (res !== null) {
+                    rr = res.priceRange.maxValue - res.priceRange.minValue; 
+                    res.priceRange.minValue += 0.25 * rr;
+                    res.priceRange.maxValue -= 0.25 * rr;
+                }
+                return res;
+            }, */
         priceLineVisible: false,
         lastValueVisible: false,
-        
+        /* baseLineVisible: true,
+        baseLineColor: '#ff0000',
+        baseLineWidth: 3,
+        baseLineStyle: 1, */
+    });
+    let histSeries1 = axis.addHistogramSeries({
+        color: 'gray',
+        /* base: -10, */
+        /* autoscaleInfoProvider: original => {
+            const res = original();
+            if (res !== null) {
+                rr = res.priceRange.maxValue - res.priceRange.minValue; 
+                res.priceRange.minValue += 0.25 * rr;
+                res.priceRange.maxValue -= 0.25 * rr;
+            }
+            return res;
+        }, */
+        priceLineVisible: false,
+        lastValueVisible: false,
     });
 
     lineSeries1.applyOptions({
         lineWidth: 1,
-    });
-    
-    let histSeries1 = axis1.addHistogramSeries({
-        title: 'SQZ',
-        color: 'gray',
-        priceLineVisible: false,
-        lastValueVisible: false,
+        /* lineType: 2,
+        lineStyle: 1,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 6,
+        crosshairMarkerBorderColor: '#ffffff',
+        crosshairMarkerBackgroundColor: '#2296f3', */
     });
 
+    // let data = []
+    /* let jdata = JSON.parse(jd);
+    console.log(jdata.columns)
+    let cols = jdata.columns
+    let time = jdata.index */
 
     jdata = JSON.parse(jd);
     basedata = [];
@@ -317,12 +374,146 @@ function createStockChart(symbol, jd) {
     barSeries.setData(basedata);
 
 
+    // //function getNextData() {
+    // let vdata = [];
+    // let i;
+    // for (i = 0; i < jdata.index.length; ++i) {
+    //     let d = jdata.data[i];
+    //     //console.log(d)
+    //     let row = {
+    //         time: jdata.index[i],
+    //         open: d[0],
+    //         high: d[1],
+    //         low: d[2],
+    //         close: d[3],
+    //         HA_open: d[4],
+    //         HA_high: d[5],
+    //         HA_low: d[6],
+    //         HA_close: d[7],
+    //         ema21: d[8],
+    //         SQZ: d[9],
+    //         SQZ_Hist: d[10],
+    //         SQZ_HistC: d[11],
+
+    //     };
+    //     /* let vrow = {
+    //     time: jdata.index[i],
+    //     value: jdata.v[i],
+    //     color: 'rgba(108, 122, 137, 0.9)'
+    //     }; */
+    //     basedata.push(row);
+    //     //vdata.push(vrow);
+    //     barSeries.update(row);
+
+    // }
+    /* console.log (data); */
+    //};
+
+    //getNextData();
+
+
+
+    /* let keys = ['foo', 'bar', 'baz'];
+    let values = [11, 22, 33]
+
+    let result = {};
+    keys.forEach((key, i) => result[key] = values[i]);
+    console.log(result); */
+
+
+
+    // calculate SMA and set data 
+    /* let smaData = calculateSMA(data, 21);
     let smaLine = chart.addLineSeries({
     color: 'rgba(4, 111, 232, 1)',
     lineWidth: 2,
     });
-    smaLine.setData(generateSeries(basedata, 'EMA_21'));
+    smaLine.setData(smaData); */
     ///////////////////////////////////
+
+    /* 
+    // indicator legends Eg. SMA 
+    let toolTipMargin = 10;
+    let priceScaleWidth = 50;
+    let legend = document.createElement('div');
+    legend.className = 'sma-legend';
+    container.appendChild(legend);
+    legend.style.display = 'block';
+    legend.style.left = 3 + 'px';
+    legend.style.top = 3 + 'px';
+    function setLegendText(priceValue) {
+    let val = 'n/a';
+    if (priceValue !== undefined) {
+        val = (Math.round(priceValue * 100) / 100).toFixed(2);
+    }
+    legend.innerHTML = 'MA10 <span style="color:rgba(4, 111, 232, 1)">' + val + '</span>';
+    }
+    setLegendText(smaData[smaData.length - 1].value);
+    chart.subscribeCrosshairMove((param) => {
+    setLegendText(param.seriesPrices.get(smaLine));
+    });
+    */
+
+
+    ///// 			CREATE PRICELINE , SUPPORT RESISTANCE LEVELS, TARGETS etc. 
+    /* 
+    barSeries.createPriceLine({
+    price: 92,
+    color: 'rgba(229, 37, 69, 1)',
+    lineWidth: 2,
+    lineStyle: LightweightCharts.LineStyle.Dotted,
+    title: 'sell order',
+    draggable: true,
+    });
+
+    barSeries.createPriceLine({
+    price: 80,
+    color: 'rgba(53, 162, 74, 1)',
+    lineWidth: 2,
+    priceAxisLabelVisible: false,
+    axisLabelVisible : true,
+    alertString: 'Entry',
+    lineStyle: LightweightCharts.LineStyle.Dotted,
+    title: 'buy order draggable',
+    draggable: true,
+    }); */
+
+    ///// 			DRAWING A BOX 
+
+    // Define a line series (for drawing box)
+    /* 	let series2 = chart.addLineSeries({
+        color: 'rgb(45, 120, 255)',
+        lineWidth: 0.7,
+            priceLineVisible: false, // disable priceline 
+            lastValueVisible: false, // disable last value visible on price axis 
+        
+        });
+        
+        // draw a box with line series 
+        let data2 = [
+                
+                {time: { year: 2019 ,month: 4 ,day: 15 }, value: 190}, 
+                {time: { year: 2019,month: 4 ,day: 15 }, value: 211},       
+                {time: { year: 2019 ,month: 4 ,day: 30 }, value: 211}, 
+                {time: { year: 2019 ,month: 4 ,day: 30 }, value: 190}, 
+                {time: { year: 2019 ,month: 4 ,day: 15 }, value: 190},
+                ]; 
+        series2.setData(data2);
+        
+        
+        ////		DRAWING A TREND LINE 
+        trendlineSeries = chart.addLineSeries({
+            priceLineVisible: false, // disable priceline 
+            lastValueVisible: false, // disable last value visible on price axis 
+        });
+        
+        let tldata = [
+        { time: '2018-12-26', value: 159.28 },
+        { time: '2019-03-15', value: 180.82 }
+        ]
+        trendlineSeries.setData(tldata); */
+    ////////////////////////////////////////////
+
 
     lineSeries1.setData(basedata.map(x => {
         return {
@@ -337,15 +528,6 @@ function createStockChart(symbol, jd) {
         }
     }));
 
-
-
-
-
-
-
-
-/// #################      CROSSHAIR MOVEMENT SYNC & SCALINNG  SETTINGS 		###################
-
     let isCrossHairMoving = false;
     chart.subscribeCrosshairMove(param => {
         if (!param.point) return;
@@ -353,14 +535,32 @@ function createStockChart(symbol, jd) {
         if (isCrossHairMoving) return;
 
         isCrossHairMoving = true;
-        axis1.moveCrosshair(param.point);
+        axis.moveCrosshair(param.point);
         axis2.moveCrosshair(param.point);
 
         isCrossHairMoving = false;
     });
 
-    axis1.subscribeCrosshairMove(param => {        
+    axis.subscribeCrosshairMove(param => {
+        // /// Legend Update Start 
+        // if (param.time) {
+        //     /* console.log(param) */
+        //     /* console.log(param.seriesPrices.get(barSeries)) 
+        //     */
+        //     const price = param.seriesPrices.get(barSeries);
+        //     /* console.log (price) // debug */
+
+        //     if (price !== undefined)
+        //         firstRow.innerText = 'ETC USD 7D VWAP' + '  ' + price.toFixed(2);
+        // }
+        // else {
+        //     firstRow.innerText = 'ETC USD 7D VWAP';
+        // }
+        // /* console.log(param.seriesPrices.get(lineSeries)) */
+        // /// Legend Update End
+
         if (isCrossHairMoving) return;
+
         isCrossHairMoving = true;
         chart.moveCrosshair(param.point);
         axis2.moveCrosshair(param.point);
@@ -375,7 +575,7 @@ function createStockChart(symbol, jd) {
 
         isCrossHairMoving = true;
         chart.moveCrosshair(param.point);
-        axis1.moveCrosshair(param.point);
+        axis.moveCrosshair(param.point);
         axis2.moveCrosshair(param.point);
 
         isCrossHairMoving = false;
@@ -395,7 +595,7 @@ function createStockChart(symbol, jd) {
                 }
             }
         });
-        axis1.applyOptions({
+        axis.applyOptions({
             crosshair: {
                 horzLine: {
                     visible: false,
@@ -417,7 +617,7 @@ function createStockChart(symbol, jd) {
         if (isAxisActive) return;
         isAxisActive = true;
         isChartActive = false;
-        axis1.applyOptions({
+        axis.applyOptions({
             crosshair: {
                 horzLine: {
                     visible: true,
@@ -446,16 +646,16 @@ function createStockChart(symbol, jd) {
 
     /// this is a scaling function: zoom IN and OUT 
     chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
-        axis1.timeScale().setVisibleLogicalRange(range);
+        axis.timeScale().setVisibleLogicalRange(range);
         axis2.timeScale().setVisibleLogicalRange(range);
     })
-    axis1.timeScale().subscribeVisibleLogicalRangeChange(range => {
+    axis.timeScale().subscribeVisibleLogicalRangeChange(range => {
         chart.timeScale().setVisibleLogicalRange(range);
         axis2.timeScale().setVisibleLogicalRange(range);
     })
     axis2.timeScale().subscribeVisibleLogicalRangeChange(range => {
         chart.timeScale().setVisibleLogicalRange(range);
-        axis1.timeScale().setVisibleLogicalRange(range);
+        axis.timeScale().setVisibleLogicalRange(range);
     })
 
     // apply some offset on the right 
@@ -465,12 +665,17 @@ function createStockChart(symbol, jd) {
         /* visible: false, */
         /* borderVisible: false */
     })
-    axis1.timeScale().applyOptions({
+    axis.timeScale().applyOptions({
         rightOffset: 10,
         fixLeftEdge: true,
         visible: false,
     })
 
+    /* axis2.timeScale().applyOptions({
+    rightOffset: 10, 
+    fixLeftEdge: true,
+    visible: false,
+    }) */
 
     /// ############			 		marker example 			###################
     /// markers can be be used to simulate 
@@ -519,32 +724,29 @@ function createStockChart(symbol, jd) {
     histSeries1.setMarkers(markers);
 
     /* chart.timeScale().fitContent(); */
+
     /// ######################		END MARKERS 		#########################
+
+
+    /// can eliminate this function 
+    function calculateSMA(data, length) {
+        let avg = function (data) {
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) {
+                sum += data[i].close;
+            }
+            return sum / data.length;
+        };
+        let result = [];
+        for (let i = length - 1, len = data.length; i < len; i++) {
+            let val = avg(data.slice(i - length + 1, i));
+            result.push({ time: data[i].time, value: val });
+        }
+        return result;
+    }
+
+
+    //     });
 }
-
-
 
 createStockChart('SPY', jd) // default load SPY 
-
-
-
-
-
-/// ######################		Helper Fucntions 		#########################
-
-/// can eliminate this function 
-function calculateSMA(data, length) {
-    let avg = function (data) {
-        let sum = 0;
-        for (let i = 0; i < data.length; i++) {
-            sum += data[i].close;
-        }
-        return sum / data.length;
-    };
-    let result = [];
-    for (let i = length - 1, len = data.length; i < len; i++) {
-        let val = avg(data.slice(i - length + 1, i));
-        result.push({ time: data[i].time, value: val });
-    }
-    return result;
-}
