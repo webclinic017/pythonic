@@ -3,7 +3,6 @@
 
 // let url = 'http://' + document.domain + ':' + location.port
 // let socket = io.connect(url);
-
 // socket.on('connect', function(msg) {
 //     console.log('connected to websocket on ' + url);
 // });
@@ -59,8 +58,8 @@ let config_line = {
     // LineType 0,1 : Simple, WithSteps
 
     normalgreysolid: { color: 'color1', lineWidth: 2, lineType: '' },
-    normalbluesolid: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: 0, lineStyle: 0 },
-    normalorangesolid: { color: 'orange', lineWidth: 2, lineType: 0, lineStyle: 0 },
+    normalbluesolid: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: 0, lineStyle: 1 },
+    normalorangesolid: { color: 'orange', lineWidth: 3, lineType: 0, lineStyle:1 },
     normalbluesolid2: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: LightweightCharts.LineType.WithSteps },
 }
 
@@ -68,14 +67,14 @@ let config_marker = {
     // return marker series: 
     // {time: '2019-04-09', position: 'aboveBar', color: 'black', shape: 'arrowDown', text :(string | undefined)},
     // position (aboveBar | belowBar | inBar) - item position
-    // shape (circle | square | arrowUp | arrowDown) - item marker type
-    // size (number | undefined) - size multiplier of the marker, 
-    //      the shape is hidden when set to 0, default value is 1
+    // shape (circle | square | arrowUp | arrowDown | triangleUp | triangleDown) - item marker type
+    //      the shape is hidden when set to 0, default value is 1 => triangles from howDs git repo 
+    // size (number | undefined) - size multiplier of the marker, can be float 0.5 visible only on zoom in.
 
     SQZ: {
         hasCode: true, code: {
-            '0': { color: 'rgb(73 235 90)', position: 0, shape: 'circle', size: 0.01 },
-            '1': { color: 'red', position: 0, shape: 'circle', size: 0.01 },
+            '0': { color: 'rgb(73 235 90)', position: 0, shape: 'circle', size: 0.5 },
+            '1': { color: 'red', position: 0, shape: 'circle', size: 0.5 },
         }
     },
     marker1: { hasCode: true, colorCode: { '0': 'green', '1': 'red' }, position: {}, shape: {} },
@@ -570,10 +569,10 @@ function createStockChart(symbol, jd) {
         /* visible: false, */
         /* borderVisible: false */
     })
-    chart.timeScale().setVisibleLogicalRange({
-        from: 0,
-        to: 200,
-    });
+    // chart.timeScale().setVisibleLogicalRange({
+    //     from: 0,
+    //     to: 200,
+    // });
     axis1.timeScale().applyOptions({
         rightOffset: 10,
         fixLeftEdge: true,
