@@ -137,7 +137,8 @@ def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a hig
     ema100 = df.ta.ema(length=100, append=True)
     ema150 = df.ta.ema(length=150, append=True)
     keltner = df.ta.kc(append=True)
-    squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True)
+    squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True) 
+    # squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True) # _LB
     bollingers = df.ta.bbands(append=True)
 
     df['signal_SQ2gauss']= ft.TA.SQZMI(df).apply(lambda x: -1 if x else 0)
@@ -201,7 +202,8 @@ def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a hig
 
     # reformat Squeese (Original) for Charting 
     df['SQZ'] = df['SQZ_ON']    # final SQZ market
-    df['SQZ_Hist'] = df['SQZ_20_2.0_20_1.5_LB'] # final SQZ Hist
+    # df['SQZ_Hist'] = df['SQZ_20_2.0_20_1.5_LB'] # final SQZ Hist
+    df['SQZ_Hist'] = df['SQZ_20_2.0_20_1.5'] # final SQZ Hist
     # mark increasing decreasing : 2 inc blue, 1 dec deep blue, -1 red dec, -2 yellow inc
     df['SQZ_HistC'] = np.where(df['SQZ_PINC'].notnull(), 2, np.nan)
     df['SQZ_HistC'] = np.where(df['SQZ_PDEC'].notnull(), 1, df['SQZ_HistC'])
