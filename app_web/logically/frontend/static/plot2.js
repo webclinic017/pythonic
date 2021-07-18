@@ -233,7 +233,7 @@ function initializechart() {
             /* drawTicks: false, */
         },
     });
-    axis2 = LightweightCharts.createChart(axisElement, {
+    axis2 = LightweightCharts.createChart(chartElement, {
         width: cwidth,
         height: 160,
         /*   crosshair: {
@@ -413,7 +413,7 @@ function createStockChart(symbol, jd) {
         });
     });
 
-    axisElement.addEventListener("mousemove", () => {
+    chartElement.addEventListener("mousemove", () => {
         if (isAxisActive) return;
         isAxisActive = true;
         isChartActive = false;
