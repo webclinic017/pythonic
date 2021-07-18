@@ -37,7 +37,7 @@ def initData (symbol = 'SPY', interval="4H", bars=700, live=False) :
     # dfd = yf.download(tickers=symbol, start=sd, interval=interval)
     
     if interval=="4H": 
-        if live : df = data.getLiveData(symbol=symbol, interval="1H", period='300d')        
+        if live : df = data.getLiveData(symbol=symbol, interval="1H", period='730d')        
         else:  df = data.getData(symbol=symbol, interval="1H", bars=(-4900, None))
         # df = data.getData(symbol=symbol, interval="1H", bars=(-1000, None))
 
@@ -77,7 +77,7 @@ def addIndicators(df):
 
     print ('Initial DF length ', len(df))
     # squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
-    squeezes = df.ta.squeeze(lazybear=False, detailed=True, append=True)
+    squeezes = df.ta.squeeze(lazybear=True, detailed=True, append=True)
     bollingers = df.ta.bbands(append=True) # 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0' 
     # macd = df.ta.macd(append=True) # 'MACD_12_26_9', 'MACDh_12_26_9','MACDs_12_26_9'],
     # rsi = df.ta.rsi(length=20, append=True)
@@ -872,27 +872,43 @@ def searchDF (df, colmatch=None, contains=None) :
 # # Use 'signalx for primary signals - hollow marker in panel 0 
 # # Use 'signalxTrade for final  
 #
-
-symbol="QQQ"  # TRY GE, SAIA, QQQ, WGO, MSFT
+symbol="AMD"  # TRY GE, SAIA, QQQ, WGO, MSFT
+# interval='4H'
 interval='4H'
-# interval='1D'
 miniinterval ='1H'
 microinterval = '5m'
 df = None 
-bars = None 
-# bars=(350, 700)
+bars = None
+hatrue = True 
+live = True
+ctype = 'candle' # 'ohlc' # 'candle'
+# bars=(0, 100)
+# bars=(-1200, -1100)
 # bars=(-420, -300)
-# bars=(-420, -370)
+# bars=(-420, -350)
 # bars=(-380, -310)
 # bars=(-200, -150)
 # bars=(-350, None)
 # bars=(-600, -500 )
-bars=(-1100, -1000 )
-# bars=(-500, -400 )
-# bars=(-250, -120 )
-# bars=(-100, -1 )
+# bars=(-600, None )
+# bars=(-700, -600 )
+# bars=(-750, -650 )
+# bars=(-1080, -1000 )
+# bars=(-500, -380 )
+# bars=(-230, -150 )
+# bars=(-100, -50 )
+# bars=(-150, None )
+bars=(-300, None )
+# bars=(-50, None )
+# bars=(-100, None )
+# bars=(-100, -30)
+# bars=(-200, -170 )
+# bars=(-100, -75 )
 # >>>>>>>>>>>>>>>
-df = initData(symbol=symbol, interval=interval, live=False) # load/download data to df
+
+print (f"Calculating with live:{live}, interval : {interval}")
+
+df = initData(symbol=symbol, interval=interval, live=live) # load/download data to df
 
 addIndicators(df)
 
@@ -993,11 +1009,11 @@ if bars == None : bars=(-600, None)
 s,e = bars 
 
 # plot consolidated current TF 
-fig, axlist = plotAll (df, start= s, end= e, ctype='ohlc', ha=False, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+fig, axlist = plotAll (df, start= s, end= e, ctype='candle', ha=True, showATR=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
 
 # plot lower TF 
-s1, e1 = df[s:e].index[0], df[s:e].index[-1]
-fig, axlist = plotAll (df2, start= s1, end= e1, ctype='ohlc', ha=False, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
+# s1, e1 = df[s:e].index[0], df[s:e].index[-1]
+# fig, axlist = plotAll (df2, start= s1, end= e1, ctype='ohlc', ha=False, signal='signalxTrade_SQTest', symbol=symbol, interval=miniinterval, header="\n"+ str(df2[-1:].iloc[0].close))
 
 # fig.show()
 # df[['open', 'close']].tail(20)

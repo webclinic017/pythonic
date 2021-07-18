@@ -630,6 +630,7 @@ def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=No
 
     if not period == None:
         dfdata = yf.download(tickers=symbol, interval=interval, period=period)
+        dfdata = fix_timezone(dfdata) 
     else:
         return 'Period Not specified'
 
