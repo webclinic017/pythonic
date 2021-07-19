@@ -15,14 +15,18 @@ ddr4H  = {}
 Addr4H = {}
 ddr1H  = {}
 Addr1H = {}
+ddr1D  = {}
+Addr1D = {}
 
 # load data 
 ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=10, randomize=False)
 ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=10, randomize=False)
+ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=10, randomize=False)
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
 Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
+Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='1D')
 
 # display all computed columns 
 Addr4H['AMD'].columns
@@ -94,21 +98,38 @@ dutil.showColumns(r,startswith='SQZ').tail(50) # original SQZ (TOS)
 dfAlgo.columns # check cols is changes are updated 
 
 
-#######     Convert to JSON string for post 
+####### ####### #######    Convert to JSON string for post 
+
+symbol = 'WGO'
+dfAlgo = Addr4H[symbol].copy() ; dfAlgo
 # payload = 
-dfAlgo[['open', 'high', 'low','close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-100:].to_json(orient='split', double_precision=2, date_unit='s')
+dfAlgo[['open', 'high', 'low','close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-1000:].to_json(orient='split', double_precision=2, date_unit='s')
 
-dfAlgo = Addr4H['AMD'].copy() ; dfAlgo
 clip = dfAlgo[['open', 'high', 'low','close','HA_open','HA_high','HA_low','HA_close', 'EMA_21', 'EMA_42', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-1000:].to_json(orient='split', double_precision=2, date_unit='s')
-
-# MTF SQZ data 
-dfAlgo2 = Addr1H['AMD'].copy() ; dfAlgo2[-1000:]
-clip = dfAlgo2[['HA_open','HA_high','HA_low','HA_close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-1000:].to_json(orient='split', double_precision=2, date_unit='s')
-
 # write this to file 
 with open('frontend/static/data.json', 'w', encoding='utf-8') as f :
     f.write(clip) 
     f.close()
+
+# MTF2 SQZ data (Lower TF) 
+dfAlgo2 = Addr1H[symbol].copy() ; dfAlgo2[-2000:]
+clip = dfAlgo2[['HA_open','HA_high','HA_low','HA_close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-2000:].to_json(orient='split', double_precision=2, date_unit='s')
+
+# write this to file 
+with open('frontend/static/data1H.json', 'w', encoding='utf-8') as f :
+    f.write(clip) 
+    f.close()
+
+# MTF2 SQZ data (higher TF)
+dfAlgo3 = Addr1D[symbol].copy() ; dfAlgo3[-2000:]
+clip = dfAlgo3[['HA_open','HA_high','HA_low','HA_close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-500:].to_json(orient='split', double_precision=2, date_unit='s')
+
+# write this to file 
+with open('frontend/static/data1D.json', 'w', encoding='utf-8') as f :
+    f.write(clip) 
+    f.close()
+
+####### ####### #######    END
 
 
 # Socket Test with Image Update 
