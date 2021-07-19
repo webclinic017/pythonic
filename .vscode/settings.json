@@ -12,6 +12,7 @@
     "python.analysis.extraPaths": [
         "${workspaceFolder}/app_web",
         // "${workspaceFolder}/path/to/lib2"
-    ]
+    ],
+    "python.linting.mypyEnabled": true
 
 }
