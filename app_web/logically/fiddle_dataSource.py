@@ -352,6 +352,14 @@ data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
 data.getWatchlist(watchlistName='delistedWatchList.pickle')
 #################################
 
+d = data.getWatchlist(watchlistName='WatchListDBFull.pickle')
+ll = ['SPY', 'CCS', 'BGFV', 'AMRK', 'HZNP', 'AVNW', 'KLIC', 'GSL', 'CALX', 'WGO', 'TBBK', 'SYNA', 'LOW', 'LEN', 'CENTA', 'USAK', 'TPX', 'LOB', 'TFII', 'LAD', 'KIRK', 'ABG', 'GROW', 'AMAT', 'HIBB']
+
+d.loc[ll]
+
+
+
+
 
 data.updateDataEODAll() # default watchlist 
 data.getDataFromPickle('AMD', '4H')
