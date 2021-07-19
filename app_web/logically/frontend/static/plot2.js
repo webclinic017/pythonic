@@ -51,7 +51,7 @@ let redata = [];
 /*************************    Configurations    ***************************/
 let config_hist = {
     // value : color 
-    SQZ_HistC: { hasCode: true, color: 'gray', colorCode: { '-1': 'red', '-2': 'yellow', '2': 'cyan', '1': 'blue' } },
+    SQZ_HistC: { hasCode: true, color: 'gray', colorCode: { '-1': 'fuchsia', '-2': 'orange', '2': 'cyan', '1': 'blue' } },
     normalgrey: { hasCode: false, color: 'gray' },
 }
 
@@ -417,7 +417,21 @@ function createStockChart(symbol, jd) {
     jdata2 = JSON.parse(jd2); // MTF data test 
     basedata = [];
     basedata = remapData(jdata) // updates the baseline 
+
+    let dd = { 'time' : new Date(basedata[basedata.length-1].time * 1000).addHours(8)} 
+    let dd2 = { 'time' : new Date(basedata[basedata.length-1].time * 1000).addHours(16)}
+
+    console.log (dd)
+    console.log(new Date(basedata[basedata.length-1].time * 1000).addHours(4.5))
+
+    basedata.push(dd); // add fake data 
+    basedata.push(dd2); // add fake data 
+    console.log (basedata); 
     MTF1data = remapData(jdata2) // updates the baseline 
+    MTF1data.push(dd); // add fake data 
+    MTF1data.push(dd2); // add fake data 
+
+
     barSeries.setData(basedata);
 
 
@@ -560,7 +574,8 @@ function createStockChart(symbol, jd) {
 
     /// set visible range 
     
-    /// this is a scaling function: zoom IN and OUT 
+    // For MultiTimeFrame (MTF only)
+    // this is a scaling function: zoom IN and OUT 
     chart.timeScale().subscribeVisibleTimeRangeChange(range => {
         axis1.timeScale().setVisibleRange(range);
         axis2.timeScale().setVisibleRange(range);
@@ -569,13 +584,15 @@ function createStockChart(symbol, jd) {
         chart.timeScale().setVisibleRange(range);
         axis2.timeScale().setVisibleRange(range);
     })
-    // axis2.timeScale().subscribeVisibleTimeRangeChange(range => {
-    //     chart.timeScale().setVisibleRange(range);
-    //     axis1.timeScale().setVisibleRange(range);
-    // })
+    axis2.timeScale().subscribeVisibleTimeRangeChange(range => {
+        // do not scale anything from this chart 
+        // chart.timeScale().setVisibleRange(range);
+        // axis1.timeScale().setVisibleRange(range);
+    })
     
     
-    /// this is a scaling function: zoom IN and OUT 
+    // for Non MFT cases  this is a scaling function: zoom IN and OUT 
+    /// 
     // chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
     //     axis1.timeScale().setVisibleLogicalRange(range);
     //     axis2.timeScale().setVisibleLogicalRange(range);
@@ -719,3 +736,10 @@ function calculateSMA(data, length) {
     }
     return result;
 }
+
+
+Date.prototype.addHours = function(h) {
+    this.setTime(this.getTime() + (h*60*60*1000));
+    return this.getTime() / 1000;
+  }
+  
