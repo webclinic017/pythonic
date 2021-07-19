@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<title>Debug page</title>
+
+	<script type="text/javascript" src="./dist/lightweight-charts.standalone.development.js"></script>
+</head>
+
+<body style="padding: 0; margin: 0;">
+	<div id="container1" style="position: absolute; width: 100%; height: 50%; left:0%; top: 0%;"></div>
+	<div id="container2" style="position: absolute; width: 100%; height: 50%; left:0%; top: 50%;"></div>
+
+	<script type="text/javascript">
+		const numBars = 1000;
+		const shortSeriesInset = 200;
+		function generateData() {
+			var res1 = [], res2 = [];
+			var time = new Date(Date.UTC(2018, 0, 1, 0, 0, 0, 0));
+			for (var i = 0; i < numBars; ++i) {
+				const item = {
+					time: time.getTime() / 1000,
+					value: (i + ((i > 0 && i % 2) ? 5 : -5)) * 100 ,
+				};
+
+				res1.push(item);
+
+				if (i >= shortSeriesInset && i < numBars - shortSeriesInset) {
+					res2.push({
+						time: item.time,
+						value: item.value - 5000
+					});
+				}
+
+				time.setUTCDate(time.getUTCDate() + 1);
+			}
+
+			return {
+				main: res1,
+				short: res2
+			};
+		}
+
+		const data = generateData();
+
+		const chart1 = LightweightCharts.createChart(document.getElementById('container1'));
+		const chart2 = LightweightCharts.createChart(document.getElementById('container2'));
+
+		let topMainSeries = null, topShortSeries = null;
+
+		for (const chart of [chart1, chart2]) {
+			chart.applyOptions({
+				timeScale: {
+					rightOffset: 0,
+					barSpacing: 6
+				},
+			});
+
+			const mainSeries = chart.addLineSeries({
+				color: "#00ff00",
+				priceFormat: {
+					minMove: 1,
+					precision: 0,
+				},
+			});
+
+			mainSeries.setData(data.main);
+
+			const shortSeries = chart.addLineSeries({
+				color: "#ff0000",
+				priceFormat: {
+					minMove: 1,
+					precision: 0,
+				},
+			});
+
+			shortSeries.setData(data.short);
+
+			topMainSeries = topMainSeries || mainSeries;
+			topShortSeries = topShortSeries || shortSeries;
+		}
+
+		chart1.timeScale().subscribeVisibleIndexRangeChange(
+			(indexRange) =>  {
+				// make the bottom series synchronize its (index-based) viewport
+				// to the top the series. Here, it's easy because both charts show
+				// the same data, whereas in a real-world example, you'd still have
+				// to adjust the indexes to different amounts of data, but that's
+				// trivial. The important part is that with indexRange actually
+				// containing the fractional indexes, full viewport synchronization
+				// during smooth scrolling/zooming is now possible, which was very
+				// hard (only with hacks) to achieve in earlier versions of the
+				// library, where only the time range was available.
+				chart2.timeScale().setVisibleIndexRange(indexRange);
+				
+				console.log('long series', topMainSeries.barsInIndexRange(indexRange));
+				console.log('short series', topShortSeries.barsInIndexRange(indexRange));
+				console.log('visible time range', chart1.timeScale().getVisibleRange());
+			}
+		);
+	</script>
+</body>
+
+</html>
