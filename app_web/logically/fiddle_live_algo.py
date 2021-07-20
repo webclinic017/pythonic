@@ -100,7 +100,7 @@ dfAlgo.columns # check cols is changes are updated
 
 ####### ####### #######    Convert to JSON string for post 
 
-symbol = 'WGO'
+symbol = 'AAL'
 dfAlgo = Addr4H[symbol].copy() ; dfAlgo
 # payload = 
 dfAlgo[['open', 'high', 'low','close', 'EMA_21', 'SQZ', 'SQZ_Hist', 'SQZ_HistC']][-1000:].to_json(orient='split', double_precision=2, date_unit='s')
