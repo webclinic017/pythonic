@@ -297,11 +297,11 @@ function initializechart() {
         rightPriceScale: {
             width: 60,
             scaleMargins: {
-                top: 0.05,
-                bottom: 0.05,
+                top: 0.01,
+                bottom: 0.01,
             },
         },
-
+        
         priceScale: {
             position: 'right',
             mode: 1,
@@ -334,14 +334,17 @@ function initializechart() {
         rightPriceScale: {
             width: 60,            
         },
+        // leftPriceScale: {
+        //     width: 60,            
+        // },
         priceScale: {
             position: 'right',
             /* mode: 1, */
             autoScale: true,
             /* drawTicks: false, */
             scaleMargins: {
-                top: 0.01,
-                bottom: 0.01,
+                top: 0.0,
+                bottom: 0.0,
             },
         },
         grid: {
@@ -398,8 +401,8 @@ function initializechart() {
         rightPriceScale: {
             width: 60,
             scaleMargins: {
-                top: 0.01,
-                bottom: 0.01,
+                top: 0.0,
+                bottom: 0.0,
             },
         },
         /* priceScale: {
@@ -857,7 +860,7 @@ $.when(
 
     // console.log(jd);
     createStockChart('SPY', jd0);
-    chart.timeScale().scrollToPosition(100, false); // Show 100 bars from end main 'chart'
+    chart.timeScale().scrollToPosition(150, false); // Show 100 bars from end main 'chart'
 });
 
 //// Manual entry for jddata in javascript 
