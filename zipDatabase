@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+## This script compresses the database directory to a zip file 
+
+# zip -qr database.zip database/ -x database/olddata/*
+
+# Define date
+d=$(date +%m%d%Y)
+# echo "$d"
+# echo "database_$d.zip"
+
+# fname = "database_$d.zip"
+
+zip -qr "database_$d.zip" database/ -x database/olddata/*

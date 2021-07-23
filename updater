@@ -1,10 +1,15 @@
 #! /bin/bash
 source /home/towshif/venv38/bin/activate
-
 # virtualenv is now active.
 # cd /home/towshif/code/python/pythonic
 
-cd /home/towshif/code/python/pythonic/app_web/logically 
+cd /home/towshif/code/python/pythonic/app_web/logically
 python EODUpdater.py
 
 exit
+
+### use crontab -e and append the following without comments
+
+## 00 00 * * Mon-Fri /home/towshif/code/python/pythonic/updater
+## yfinance database updater
+
