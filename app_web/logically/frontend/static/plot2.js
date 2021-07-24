@@ -44,7 +44,6 @@ jd0 = '{"columns":["open","high","low","close","HA_open","HA_high","HA_low","HA_
 
 // ohlc + SQZ 
 let jdata = [];
-let jdata2 = [];
 let basedata = [];
 let MTF1data = [];
 let MTF2data = [];
