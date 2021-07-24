@@ -3,7 +3,7 @@
 cd /home/towshif/code/python/pythonic/
 
 
-## This script compresses the database directory to a zip file 
+## This script compresses the database directory to a zip file
 
 # zip -qr database.zip database/ -x database/olddata/*
 
@@ -13,5 +13,5 @@ d=$(date +%m%d%Y)
 # echo "database_$d.zip"
 
 # fname = "database_$d.zip"
-
+echo "writing to zip file backups/database_$d.zip"
 zip -qr "backups/database_$d.zip" database/ -x database/olddata/*
