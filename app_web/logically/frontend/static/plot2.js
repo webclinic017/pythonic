@@ -49,25 +49,26 @@ let basedata = [];
 let MTF1data = [];
 let MTF2data = [];
 let redata = [];
+let isMTF =false; // flag to check if this is MTF plot 
 // console.log(jdata.values)
 
 /*************************    Configurations    ***************************/
 let config_hist = {
     // value : color 
-    SQZ_HistC: { hasCode: true, color: 'gray', colorCode: { '-1': 'fuchsia', '-2': 'orange', '2': 'cyan', '1': 'blue' } },
-    normalgrey: { hasCode: false, color: 'gray' },
+    SQZ_HistC: { hasCode: true, color: 'gray', colorCode: { '-1': 'fuchsia', '-2': 'orange', '2': 'cyan', '1': 'blue' }, priceLineVisible: true },
+    normalgrey: { hasCode: false, color: 'gray', priceLineVisible: false },
 }
 
 let config_line = {
     // value : color 
     // LineStyle 0,1,2,..[] : Solid,Dotted,Dashed,LargeDashed,SparseDotted
     // LineType 0,1 : Simple, WithSteps
+    samplebluesolid: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: 0, lineStyle: 1, priceLineVisible: false},
 
     normalgreysolid: { color: 'color1', lineWidth: 2, lineType: '' },
-    normallbluesolid: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: 0, lineStyle: 1 },
-    normalbluesolid: { color: 'blue', lineWidth: 2, lineType: 0, lineStyle: 1 },
-    normalightbluesolid: { color: 'skyblue', lineWidth: 2, lineType: 0, lineStyle: 1 },
-    normalorangesolid: { color: 'orange', lineWidth: 3, lineType: 0, lineStyle: 1 },
+    normalbluesolid: { color: 'blue', lineWidth: 2, lineType: 0, lineStyle: 1 , priceLineVisible: false},
+    normalightbluesolid: { color: 'skyblue', lineWidth: 2, lineType: 0, lineStyle: 1, priceLineVisible: false },
+    normalorangesolid: { color: 'orange', lineWidth: 3, lineType: 0, lineStyle: 1 , priceLineVisible: false},
     normalbluesolid2: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: LightweightCharts.LineType.WithSteps },
 }
 
