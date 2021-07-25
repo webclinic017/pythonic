@@ -147,8 +147,13 @@ cython_debug/
 # dont update workspace file - should update this before 1st commit
 *.code-workspace
 
-database/
+# database/  # modified 07232021: allow database structure to commit - not the pickles though 
 zarchive/
 
 # 
 *.zip
+*.tar
+*.tar.gz
+*.tgz
+*.log
+*.pickle

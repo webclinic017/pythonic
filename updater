@@ -1,0 +1,21 @@
+#! /bin/bash
+source /home/towshif/venv38/bin/activate
+# virtualenv is now active.
+# cd /home/towshif/code/python/pythonic
+
+cd /home/towshif/code/python/pythonic/app_web/logically
+python EODUpdater.py
+
+exit
+
+
+
+
+### use crontab -e and append the following without comments
+
+## yfinance database updater (daily - business days 11:55PM) 
+#55 23 * * Mon-Fri /home/towshif/code/python/pythonic/updater > /home/towshif/code/python/pythonic/logs/updater/$(date).log
+
+## backup database to zip (Weekly) : Sat 2:00 AM
+#00 02 * * Sat /home/towshif/code/python/pythonic/zipDatabase > /home/towshif/code/python/pythonic/logs/zip/$(date).log
+

@@ -44,28 +44,32 @@ jd0 = '{"columns":["open","high","low","close","HA_open","HA_high","HA_low","HA_
 
 // ohlc + SQZ 
 let jdata = [];
-let jdata2 = [];
-let basedata = [];
+let basedata = [];   // store real OHLC data // maybe layer put separate var 
+let habasedata = []; // store Heiken Ashi OHLC data 
 let MTF1data = [];
 let MTF2data = [];
+let MTF3data = []; // 3rd TF (Weekly) Not implemented 
 let redata = [];
+let isMTF =false; // flag to check if this is MTF plot 
 // console.log(jdata.values)
 
 /*************************    Configurations    ***************************/
 let config_hist = {
     // value : color 
-    SQZ_HistC: { hasCode: true, color: 'gray', colorCode: { '-1': 'fuchsia', '-2': 'orange', '2': 'cyan', '1': 'blue' } },
-    normalgrey: { hasCode: false, color: 'gray' },
+    SQZ_HistC: { hasCode: true, color: 'gray', colorCode: { '-1': 'fuchsia', '-2': 'orange', '2': 'cyan', '1': 'blue' }, priceLineVisible: true },
+    normalgrey: { hasCode: false, color: 'gray', priceLineVisible: false },
 }
 
 let config_line = {
     // value : color 
     // LineStyle 0,1,2,..[] : Solid,Dotted,Dashed,LargeDashed,SparseDotted
     // LineType 0,1 : Simple, WithSteps
+    samplebluesolid: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: 0, lineStyle: 1, priceLineVisible: false},
 
     normalgreysolid: { color: 'color1', lineWidth: 2, lineType: '' },
-    normalbluesolid: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: 0, lineStyle: 1 },
-    normalorangesolid: { color: 'orange', lineWidth: 3, lineType: 0, lineStyle: 1 },
+    normalbluesolid: { color: 'blue', lineWidth: 2, lineType: 0, lineStyle: 1 , priceLineVisible: false},
+    normalightbluesolid: { color: 'skyblue', lineWidth: 2, lineType: 0, lineStyle: 1, priceLineVisible: false },
+    normalorangesolid: { color: 'orange', lineWidth: 3, lineType: 0, lineStyle: 1 , priceLineVisible: false},
     normalbluesolid2: { color: 'rgba(4, 111, 232, 1)', lineWidth: 2, lineType: LightweightCharts.LineType.WithSteps },
 }
 
@@ -100,7 +104,7 @@ function remapData(data, adjust=false) {
         // start a row entry
         let row = {};
 
-        if (adjust==true)  // for 1D series with MTF 
+        if (adjust==true)  // for 1D series with MTF add 16 hrs to adjust 00:00 
             row['time'] = new Date(item * 1000).addHours(16);
             // row['time'] = item;
         else row['time'] = item;// console.log(item);
@@ -295,11 +299,11 @@ function initializechart() {
         rightPriceScale: {
             width: 60,
             scaleMargins: {
-                top: 0.05,
-                bottom: 0.05,
+                top: 0.01,
+                bottom: 0.01,
             },
         },
-
+        
         priceScale: {
             position: 'right',
             mode: 1,
@@ -323,24 +327,27 @@ function initializechart() {
     });
 
 
-    axis1 = LightweightCharts.createChart(axisElement, {
+    axis1 = LightweightCharts.createChart(chartElement, {
         width: cwidth,
         height: 150,
         /*  crosshair: {
             mode: 0
         }, */
         rightPriceScale: {
-            width: 60,
-            scaleMargins: {
-                top: 0.01,
-                bottom: 0.01,
-            },
+            width: 60,            
         },
+        // leftPriceScale: {
+        //     width: 60,            
+        // },
         priceScale: {
             position: 'right',
             /* mode: 1, */
             autoScale: true,
             /* drawTicks: false, */
+            scaleMargins: {
+                top: 0.0,
+                bottom: 0.0,
+            },
         },
         grid: {
             vertLines: {
@@ -351,17 +358,29 @@ function initializechart() {
             },
         }
     });
+<<<<<<< HEAD
     axis2 = LightweightCharts.createChart(chartElement, {
+=======
+
+    axis2 = LightweightCharts.createChart(axisElement, {
+>>>>>>> ade459c466fa82214dbb8d7010edb6a7ed91a647
         width: cwidth,
         height: 150,
         /*   crosshair: {
             mode: 0
         }, */
         rightPriceScale: {
-            width: 60,
+            width: 60,            
+        },
+        priceScale: {
+            position: 'right',
+            /* mode: 1, */
+
+            autoScale: true,
+            /* drawTicks: false, */
             scaleMargins: {
-                top: 0.01,
-                bottom: 0.01,
+                top: 0.0,
+                bottom: 0.0,
             },
         },
         /* priceScale: {
@@ -388,8 +407,8 @@ function initializechart() {
         rightPriceScale: {
             width: 60,
             scaleMargins: {
-                top: 0.01,
-                bottom: 0.01,
+                top: 0.0,
+                bottom: 0.0,
             },
         },
         /* priceScale: {
@@ -475,8 +494,10 @@ function createStockChart(symbol, jd) {
     basedata = [];
     basedata = remapData(jd0) // updates the baseline 
 
-    let dd = { 'time': new Date(basedata[basedata.length - 1].time * 1000).addHours(16) }
-    let dd2 = { 'time': new Date(basedata[basedata.length - 1].time * 1000).addHours(150) }
+    /***************** Adjustments for supporting MTF *****************/
+
+    let dd = { 'time': new Date(basedata[basedata.length - 1].time * 1000).addHours(8) }
+    let dd2 = { 'time': new Date(basedata[basedata.length - 1].time * 1000).addHours(8) }
 
     // console.log(dd)
     // console.log(new Date(basedata[basedata.length - 1].time * 1000).addHours(4.5))
@@ -485,8 +506,8 @@ function createStockChart(symbol, jd) {
     basedata.push(dd2); // add fake data 
     // console.log (basedata); 
     MTF1data = remapData(jd1) // updates the baseline 
-    MTF1data.push(dd); // add fake data 
-    // MTF1data.push(dd2); // add fake data 
+    // MTF1data.push(dd); // add fake data 
+    MTF1data.push(dd2); // add fake data 
     // console.log (MTF1data); 
 
     MTF2data = remapData(jd2,true) // adjust for Daily data 
@@ -494,9 +515,11 @@ function createStockChart(symbol, jd) {
     // MTF2data.push(dd2); // add fake data 
     // console.log (MTF1data); 
 
+    /***************** Adjustments END MTF *****************/
+
+
 
     barSeries.setData(basedata);
-
 
     // let smaLine = chart.addLineSeries({
     // color: 'rgba(4, 111, 232, 1)',
@@ -504,8 +527,8 @@ function createStockChart(symbol, jd) {
     // });
     // smaLine.setData(generateSeries(basedata, 'EMA_21'));
 
-    let EMA1Line = addLineToChart(chart, config_line.normalorangesolid, basedata, 'EMA_21');
-    let EMA2Line = addLineToChart(chart, config_line.normalbluesolid, basedata, 'EMA_42');
+    let EMA1Line = addLineToChart(chart, config_line.normalbluesolid, basedata, 'EMA_21');
+    let EMA2Line = addLineToChart(chart, config_line.normalightbluesolid, basedata, 'EMA_42');
 
     // #### Add SQZ hist 
     let histSeries = addHistogramToChart(axis1, config_hist.SQZ_HistC, basedata, 'SQZ_Hist', 'SQZ_HistC');
@@ -576,7 +599,7 @@ function createStockChart(symbol, jd) {
         isCrossHairMoving = true;
         chart.moveCrosshair(param.point);
         axis1.moveCrosshair(param.point);
-        // axis2.moveCrosshair(param.point);
+        axis3.moveCrosshair(param.point);
 
         isCrossHairMoving = false;
     });
@@ -809,8 +832,10 @@ function createStockChart(symbol, jd) {
         watermark: {
             color: 'black',
             visible: true,
-            text: 'TradingView Watermark Example',
-            fontSize: 12,
+            text: 'SPY',
+            fontSize: 25,
+            fontFamily: 'Ubuntu',
+            fontStyle: 'bold',
             horzAlign: 'left',
             vertAlign: 'top',
         },
@@ -845,7 +870,7 @@ $.when(
 
     // console.log(jd);
     createStockChart('SPY', jd0);
-    chart.timeScale().scrollToPosition(100, false); // Show 100 bars from end main 'chart'
+    chart.timeScale().scrollToPosition(150, false); // Show 100 bars from end main 'chart'
 });
 
 //// Manual entry for jddata in javascript 
