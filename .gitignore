@@ -152,5 +152,8 @@ zarchive/
 
 # 
 *.zip
+*.tar
+*.tar.gz
+*.tgz
 *.log
 *.pickle
