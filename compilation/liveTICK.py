@@ -17,4 +17,4 @@ def on_new_msg(ws, msg):
 #yliveticker.YLiveTicker(on_ticker=on_new_msg, ticker_names=["AAPL"])
 
 yliveticker.YLiveTicker(on_ticker=on_new_msg, ticker_names=[ 
-	"BTC=X", "^GSPC", "^DJI", "^IXIC", "^RUT", "CL=F", "GC=F", "SI=F", "EURUSD=X", "^TNX", "^VIX", "GBPUSD=X", "JPY=X", "BTC-USD", "^CMC200", "^FTSE", "^N225"])
+	"BTC-USD", "ETH-USD" ,  "BTC=X", "^GSPC", "^DJI", "^IXIC", "^RUT", "CL=F", "GC=F", "SI=F", "EURUSD=X", "^TNX", "^VIX", "GBPUSD=X", "JPY=X", "BTC-USD", "^CMC200", "^FTSE", "^N225"])
