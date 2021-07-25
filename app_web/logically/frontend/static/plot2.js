@@ -44,9 +44,11 @@ jd0 = '{"columns":["open","high","low","close","HA_open","HA_high","HA_low","HA_
 
 // ohlc + SQZ 
 let jdata = [];
-let basedata = [];
+let basedata = [];   // store real OHLC data // maybe layer put separate var 
+let habasedata = []; // store Heiken Ashi OHLC data 
 let MTF1data = [];
 let MTF2data = [];
+let MTF3data = []; // 3rd TF (Weekly) Not implemented 
 let redata = [];
 let isMTF =false; // flag to check if this is MTF plot 
 // console.log(jdata.values)
@@ -488,6 +490,8 @@ function createStockChart(symbol, jd) {
     basedata = [];
     basedata = remapData(jd0) // updates the baseline 
 
+    /***************** Adjustments for supporting MTF *****************/
+
     let dd = { 'time': new Date(basedata[basedata.length - 1].time * 1000).addHours(8) }
     let dd2 = { 'time': new Date(basedata[basedata.length - 1].time * 1000).addHours(8) }
 
@@ -507,9 +511,11 @@ function createStockChart(symbol, jd) {
     // MTF2data.push(dd2); // add fake data 
     // console.log (MTF1data); 
 
+    /***************** Adjustments END MTF *****************/
+
+
 
     barSeries.setData(basedata);
-
 
     // let smaLine = chart.addLineSeries({
     // color: 'rgba(4, 111, 232, 1)',
