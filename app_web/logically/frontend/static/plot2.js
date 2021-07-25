@@ -286,7 +286,7 @@ let axis1 = null;
 let axis2 = null;
 let axis3 = null;
 let cwidth = $(window).width(); //1500
-let cheight = $(window).height() * 0.5;    //400
+let cheight = $(window).height() * 0.4;    //400
 let aheight = $(window).height() * 0.15;    //400
 
 
