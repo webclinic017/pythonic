@@ -150,7 +150,10 @@ cython_debug/
 # database/  # modified 07232021: allow database structure to commit - not the pickles though 
 zarchive/
 
-# 
+# temp files 
+*.swp
+
+# data files 
 *.zip
 *.tar
 *.tar.gz
