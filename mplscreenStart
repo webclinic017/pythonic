@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+source /home/towshif/venv38/bin/activate
+# virtualenv is now active.
+cd /home/towshif/code/python/pythonic/app_web/
+
+
+# start runMPLfinance.sh in screen and detach
+screen -d -m -S MPLFinanceScreenServer bash -c '/home/towshif/code/python/pythonic/app_web/runMPLFinance; exec bash'
+
