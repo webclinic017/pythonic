@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+source /home/towshif/venv38/bin/activate
+# virtualenv is now active.
+# cd /home/towshif/code/python/pythonic
+
+echo $(python --version)
+echo ipython $(ipython --version)
+echo $(which python)
+echo $(which ipython)
+
+
+cd /home/towshif/code/python/pythonic/app_web
+python testLogic_api.py
+
+echo "Exiting"
+# deactivate venv on exit
+# deactivate
