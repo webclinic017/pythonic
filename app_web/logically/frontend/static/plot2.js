@@ -286,7 +286,8 @@ let axis1 = null;
 let axis2 = null;
 let axis3 = null;
 let cwidth = $(window).width(); //1500
-let cheight = $(window).height() * 0.4;    //400
+let cheight = $(window).height() * 0.5;    //400
+let aheight = $(window).height() * 0.15;    //400
 
 
 function initializechart() {
@@ -311,30 +312,33 @@ function initializechart() {
             /* drawTicks: false, */
         },
 
-
-        /* grid: {
-                vertLines: {
+        grid: {
+                vertLines: { // not showing up ; why ? investigate.
                     color: 'rgba(70, 130, 180, 0.5)',
                     style: 1,
                     visible: true,
                 },
                 horzLines: {
-                    color: 'rgba(70, 130, 180, 0.5)',
+                    color: 'rgba(70, 130, 180, 0.3)',
                     style: 1,
                     visible: true,
                 },
-            }, */
+            }, 
     });
 
 
-    axis1 = LightweightCharts.createChart(chartElement, {
+    axis1 = LightweightCharts.createChart(axisElement, {
         width: cwidth,
-        height: 150,
+        height: aheight,
         /*  crosshair: {
             mode: 0
         }, */
         rightPriceScale: {
-            width: 60,            
+            width: 60,   
+            scaleMargins: {
+                top: 0,
+                bottom: 0,
+            },         
         },
         // leftPriceScale: {
         //     width: 60,            
@@ -343,10 +347,9 @@ function initializechart() {
             position: 'right',
             /* mode: 1, */
             autoScale: true,
-            /* drawTicks: false, */
             scaleMargins: {
-                top: 0.0,
-                bottom: 0.0,
+                top: 0,
+                bottom: 0,
             },
         },
         grid: {
@@ -361,7 +364,7 @@ function initializechart() {
 
     axis2 = LightweightCharts.createChart(axisElement, {
         width: cwidth,
-        height: 150,
+        height: aheight,
         /*   crosshair: {
             mode: 0
         }, */
@@ -396,7 +399,7 @@ function initializechart() {
     });
     axis3 = LightweightCharts.createChart(axisElement, {
         width: cwidth,
-        height: 150,
+        height: aheight,
         /*   crosshair: {
             mode: 0
         }, */
@@ -731,8 +734,8 @@ function createStockChart(symbol, jd) {
     // apply some offset on the right 
     chart.timeScale().applyOptions({
         rightOffset: 30,
-        // fixLeftEdge: true,
-        // fixRightEdge: true,
+        fixLeftEdge: true,
+        // fixRightEdge: false,
         timeVisible: true,
         secondsVisible: false,
         /* visible: false, */
@@ -818,7 +821,9 @@ function createStockChart(symbol, jd) {
     // histSeries.setMarkers(markers);
     // histSeries.setMarkers(testMarkers);
 
-    /* chart.timeScale().fitContent(); */
+    // chart.timeScale().fitContent(); /* Fit entire series */
+
+
     /// ######################		END MARKERS 		#########################
 
 
