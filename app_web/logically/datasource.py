@@ -478,7 +478,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
 
     for symbols in symArray : # symArray[:1]
         download = None
-        print (f"##\t\tDownloading {symbols}")
+        print (f"##\t\t Updating {symbols}")
 
         # find the start date : this is the min of last updated 'end.1H' for eg. columns
         minDate = watchlist.loc[symbols]['end.'+interval].min()
@@ -491,7 +491,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
 
         # determine if ther is a need to update
         if minDate.date() < datetime.today().date() : ## Update if data us outdated
-            print ("DB outdated. Update started")
+            print ("DB outdated. Starting Download....")
 
             # start bulk download using yf
             if interval == '5m' :
