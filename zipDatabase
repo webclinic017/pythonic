@@ -11,7 +11,23 @@ cd /home/towshif/code/python/pythonic/
 d=$(date +%m%d%Y)
 # echo "$d"
 # echo "database_$d.zip"
-
 # fname = "database_$d.zip"
-echo "writing to zip file backups/database_$d.zip"
-zip -qr "backups/database_$d.zip" database/ -x database/olddata/*
+
+
+echo "writing to zip file backups/database_$d .zip/.tgz/tar.gz"
+
+
+## Zip with Unix attributes
+
+tar --exclude='database/olddata/*' -zcf "backups/database_$d.tgz" database/
+# use -v option for verbose output
+
+
+## Zip with WIN DOS attributes
+# zip -qr "backups/database_$d.zip" database/ -x database/olddata/*
+
+
+
+# Tar Example with exclude
+# tar --exclude='./pattern/to/excluse/*.py' --exclude='/patch/dir/to/exclude' -zcvf path/to/archive-name.tar.gz path/to/source-directory-name
+# tar --exclude='./folder' --exclude='./upload/folder2' -zcvf /backup/filename.tgz .
