@@ -28,6 +28,7 @@ tar --exclude='database/olddata/*' -zcf "backups/database_$d.tgz" database/
 
 
 
-# Tar Example with exclude
+######### =>  Tar Example with exclude
 # tar --exclude='./pattern/to/excluse/*.py' --exclude='/patch/dir/to/exclude' -zcvf path/to/archive-name.tar.gz path/to/source-directory-name
 # tar --exclude='./folder' --exclude='./upload/folder2' -zcvf /backup/filename.tgz .
+# Make sure to put --exclude before the source and destination items. 
