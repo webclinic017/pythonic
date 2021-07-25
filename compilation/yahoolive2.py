@@ -4,7 +4,7 @@ from yflive import QuoteStreamer
 qs = QuoteStreamer()
 
 # Subscribe to AAPL, TSLA
-#qs.subscribe(["INR=X", "BTC-USD"])
+qs.subscribe(["INR=X", "BTC-USD"])
 qs.subscribe(["AAPL", "TSLA", "KLAC", "AMZN", "GOOG"]) 
 
 # Override on_quote callback
