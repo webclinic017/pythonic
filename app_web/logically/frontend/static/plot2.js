@@ -361,12 +361,8 @@ function initializechart() {
             },
         }
     });
-<<<<<<< HEAD
-    axis2 = LightweightCharts.createChart(chartElement, {
-=======
 
     axis2 = LightweightCharts.createChart(axisElement, {
->>>>>>> ade459c466fa82214dbb8d7010edb6a7ed91a647
         width: cwidth,
         height: aheight,
         /*   crosshair: {
