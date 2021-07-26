@@ -152,6 +152,7 @@ zarchive/
 
 # temp files 
 *.swp
+*.save
 
 # data files 
 *.zip
