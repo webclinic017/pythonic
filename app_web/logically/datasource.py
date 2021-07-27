@@ -48,6 +48,31 @@ finterval = {
     "5M"    : "5m",
 }
 
+## Get raw data 
+def getRawData(symbol='SPY', interval='1H', period=None, prepost=False) : 
+    """Download raw data from yfinance and return wihtout processing.
+    """
+    # only 1 symbol ata a time # download if does not exist
+    # correct interval text alternatives for pickle names
+    sinterval = finterval.get(interval, None)
+    if sinterval == None : 
+        print (f"{symbol} Interval {interval} not valid. Errors may occur.")
+        # return None
+    interval = sinterval
+    dfdata = None
+
+    # correct interval, period for text alternatives for yf.download
+    yinterval, yperiod = dinterval.get(interval, None)    
+    if period == None : yperiod = '3D'
+    if yinterval == None : return None
+
+    print (f'Downloading {symbol} for {yinterval} {yperiod}. ')
+    
+    dfdata = yf.download(tickers=symbol, interval=yinterval, period=yperiod, prepost=prepost)
+
+    return dfdata
+
+
 ### this is redundant at this time
 def getData (symbol='SPY', interval='1H', dates=None, bars=None, period=None, days=None) : # only 1 symbol ata a time # download if does not exist
 
