@@ -4,6 +4,7 @@ Script to check last updated values in database randomly.
 import pandas as pd
 import app_web.logically.datasource as data
 import random
+import os.path, time
 
 # load a watchlist
 wl = data.getWatchlist() # load default watchlist
@@ -33,4 +34,11 @@ c5m = d.iloc[-1].Close
 print (d)
 
 print ("**** Comparing Close Data ****")
-print ('Close [1D, 4H, 1H, 5m]:', c1D, c4H, c1H, c5m )
+print (f'Close [\n1D : {c1D}\n4H : {c4H}\n1H : {c1H}\n5m : {c5m}]')
+
+# print ("**** Last Modified date ****")
+fname = "/home/towshif/code/python/pythonic/database/data/SPY.1H.pickle"
+print("Last modified: %s" % time.ctime(os.path.getmtime(fname)))
+# print("Created: %s" % time.ctime(os.path.getctime(fname)))
+print ()
+
