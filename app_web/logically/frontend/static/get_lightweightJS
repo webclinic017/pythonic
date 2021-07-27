@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+commitdate="$(date +"%m-%d-%y")"
+echo $commitdate
+# git add --all
+# git commit -m "$commitdate"
+# git push -u origin main
+# git pull
+
+wget -O howD_repo/lightweight-charts.standalone.development.$commitdate.howD.js https://raw.githubusercontent.com/h0wXD/lightweight-charts/master/dist/lightweight-charts.standalone.development.js
+
+wget -O howD_repo/lightweight-charts.standalone.production.$commitdate.howD.js https://raw.githubusercontent.com/h0wXD/lightweight-charts/master/dist/lightweight-charts.standalone.production.js
