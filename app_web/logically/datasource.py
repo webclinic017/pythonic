@@ -445,6 +445,114 @@ def dataConsistencyCheck (dfdata=None, interval=None ) :
     else: print (f"Data consistent.")
 
 
+########################    MODULES FOR EOD DATABASE UPDATE    ###########################
+
+def fulldownloadDataEODAll (watchlistName=None, persist=True, chunksize=25) :
+    """ Downloaddatabase end of day (EOD) data for
+    default (all): 1H, 1D, 4H, 5m intervals unless specified
+    persists (to disk) : False (default)
+    """
+    # get the latest updated watchlist
+    watchlist = getWatchlist(watchlistName) # defaults to default watclist
+    # sort by time lastupdated and then generate list: to improve performance
+    symbolslist = watchlist.TICK.to_list()
+
+    for interval in ['1D', '1H', '5m'] :
+        for symbol in symbolslist : 
+            fulldownloadlastEODData (symbol=symbol, interval=interval, persist=persist)
+
+    # Update data for interval = '4H'
+    for symbol in symbolslist : 
+        gen4HdataFromPickle(symbol=symbol, persist=True)
+
+    print ( "**********     Data Update Complete.   ************" )
+    sanitizeWatchlist(watchlistName=watchlistName, persist=persist)
+
+
+def fulldownloadlastEODData (symbol='SPY', interval='1H', persist=True) : # only 1 symbol ata a time # download if does not exist
+
+    # correct interval text alternatives for pickle names
+    interval = finterval.get(interval, None)
+    if interval == None : return None
+
+    # generate the link to pickle file
+    flink = TICKDATA + symbol+'.'+interval+'.pickle'
+    # print (flink) # debug
+
+    dfdata = None
+
+    if not os.path.exists(flink) : # then download an save it
+        print (f"Symbol {symbol} not in database. Downloading from internet.")
+
+        for interval in ['1D', '1H', '5m'] : 
+
+            # correct interval, period for text alternatives for yf.download
+            yinterval, yperiod = dinterval.get(interval, None)
+            if yinterval == None : return None
+
+            print (f'Started download {symbol} for {yinterval} {yperiod}. ')
+            end =  datetime.today().date() - timedelta(days=1)
+
+            dfdata = yf.download(tickers=symbol, interval=yinterval, period=yperiod, end=end)
+            if len(dfdata)>0  : # if successful download
+                # fix timezone
+                dfdata = fix_timezone(dfdata)
+                if yinterval=='5m': ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
+                    dfdata.drop(dfdata[(dfdata.index.hour ==16) & (dfdata.index.minute == 0)].index, inplace=True)
+                else : None 
+
+                flink = TICKDATA + symbol+'.'+interval+'.pickle'
+                pd.to_pickle(dfdata, flink) # save to disk as pickle
+
+                print ("Successful download : ", symbol, yinterval, yperiod)
+                # print (dfdata.head(10))
+                if not inWatchlist(symbol=symbol) : 
+                    addToWatchlist(symbols=[symbol])  # update watchlist with list of symbols in this case only one
+            else :
+                print (symbol, yinterval, yperiod, 'ERROR!')
+                return None
+                # exit loop
+
+    else : # data pickle exists check each timeframe pickles, update each => persist to disk
+        for interval in ['1D', '1H', '5m'] : 
+
+            # correct interval, period for text alternatives for yf.download
+            yinterval, yperiod = dinterval.get(interval, None)
+            if yinterval == None : return None # else proceed to download & concat 
+
+            dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
+            end =  dfdata.index[-1]  # get last timestamp
+            
+            if end.date() < (datetime.today().date() - timedelta(days=1)) : 
+                print (f"{symbol} Pickle update requred. end {end.date()} | today {datetime.today().date()}")
+                start = end.date()
+                end =  datetime.today().date() - timedelta(days=1)
+                print (f"Downloading: start:{start} end:{end} for {symbol} w/ {yinterval} {yperiod}.")
+
+                try: 
+                    df = yf.download(tickers=symbol, interval=yinterval, period=yperiod, start=start, end=end)
+                    print (df)
+
+                    if len (df) > 0 :
+                        df = fix_timezone(df) # extract Df from download and fixtimezone
+                        # Append to the existing dataframe
+                        dfdata = pd.concat( [dfdata, df])
+                        dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
+
+                        if yinterval=='5m': ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
+                            dfdata.drop(dfdata[(dfdata.index.hour ==16) & (dfdata.index.minute == 0)].index, inplace=True)
+
+                        # Write to disk as pickle
+                        flink = TICKDATA + symbol+'.'+interval+'.pickle'
+                        if persist : pd.to_pickle(dfdata, flink)
+                except:
+                    print (f"Error processing {symbol} {interval}")
+                    pass
+            else:
+                print (f"Data already uptodate lastEOD {symbol} {interval}")                
+
+    print (f"Done downloading {symbol} all timeframes if no errors.")
+    
 
 
 ########################    MODULES FOR EOD DATABASE UPDATE    ###########################
