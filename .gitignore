@@ -1,9 +1,13 @@
+# includes
+!commit.sh
+!WatchList*.pickle
+!delistedWatchList.pickle
+
 # other executables 
 *.cmd
 *.bat
 *.exe
 *.sh 
-!commit.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
