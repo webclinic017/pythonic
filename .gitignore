@@ -1,6 +1,6 @@
 # includes
 !commit.sh
-!WatchList*.pickle
+!WatchListDB.pickle
 !delistedWatchList.pickle
 
 # other executables 
