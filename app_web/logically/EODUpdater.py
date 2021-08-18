@@ -6,13 +6,16 @@
 import yfinance as yf
 import datasource as data
 
+#####################Yahoo finance API TEST ######
+
 # test yf libs => functional 
-# yf.download(tickers='SPY', interval='1h', period='200d').tail(50)  ## check additional
-# yf.download(tickers='SPY', interval='1WK', period='200d').tail(20)  ## check additional
+ yf.download(tickers='SPY', interval='1h', period='200d').tail(5)  ## check additional
+ yf.download(tickers='SPY', interval='1WK', period='200d').tail(5) ## check additional
+ yf.download(tickers='SPY', interval='5m', period='10d').tail(5)  ## check additional
 
 
 ##############################
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=25)
 
 data.updateDataEODAll() # default watchlist 
 
