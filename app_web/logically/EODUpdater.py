@@ -9,9 +9,9 @@ import datasource as data
 #####################Yahoo finance API TEST ######
 
 # test yf libs => functional 
-yf.download(tickers='SPY', interval='1h', period='200d').tail(5)  ## check additional
-yf.download(tickers='SPY', interval='1WK', period='200d').tail(5) ## check additional
-yf.download(tickers='SPY', interval='5m', period='10d').tail(5)  ## check additional
+print(yf.download(tickers='SPY', interval='1h', period='200d').tail(5))  ## check additional
+print(yf.download(tickers='SPY', interval='1WK', period='200d').tail(5)) ## check additional
+print(yf.download(tickers='SPY', interval='5m', period='10d').tail(5))  ## check additional
 
 
 ##############################
