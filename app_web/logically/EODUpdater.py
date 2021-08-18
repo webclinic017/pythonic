@@ -15,11 +15,13 @@ yf.download(tickers='SPY', interval='5m', period='10d').tail(5)  ## check additi
 
 
 ##############################
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25) #default chunksize=25
 
 data.updateDataEODAll() # default watchlist 
 
-data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25) #default chunksize=25
+data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+
+
 
 #################################
 
