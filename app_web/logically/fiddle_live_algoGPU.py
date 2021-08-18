@@ -1,15 +1,18 @@
 #################       Signal to HTML Display test
-
-# import computeIndicator as cp
-from numpy import nan
-from computeIndicator import * 
-import datasource as data
-import dfutils as dutil
-
 # auto reload modules for notebook 
 %load_ext autoreload
 %autoreload 2
 
+# import computeIndicator as cp
+from numpy import nan
+from numpy.lib.function_base import append
+from computeIndicatorGPU import * 
+import datasourceGPU as data
+import pandas_ta as ta
+import cudf as pd
+# from pandas_ta.core import *
+# import datasource as data
+import dfutils as dutil
 
 # define placeholders 
 ddr4H  = {}
@@ -17,6 +20,26 @@ Addr4H = {}
 
 # load data 
 ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=100)
+
+# GPU pandas_ta => test ############################################
+df = ddr4H['AMD'] ; df
+df.ta.cores = 0 # disable multiprocessing 
+
+df.ta.ema(length=9, append=True); df
+ta.ema(close=df['Close'], length=9);
+close = df['Close']
+ema = close.ewm(span=9)
+df.Close.rolling(window=9)
+pd.Series.rolling(window=8,)
+
+ta.kc
+ta.bbands
+ta.ema
+Addr4H = compute_all_seq_GPU(ddr=ddr4H, symbols=symbols, interval='4H') ; Addr4H['AMD']
+
+# GPU pandas_ta => test ############################################
+
+
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H, symbols=symbols, interval='4H')

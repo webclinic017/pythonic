@@ -161,6 +161,7 @@ zarchive/
 *.log
 *.pickle
 
+pandas_ta/
 # includes
 !commit.sh
 !WatchList*.pickle
