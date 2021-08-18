@@ -13,6 +13,7 @@
         "${workspaceFolder}/app_web",
         // "${workspaceFolder}/path/to/lib2"
     ],
-    "python.linting.mypyEnabled": true
+    "python.linting.mypyEnabled": true,
+    "jupyter.jupyterServerType": "local"
 
 }
