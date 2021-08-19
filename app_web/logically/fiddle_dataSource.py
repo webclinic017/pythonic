@@ -27,8 +27,11 @@ from datasource import *  ### import all variables and methods # dont use in pro
 
 
 interval='5m' ; symbol='MSFT' ; 
+interval='1h' ; symbol='KLAC' ; 
+interval='1h' ; symbol='AMD' ; 
 # dfdata = yf.download(tickers=symbol, interval=interval, period='730d')
 dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
+
 data.dataConsistencyCheck(dfdata, interval)
 
 
@@ -57,12 +60,12 @@ else: print (f"{symbol} data consistent.")
 
 
 ## KLAC data inconsistent 
-locateDate = '2021-08-02'
-yf.download(tickers='KLAC', interval='1h', period="100d").loc[locateDate].tail(70)
-data.getDataFromPickle(symbol='KLAC', interval='1h').loc[locateDate].tail(70)
+locateDate = '2020-12-24'
+tickers='WGO'
+interval='1h'
 
-
-
+yf.download(tickers=tickers, interval=interval, period="300d").loc[locateDate].tail(70)
+data.getDataFromPickle(symbol=tickers, interval=interval).loc[locateDate].tail(70)
 
 
 
