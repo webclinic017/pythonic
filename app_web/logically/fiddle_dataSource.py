@@ -66,8 +66,9 @@ updateWatchlistLastUpdated() # DEFAULT watchlist
 
 data.getWatchlist()
 data.getWatchlist(watchlistName='WatchListDBFull.pickle')
+data.getWatchlist(watchlistName='delistedWatchList.pickle')
 
-data.createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
+# data.createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
 download = data.updateDataEOD(interval='1H',persist=False)
 
 d = data.getWatchlist()
@@ -96,12 +97,13 @@ data.getWatchlist(watchlistName='WatchListDBFull.pickle')
 
 ######################################################## sanitize watchlist [Notes] 
 
-w = data.getWatchlist()
+w = data.getWatchlist(watchlistName="WatchListDBFull.pickle")
 w
 w.loc['MIK']
 w.loc['SPY']
 # uniquelist
 uniquelist = w['end.1H'].unique()
+uniquelist
 fivedaysago = date.today() - timedelta(days=5)
 pp = w[w['end.1H'].isin(uniquelist)]['end.1H']
 pp
