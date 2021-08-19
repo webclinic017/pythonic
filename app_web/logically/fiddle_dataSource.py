@@ -23,6 +23,48 @@ from datasource import *  ### import all variables and methods # dont use in pro
 %autoreload 2
 
 
+############################     data consistency 
+
+
+interval='5m' ; symbol='MSFT' ; 
+# dfdata = yf.download(tickers=symbol, interval=interval, period='730d')
+dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
+data.dataConsistencyCheck(dfdata, interval)
+
+
+
+interval='1H'
+symbol='WGO'
+dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
+cinterval = {
+"1D"    : 1,
+"1d"    : 1,
+"1h"    : 7,
+"1H"    : 7,
+"5m"    : 78,
+"4H"    : 2,
+}
+expCount = cinterval.get(interval, None) # expected count 
+
+# check freq by day 
+anal = dfdata.groupby(pd.Grouper(freq='D')).count()    
+uniqlist=anal['Open'].unique().tolist()
+uniqlist.remove(0) # remove entries/days with no data 
+uniqlist.remove(expCount) # remove entries/days with expected data count 7 for 1h 
+flist = anal.loc[anal['Open'].isin(uniqlist)] # print the unique days 
+if len(flist) >0 : print (f"Found outlier data in {symbol}", flist)
+else: print (f"{symbol} data consistent.")
+
+
+## KLAC data inconsistent 
+locateDate = '2021-08-02'
+yf.download(tickers='KLAC', interval='1h', period="100d").loc[locateDate].tail(70)
+data.getDataFromPickle(symbol='KLAC', interval='1h').loc[locateDate].tail(70)
+
+
+
+
+
 
 #############           Generating indicator calculations       ##################
 from computeIndicator import * 
@@ -269,38 +311,6 @@ print (start, end)
 d = yf.download(tickers='AMD', interval='5m', period="60d")
 d.loc['2021-06-25'].tail(70)
 yf.download(tickers='AMD', interval='5m', start=start).loc['2021-06-29'].tail(70)
-
-############################     data consistency 
-
-
-interval='5m' ; symbol='MSFT' ; 
-# dfdata = yf.download(tickers=symbol, interval=interval, period='730d')
-dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
-data.dataConsistencyCheck(dfdata, interval)
-
-
-
-interval='1H'
-symbol='KLAC'
-dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
-cinterval = {
-"1D"    : 1,
-"1d"    : 1,
-"1h"    : 7,
-"1H"    : 7,
-"5m"    : 78,
-"4H"    : 2,
-}
-expCount = cinterval.get(interval, None) # expected count 
-
-# check freq by day 
-anal = dfdata.groupby(pd.Grouper(freq='D')).count()    
-uniqlist=anal['Open'].unique().tolist()
-uniqlist.remove(0) # remove entries/days with no data 
-uniqlist.remove(expCount) # remove entries/days with expected data count 7 for 1h 
-flist = anal.loc[anal['Open'].isin(uniqlist)] # print the unique days 
-if len(flist) >0 : print (f"Found outlier data in {symbol}", flist)
-else: print (f"{symbol} data consistent.")
 
 
 
