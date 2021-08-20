@@ -5,8 +5,9 @@ Script to check last updated values in database randomly.
 
 # import computeIndicator as cp
 import sys
-# the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
 sys.path.append('./app_web/logically')
+# the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
+
 from app_web.logically.computeIndicator import * 
 import app_web.logically.datasource as data
 import app_web.logically.dfutils as dutil
@@ -24,10 +25,13 @@ Addr1H = {}
 ddr1D  = {}
 Addr1D = {}
 
-# load data 
-ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=50, randomize=False)
-ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=50, randomize=False)
-ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=50, randomize=False)
+# define control symbols
+symbols = ['NKE','IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AMZN', 'INTC', 'SPXU', 'CLX', 'GOOG', 'AAL', 'DAL', 'AMD', 'MSFT', 'SPXS', 'FB', 'WGO', 'MU', 'LRCX', 'SPY', 'BAC', 'KLAC', 'PTON', 'NVDA', 'NFLX', 'SAIA', 'SPCE', 'QQQ', 'ONEQ', 'SKX', 'ZM', 'SBUX', 'TSLA', 'LPX', 'UAL', 'UCTT', 'UFPI', 'SNBR', 'WSM', 'URI', 'HZO', 'APPS', 'VDE', 'WAL', 'DHI', 'ARCB', 'COWN', 'TFII', 'ABG', 'LGIH', 'LAD', 'KIRK', 'LOB', 'LOW', 'CALX', 'AVNW', 'TPX', 'LEN', 'USAK', 'CENTA', 'HZNP', 'TBBK', 'GROW', 'HIBB', 'AMRK', 'SYNA', 'CCS', 'MHO', 'IDT', 'KLIC', 'GSL', 'AOUT', 'KBH', 'SCVL', 'BGFV', 'MDC', 'UNFI', 'SLM', 'CUBI', 'HTH', 'HIMX', 'ACLS', 'RCII', 'GPI', 'AGCO', 'TRQ', 'HVT', '^DJI', 'ODFL', 'DAC', 'ICHR', '^VIX', '^NDX', 'OMI', '^GSPC', 'SPXU', 'MRNA', 'SPY', 'AAL', 'SPXS', 'JNUG', 'WGO', 'AAPL', 'AMZN', 'DIS', 'DAL', 'COST', 'AMD', 'BA', 'BAC', 'CLX', 'AMAT', 'KLAC', 'INTC', 'LRCX', 'MSFT', 'MU', 'IVV', 'FB', 'GOOG', 'PTON', 'SPCE', 'ZM', 'NFLX', 'NVDA', 'ONEQ', 'SAIA', 'SKX', 'QQQ', 'SBUX', 'UAL', 'LPX', 'UFPI', 'SNBR', 'VDE', 'DHI', 'UCTT', 'ARCB', 'URI', 'TSLA', 'WAL', 'COWN', 'APPS', 'WSM', 'HZO','SPY', 'SPXU', 'SPXS', 'JNUG', 'AAL', 'WGO', 'DAL', 'AAPL', 'AMAT', 'AMD', 'AMZN', 'BA', 'BAC', 'CLX', 'COST', 'DIS', 'FB', 'GOOG', 'INTC', 'IVV', 'KLAC', 'LRCX', 'MRNA', 'MSFT', 'MU', 'NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'KLAC', 'GE','WAL', 'COWN', 'DHI', 'ARCB', 'UFPI','INTC', 'TSLA', 'NVDA', 'BAC', 'COWN', 'LPX']
+
+# load data for 100 symbols
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=None, randomize=False, symbols=symbols)
+ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=None, randomize=False, symbols=symbols)
+ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=None, randomize=False, symbols=symbols)
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
