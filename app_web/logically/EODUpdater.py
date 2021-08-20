@@ -14,12 +14,17 @@ print(yf.download(tickers='SPY', interval='1WK', period='200d').tail(5)) ## chec
 print(yf.download(tickers='SPY', interval='5m', period='10d').tail(5))  ## check additional
 
 
+### First Update all watchlist 
+updateWatchlistLastUpdated(watchlistName='WatchListDBFull.pickle')
+updateWatchlistLastUpdated(watchlistName='WatchListLive.pickle')
+updateWatchlistLastUpdated() # DEFAULT watchlist 
+
 ##############################
 data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25) #default chunksize=25
 
 data.updateDataEODAll() # default watchlist 
 
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+# data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
 
 
 
