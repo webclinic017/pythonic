@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, time, timedelta
+import random
 
 import numpy as np
 import pandas as pd
@@ -445,7 +446,7 @@ def dataConsistencyCheck (dfdata=None, interval=None ) :
     else: print (f"Data consistent.")
 
 
-########################    MODULES FOR EOD DATABASE UPDATE    ###########################
+########################    METHODS FOR EOD DATABASE UPDATE    ###########################
 
 def fulldownloadDataEODAll (watchlistName=None, persist=True, chunksize=25) :
     """ Downloaddatabase end of day (EOD) data for
@@ -555,7 +556,7 @@ def fulldownloadlastEODData (symbol='SPY', interval='1H', persist=True) : # only
     
 
 
-########################    MODULES FOR EOD DATABASE UPDATE    ###########################
+########################    METHODS FOR EOD DATABASE UPDATE    ###########################
 
 def updateDataEODAll (watchlistName=None, persist=True, chunksize=25) :
     """ Update database end of day (EOD) data for
@@ -575,6 +576,9 @@ def updateDataEODAll (watchlistName=None, persist=True, chunksize=25) :
         gen4HdataFromPickle(symbol=symbol, persist=True)
 
     print ( "**********     Data Update Complete.   ************" )
+    
+    updateWatchlistLastUpdated(watchlistName=watchlistName) # Update watchlist before sanitizing
+
     sanitizeWatchlist(watchlistName=watchlistName, persist=persist)
 
 
@@ -650,9 +654,10 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
                             d.drop(d[(d.index.hour ==16) & (d.index.minute == 0)].index, inplace=True)
                         
                         # Append to the existing dataframe
-                        dfdata = pd.concat( [dfdata, d])
+                        dfdata = pd.concat( [dfdata, d]) 
                         dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
-                        ddr[symbol] = dfdata  # append to local dict # debub only
+                        # append to local dict # debub only
+                        ddr[symbol] = dfdata.sort_index()  ## ! Sort index before assignment 
 
                         # Write to disk as pickle
                         flink = TICKDATA + symbol+'.'+interval+'.pickle'
@@ -666,6 +671,39 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
             
 
     return ddr  ## return dict of DFs
+
+def force_sort_index_all (persist=False) : 
+
+    watchlistName = "WatchListDBFull.pickle"
+    # get the latest updated watchlist
+    watchlist = getWatchlist(watchlistName) # defaults to default watclist
+    # print (watchlist)
+    # sort by time lastupdated and then generate list: to improve performance
+    symbols = watchlist.TICK.to_list()
+
+    ## Update all the pickles
+    for interval in ['1D', '1H', '5m'] :
+        for symbol in  symbols:     # random.sample(symbols, 1) : #symbols:
+            try :
+                dfdata = getDataFromPickle(symbol, interval=interval)
+                
+                # ddr[symbol] = dfdata.sort_index()  ## ! Sort index before assignment
+
+                dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
+                # append to local dict # debub only
+                dfdata = dfdata.sort_index()  ## ! Sort index before assignment 
+
+                # print (dfdata, "Awaiting Input")
+                # input()
+              
+                # Write to disk as pickle
+                flink = TICKDATA + symbol+'.'+interval+'.pickle'
+                if persist : pd.to_pickle(dfdata, flink)
+            
+            except:
+                print (f"Error processing {symbol} {interval}")
+                pass
+            
 
 
 
@@ -788,7 +826,7 @@ def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=No
     return df
 
 
-########################    MODULES FOR WATCHLIST MANAGEMENT    ###########################
+########################    METHODS FOR WATCHLIST MANAGEMENT    ###########################
 
 def sanitizeWatchlist (watchlistName=None, oldDays=5, persist=False) :
     """ Removes symbols which are not updated beyond 5 days
