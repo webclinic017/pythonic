@@ -8,6 +8,7 @@ import os
 import queue
 import time
 from datetime import date, datetime, timedelta
+import random 
 
 import finta as ft
 import numpy as np
@@ -24,6 +25,21 @@ from datasource import *  ### import all variables and methods # dont use in pro
 
 
 ############################     data consistency 
+symbols = data.getWatchlist("WatchListDBFull.pickle").TICK.to_list()
+
+interval = random.sample(['1D', '1H', '5m', '4H'], 1)[0]
+
+symbol = random.sample(symbols, 1)[0]
+
+print ( f"symbol, interval = {symbol, interval}")
+dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
+print (dfdata.tail())
+data.dataConsistencyCheck(dfdata, interval)
+
+# debug 
+locateDate = '2021-07-19'
+interval = '1H'
+data.getDataFromPickle(symbol=symbol, interval=interval).loc[locateDate:].tail(70)
 
 
 interval='5m' ; symbol='MSFT' ; 
@@ -33,7 +49,6 @@ interval='1d' ; symbol='KLAC' ;
 interval='1h' ; symbol='AMD' ; 
 # dfdata = yf.download(tickers=symbol, interval=interval, period='730d')
 dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
-
 data.dataConsistencyCheck(dfdata, interval)
 
 
@@ -66,8 +81,8 @@ locateDate = '2020-12-24'
 tickers='WGO'
 interval='1h'
 
-yf.download(tickers=tickers, interval=interval, period="300d").loc[locateDate].tail(70)
-data.getDataFromPickle(symbol=tickers, interval=interval).loc[locateDate].tail(70)
+yf.download(tickers=tickers, interval=interval, period="300d").loc[locateDate:].tail(70)
+data.getDataFromPickle(symbol=tickers, interval=interval).loc[locateDate:].tail(70)
 
 
 
@@ -80,6 +95,9 @@ p = data.getWatchlist()
 p = data.getWatchlist(watchlistName='WatchListDBFull.pickle')
 p = data.getWatchlist(watchlistName='delistedWatchList.pickle')
 
+
+### Force Resort data by index
+data.force_sort_index_all(persist=True)
 
 
 ########################### END DATA CONSISTENCY ################################

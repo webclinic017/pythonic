@@ -673,6 +673,9 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
     return ddr  ## return dict of DFs
 
 def force_sort_index_all (persist=False) : 
+    """Force Sort by index and remove duplicates by index
+    Will use full database from WatchListDBFull.pickle
+    """
 
     watchlistName = "WatchListDBFull.pickle"
     # get the latest updated watchlist
@@ -681,8 +684,10 @@ def force_sort_index_all (persist=False) :
     # sort by time lastupdated and then generate list: to improve performance
     symbols = watchlist.TICK.to_list()
 
+    intervals = ['1D', '1H', '5m', '4H']
+
     ## Update all the pickles
-    for interval in ['1D', '1H', '5m'] :
+    for interval in intervals :
         for symbol in  symbols:     # random.sample(symbols, 1) : #symbols:
             try :
                 dfdata = getDataFromPickle(symbol, interval=interval)
@@ -698,12 +703,14 @@ def force_sort_index_all (persist=False) :
               
                 # Write to disk as pickle
                 flink = TICKDATA + symbol+'.'+interval+'.pickle'
-                if persist : pd.to_pickle(dfdata, flink)
+                if persist : 
+                    pd.to_pickle(dfdata, flink)
+                    print (f'Saved file {flink}')
             
             except:
                 print (f"Error processing {symbol} {interval}")
                 pass
-            
+    print (f"Forced Resort and Duplicate removal complete for {intervals} ")
 
 
 
