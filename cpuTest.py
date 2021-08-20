@@ -32,11 +32,13 @@ symbols = ['NKE','IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AM
 ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=None, randomize=False, symbols=symbols)
 ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=None, randomize=False, symbols=symbols)
 ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=None, randomize=False, symbols=symbols)
+ddr5m, _ = data.loadDatatoMemory(interval='5m', filter=None, randomize=False, symbols=symbols)
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
 Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
 Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='1D')
+Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='5m')
 
 processQ.empty()
 endCompute() # quit the multiprocessing thread ## run multiple times to exit all 
