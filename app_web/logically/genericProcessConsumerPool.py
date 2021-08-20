@@ -125,6 +125,7 @@ def genericConsumer (queue): ## create a live consumer thread with has_q semapho
 
             toc = time.perf_counter()
             print (f"Finished in  {toc - tic:0.4f} seconds")
+            print ('\n-----------------------------------------------------')
             
             if sema is not None:
                 sema.release() # release semaphore if available
