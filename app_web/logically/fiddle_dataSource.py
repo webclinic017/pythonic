@@ -28,6 +28,8 @@ from datasource import *  ### import all variables and methods # dont use in pro
 
 interval='5m' ; symbol='MSFT' ; 
 interval='1h' ; symbol='KLAC' ; 
+interval='5m' ; symbol='KLAC' ; 
+interval='1d' ; symbol='KLAC' ; 
 interval='1h' ; symbol='AMD' ; 
 # dfdata = yf.download(tickers=symbol, interval=interval, period='730d')
 dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
@@ -67,6 +69,20 @@ interval='1h'
 yf.download(tickers=tickers, interval=interval, period="300d").loc[locateDate].tail(70)
 data.getDataFromPickle(symbol=tickers, interval=interval).loc[locateDate].tail(70)
 
+
+
+
+updateWatchlistLastUpdated(watchlistName='WatchListDBFull.pickle')
+updateWatchlistLastUpdated(watchlistName='WatchListLive.pickle')
+updateWatchlistLastUpdated() # DEFAULT watchlist 
+
+p = data.getWatchlist()
+p = data.getWatchlist(watchlistName='WatchListDBFull.pickle')
+p = data.getWatchlist(watchlistName='delistedWatchList.pickle')
+
+
+
+########################### END DATA CONSISTENCY ################################
 
 
 #############           Generating indicator calculations       ##################
