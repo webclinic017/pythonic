@@ -982,29 +982,28 @@ def inWatchlist (symbol=None, watchlistName=None) :
         return False
 
 
-def loadDatatoMemory (watchlistName=None, interval='1H', filter=None, randomize=False) :
+def loadDatatoMemory (watchlistName=None, interval='1H', filter=None, randomize=False, symbols=None) :
     """Reads all pickles to memory and return dictionary {symbol: dataframe}
     defaults: interval = 1H
     """
-    symbols = None
 
     if watchlistName is None:
         # read default watchlist
         # read watchlist
         watchlistName = 'WatchListDB.pickle'  # initialize
     print (f"Reading watchlist {watchlistName}")
-
-    watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
-    if filter is None : 
-        symbols = watchlist.TICK.to_list() 
-    else : 
-        if randomize : 
-            from random import sample
-            symbols = sample(watchlist.TICK.to_list(), filter) # random sample `filter` items from the TICK list 
-            
-        else: 
-            symbols = watchlist.TICK.to_list() [:filter]
-
+    
+    if symbols is None: 
+        watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+        if filter is None : 
+            symbols = watchlist.TICK.to_list() 
+        else : 
+            if randomize : 
+                from random import sample
+                symbols = sample(watchlist.TICK.to_list(), filter) # random sample `filter` items from the TICK list 
+                
+            else: 
+                symbols = watchlist.TICK.to_list() [:filter]
 
     ddr = {} # define empty
     for symbol in symbols:  # load all data to memory

@@ -19,12 +19,13 @@ ddr1D  = {}
 Addr1D = {}
 
 # load data 
-ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=10, randomize=False)
-ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=10, randomize=False)
+ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=100, randomize=False)
+ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=50, randomize=False)
 ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=10, randomize=False)
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
+
 Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
 Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='1D')
 
