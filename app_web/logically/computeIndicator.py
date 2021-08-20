@@ -62,7 +62,9 @@ def compute_all (ddr=None, symbols=None, interval=None) :
     global Algoddr
     Algoddr = {} # reset local algodf to a `new` empty dict
     
-    print (f"Revceived {ddr.keys()} \nDict Count ={len(ddr)}")
+    print ("###############################################")
+
+    print (f"Received {ddr.keys()} \nDict Count ={len(ddr)}")
     
     setProcessLock (has_process) # set the semaphore to consumer. 
     # has_algoq.release()
@@ -75,7 +77,7 @@ def compute_all (ddr=None, symbols=None, interval=None) :
         putQ (package)  # format: (func, (*args), jobName)
         # has_algoq.release()
 
-    print (f"Locking thread. [ Compute process count {len(ddr)} ]" )
+    print (f"Locking thread. [ Compute process count {len(ddr)} ], inderval={interval}" )
 
     while has_process.acquire():  # lock thread until complete execution 
         break 
