@@ -22,6 +22,7 @@ Addr1D = {}
 ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=100, randomize=False)
 ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=50, randomize=False)
 ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=10, randomize=False)
+ddr5m, _ = data.loadDatatoMemory(interval='5m', filter=10, randomize=False)
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
