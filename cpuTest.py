@@ -12,7 +12,7 @@ from app_web.logically.computeIndicator import *
 import app_web.logically.datasource as data
 import app_web.logically.dfutils as dutil
 
-# auto reload modules for notebook 
+# # auto reload modules for notebook 
 # %load_ext autoreload
 # %autoreload 2
 
@@ -36,9 +36,9 @@ ddr5m, _ = data.loadDatatoMemory(interval='5m', filter=None, randomize=False, sy
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
-Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
-Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='1D')
-Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='5m')
+# Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
+# Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='1D')
+# Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='5m')
 
 processQ.empty()
 endCompute() # quit the multiprocessing thread ## run multiple times to exit all 

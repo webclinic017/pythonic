@@ -54,6 +54,9 @@ def endCompute() :
 
 # Parallel Compute : MultiProcessing 
 def compute_all (ddr=None, symbols=None, interval=None) :
+
+    print ("Setting Cores to auto")
+
     global initialized
     if not initialized : 
         initialize_processPool(25) # 20 process threads
@@ -123,6 +126,9 @@ def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a hig
     # print (f"Compute {i} started with {k} secs")
     # if verbose: # measure start time  
     tic = time.perf_counter()
+
+    df.ta.cores = 4
+    # print ("Cores set to 4") #### Set cores explicitly 
 
     #############################   Calculation Start 
 
