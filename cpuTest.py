@@ -30,20 +30,20 @@ symbols = ['NKE','IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AM
 
 # load data for 100 symbols
 ddr4H, symbols = data.loadDatatoMemory(interval='4H', filter=None, randomize=False, symbols=symbols)
-ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=None, randomize=False, symbols=symbols)
 ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=None, randomize=False, symbols=symbols)
+ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=None, randomize=False, symbols=symbols)
 ddr5m, _ = data.loadDatatoMemory(interval='5m', filter=None, randomize=False, symbols=symbols)
 
 # Print Row Counts 
 print ( f'Interval: 4H, rows : {ddr4H["SPY"].size }')
-print ( f'Interval: 1H, rows : {ddr1H["SPY"].size }')
 print ( f'Interval: 1D, rows : {ddr1D["SPY"].size }')
+print ( f'Interval: 1H, rows : {ddr1H["SPY"].size }')
 print ( f'Interval: 5m, rows : {ddr5m["SPY"].size }')
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')
-Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
 Addr1D = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='1D')
+Addr1H = compute_all(ddr=ddr1H.copy(), symbols=symbols, interval='1H')
 Addr5m = compute_all(ddr=ddr1D.copy(), symbols=symbols, interval='5m')
 
 
