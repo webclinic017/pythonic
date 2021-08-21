@@ -127,7 +127,7 @@ def compute_indicatorsA (df, symbol, interval, verbose=False) : # simulate a hig
     # if verbose: # measure start time  
     tic = time.perf_counter()
 
-    df.ta.cores = 4
+    # df.ta.cores = 4 # cores set to Auto 
     # print ("Cores set to 4") #### Set cores explicitly 
 
     #############################   Calculation Start 
