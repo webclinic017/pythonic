@@ -55,8 +55,6 @@ def endCompute() :
 # Parallel Compute : MultiProcessing 
 def compute_all (ddr=None, symbols=None, interval=None) :
 
-    print ("Setting Cores to auto")
-
     global initialized
     if not initialized : 
         initialize_processPool(25) # 20 process threads
@@ -66,6 +64,7 @@ def compute_all (ddr=None, symbols=None, interval=None) :
     Algoddr = {} # reset local algodf to a `new` empty dict
     
     print ("###############################################")
+    # print ("Setting Cores to auto")
 
     print (f"Received {ddr.keys()} \nDict Count ={len(ddr)}")
     
