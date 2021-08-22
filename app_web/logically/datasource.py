@@ -684,19 +684,26 @@ def force_sort_index_all (persist=False) :
     # sort by time lastupdated and then generate list: to improve performance
     symbols = watchlist.TICK.to_list()
 
-    intervals = ['1D', '1H', '5m', '4H']
+    intervals = ['1D', '1H', '5m']
 
     ## Update all the pickles
     for interval in intervals :
         for symbol in  symbols:     # random.sample(symbols, 1) : #symbols:
+            bShape = 0
+            aShape = 0 
             try :
                 dfdata = getDataFromPickle(symbol, interval=interval)
-                
+                bShape = dfdata.shape
                 # ddr[symbol] = dfdata.sort_index()  ## ! Sort index before assignment
 
                 dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
                 # append to local dict # debub only
                 dfdata = dfdata.sort_index()  ## ! Sort index before assignment 
+
+                aShape = dfdata.shape
+
+                if aShape != bShape:
+                    print (f'Duplicates removed before:{bShape} | after {aShape}')
 
                 # print (dfdata, "Awaiting Input")
                 # input()
@@ -710,8 +717,17 @@ def force_sort_index_all (persist=False) :
             except:
                 print (f"Error processing {symbol} {interval}")
                 pass
+        
+        # ## Now regenerate 4H data pickles 
+        # interval = '4H'
+        # for symbol in  symbols:     # random.sample(symbols, 1) : #symbols:
+        #     try :
+        #         dfdata = gen4HdataFromPickle(symbol, persist=True)            
+        #     except:
+        #         print (f"Error processing gen data {symbol} {interval}")
+        #         pass
+        
     print (f"Forced Resort and Duplicate removal complete for {intervals} ")
-
 
 
 ## break a bist into smaller chunks 

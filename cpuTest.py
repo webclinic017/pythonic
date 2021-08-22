@@ -34,11 +34,16 @@ ddr1D, _ = data.loadDatatoMemory(interval='1D', filter=None, randomize=False, sy
 ddr1H, _ = data.loadDatatoMemory(interval='1H', filter=None, randomize=False, symbols=symbols)
 ddr5m, _ = data.loadDatatoMemory(interval='5m', filter=None, randomize=False, symbols=symbols)
 
+# ## reduce memory footprint of DF ; Does not speed up compute. # from initial test 
+# for symbol in ddr4H.keys(): 
+#     ddr4H[symbol] = reduce_mem_usage(ddr4H[symbol], verbose=False)
+
+
 # Print Row Counts 
-print ( f'Interval: 4H, rows : {ddr4H["SPY"].size }')
-print ( f'Interval: 1D, rows : {ddr1D["SPY"].size }')
-print ( f'Interval: 1H, rows : {ddr1H["SPY"].size }')
-print ( f'Interval: 5m, rows : {ddr5m["SPY"].size }')
+print ( f'Interval: 4H, rows : {ddr4H["SPY"].shape }')
+print ( f'Interval: 1D, rows : {ddr1D["SPY"].shape }')
+print ( f'Interval: 1H, rows : {ddr1H["SPY"].shape }')
+print ( f'Interval: 5m, rows : {ddr5m["SPY"].shape }')
 
 # Compute all Signals 
 Addr4H = compute_all(ddr=ddr4H.copy(), symbols=symbols, interval='4H')

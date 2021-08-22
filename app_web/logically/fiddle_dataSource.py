@@ -34,6 +34,9 @@ symbol = random.sample(symbols, 1)[0]
 print ( f"symbol, interval = {symbol, interval}")
 dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
 print (dfdata.tail())
+
+len(dfdata)
+
 data.dataConsistencyCheck(dfdata, interval)
 
 # debug 

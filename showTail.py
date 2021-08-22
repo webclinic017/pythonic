@@ -9,7 +9,7 @@ import os.path, time
 # load a watchlist
 wl = data.getWatchlist() # load default watchlist
 symbols = wl.index.tolist()
-symbol=random.choice(symbols)
+symbol=random.choice(symbols) # select a symbol randomly from list of symbols 
 print ("Symbol:",symbol )
 
 
