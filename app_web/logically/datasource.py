@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 import traceback
+import pandas_market_calendars as mcal
+
 # Source for data PICKLES
 
 TICKDATA    = '/home/towshif/code/python/pythonic/database/data/'
@@ -416,7 +418,7 @@ def getUpdatedData (symbol='SPY', interval='1H', watchlistName=None) :
 
 ########################    DATA CONSISTENCY CHECKER    ###########################
 
-def dataConsistencyCheck (dfdata=None, interval=None ) : 
+def dataConsistencyCheck (dfdata=None, interval=None, verbose=True) : 
     if dfdata is None or interval is None: 
         print ("Invalid Argument Error. ")
         return 
@@ -432,7 +434,9 @@ def dataConsistencyCheck (dfdata=None, interval=None ) :
         "5m"    : 78,
     }
     expCount = cinterval.get(interval, None) # expected count 
-    if expCount is not None : print (f"Expected count: {expCount} per day") 
+
+    if expCount is not None : 
+        if verbose : print (f"Expected count: {expCount} per day") 
     else : return
 
     # check freq by day 
@@ -442,8 +446,11 @@ def dataConsistencyCheck (dfdata=None, interval=None ) :
     uniqlist.remove(expCount) # remove entries/days with expected data count 7 for 1h 
     
     flist = anal.loc[anal['Open'].isin(uniqlist)] # print the unique days 
-    if len(flist) >0 : print (f"Found outlier data in df", flist)
-    else: print (f"Data consistent.")
+    if verbose : 
+        if len(flist) >0 : print (f"Found outlier data in df", flist)
+        else: print (f"Data consistent.")
+        
+    return flist 
 
 
 ########################    METHODS FOR EOD DATABASE UPDATE    ###########################
@@ -613,6 +620,11 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
     symArray = list(chunks (symbolslist, chunksize))  # generate a list of symbol list of length 25 each
     # print ( symArray)
 
+    # find last business day
+    nyseCal = mcal.get_calendar('NYSE')
+    cal = nyseCal.schedule(start_date= datetime.today() - timedelta(days=10), end_date=datetime.today())
+    lastBusiness = cal.iloc[-1].market_close.tz_localize(None).to_pydatetime().date()
+
     for symbols in symArray : # symArray[:1]
         download = None
         print (f"##\t\t Updating {symbols}")
@@ -623,18 +635,18 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
         start = minDate.date() - timedelta(days=1)
         end = datetime.today().date() + timedelta(days=1)
         # end = maxDate.date() + timedelta(days=5)
-        print (f"Dates : min {minDate}, max {maxDate}")
+        print (f"Dates : min {minDate}, max {maxDate} ## Last Business {lastBusiness}")
         print ( f"Watchlist start={start} end={end}, interval: {interval}")
 
         # determine if ther is a need to update
-        if minDate.date() < datetime.today().date() : ## Update if data us outdated
+        if minDate.date() < lastBusiness : ## Update if data us outdated
             print ("DB outdated. Starting Download....")
 
             # start bulk download using yf
             if interval == '5m' :
                 download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
             else:
-                download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
+                download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker",prepost=False)
             
             multi = True # if multiple symbols were downloaded: multilevel DF 
             if len (symbols) <= 1: multi = False 
@@ -704,8 +716,8 @@ def force_sort_index_all (persist=False, verbose=False) :
 
                 if aShape != bShape:
                     print (f'Duplicates removed {symbol} before:{bShape} | after {aShape}')
-                # if verbose: 
-                print (f'{symbol} before:{bShape} | after {aShape}')
+                if verbose: 
+                    print (f'{symbol} before:{bShape} | after {aShape}')
 
                 # print (dfdata, "Awaiting Input")
                 # input()
@@ -714,7 +726,7 @@ def force_sort_index_all (persist=False, verbose=False) :
                 flink = TICKDATA + symbol+'.'+interval+'.pickle'
                 if persist : 
                     pd.to_pickle(dfdata, flink)
-                    print (f'Saved file {flink}')
+                    if verbose: print (f'Saved file {flink}')
             
             except:
                 print (f"Error processing {symbol} {interval}")

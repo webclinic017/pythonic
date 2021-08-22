@@ -5,11 +5,40 @@ Use this with caution. This action cannot be reversed.
 """
 
 import pandas as pd
+from datetime import date
 import app_web.logically.datasource as data
 import random
 import os.path, time
 
-data.force_sort_index_all()
+# data.force_sort_index_all(persist=True)
+
+
+### check for data consistency
+watchlist = data.getWatchlist('WatchListLive.pickle') # defaults to default watclist
+symbolslist = watchlist.TICK.to_list()
+# len(symbolslist)
+
+print ("\n*************     DATA HEALTH ANALYSIS        ****************")
+
+for interval in  ['1D', '1H', '5m', '4h'] : 
+    outlierlist = []
+    for symbol in symbolslist:
+        dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read 
+
+        outlierData = data.dataConsistencyCheck(dfdata, interval, verbose=False).loc[str(date.today().year):]
+        if len(outlierData) >0 : outlierlist.append(symbol)
+    
+    print ("\n#############")
+    print (f"{interval} Analysis ::::  Found {len(outlierlist)} outliers")
+    print (outlierlist)
+
+## Debug 
+# date.today().year   
+# symbol='^GSPC'
+# interval='1H'
+# dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read 
+# outlierData = data.dataConsistencyCheck(dfdata, interval, returns=True).loc['2021':]
+
 
 
 # # test 

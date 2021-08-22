@@ -24,10 +24,14 @@ from datasource import *  ### import all variables and methods # dont use in pro
 %autoreload 2
 
 
+#### get last business day 
+
+
 ############################     data consistency 
 symbols = data.getWatchlist("WatchListDBFull.pickle").TICK.to_list()
 
 interval = random.sample(['1D', '1H', '5m', '4H'], 1)[0]
+interval='1H'
 
 symbol = random.sample(symbols, 1)[0]
 
@@ -52,40 +56,22 @@ interval='1d' ; symbol='KLAC' ;
 interval='1h' ; symbol='AMD' ; 
 # dfdata = yf.download(tickers=symbol, interval=interval, period='730d')
 dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
+
+
+symbol='^GSPC'
+interval='1H'
+dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read 
+
 data.dataConsistencyCheck(dfdata, interval)
 
 
-
-interval='1H'
-symbol='WGO'
-dfdata = getDataFromPickle(symbol=symbol, interval=interval) # read pickle 
-cinterval = {
-"1D"    : 1,
-"1d"    : 1,
-"1h"    : 7,
-"1H"    : 7,
-"5m"    : 78,
-"4H"    : 2,
-}
-expCount = cinterval.get(interval, None) # expected count 
-
-# check freq by day 
-anal = dfdata.groupby(pd.Grouper(freq='D')).count()    
-uniqlist=anal['Open'].unique().tolist()
-uniqlist.remove(0) # remove entries/days with no data 
-uniqlist.remove(expCount) # remove entries/days with expected data count 7 for 1h 
-flist = anal.loc[anal['Open'].isin(uniqlist)] # print the unique days 
-if len(flist) >0 : print (f"Found outlier data in {symbol}", flist)
-else: print (f"{symbol} data consistent.")
-
-
 ## KLAC data inconsistent 
-locateDate = '2020-12-24'
-tickers='WGO'
-interval='1h'
+locateDate = '2021-07-20'
+tickers='WAL'
+interval='5m'
 
-yf.download(tickers=tickers, interval=interval, period="300d").loc[locateDate:].tail(70)
-data.getDataFromPickle(symbol=tickers, interval=interval).loc[locateDate:].tail(70)
+yf.download(tickers=tickers, interval=interval, period="300d").loc[locateDate]
+gg = data.getDataFromPickle(symbol=tickers, interval=interval)
 
 
 
