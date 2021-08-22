@@ -672,7 +672,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
 
     return ddr  ## return dict of DFs
 
-def force_sort_index_all (persist=False) : 
+def force_sort_index_all (persist=False, verbose=False) : 
     """Force Sort by index and remove duplicates by index
     Will use full database from WatchListDBFull.pickle
     """
@@ -703,7 +703,9 @@ def force_sort_index_all (persist=False) :
                 aShape = dfdata.shape
 
                 if aShape != bShape:
-                    print (f'Duplicates removed before:{bShape} | after {aShape}')
+                    print (f'Duplicates removed {symbol} before:{bShape} | after {aShape}')
+                # if verbose: 
+                print (f'{symbol} before:{bShape} | after {aShape}')
 
                 # print (dfdata, "Awaiting Input")
                 # input()
