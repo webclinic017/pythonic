@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-#!/usr/bin/env bash
-=======
 #! /usr/bin/env bash
->>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
 
 source /home/towshif/venv38/bin/activate
 # virtualenv is now active.
@@ -15,9 +11,4 @@ pip install --upgrade pip pandas pandas_ta pandas_market_calendars yfinance term
 
 ## print some details : I am inside venv
 pip list | grep pandas
-<<<<<<< HEAD
 echo "Environment : " $(which python ) $(python -V)
-
-=======
-echo "Environment : " $(which python ) $(python -V)
->>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
