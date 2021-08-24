@@ -22,7 +22,7 @@ cinterval = {
 }
 
 ### check for data consistency
-watchlist = data.getWatchlist('WatchListLive.pickle') # defaults to default watclist
+watchlist = data.getWatchlist('WatchListLive.pickle') # defaults to default watchlist
 symbolslist = watchlist.TICK.to_list()
 # len(symbolslist)
 
@@ -39,7 +39,7 @@ for interval in  ['1D', '1H', '5m', '4h'] :
     print ("\n#############")
     print (f"{interval} Analysis ::::  Found {len(outlierlist)} outliers")
     print ("Expected count/day = ", cinterval.get(interval, None)) # expected count 
-    
+
     print (outlierlist)
 
 ## Debug 
