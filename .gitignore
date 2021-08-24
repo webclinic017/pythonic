@@ -162,6 +162,7 @@ zarchive/
 *.pickle
 
 pandas_ta/
+database_1/
 # includes
 !commit.sh
 !WatchList*.pickle
