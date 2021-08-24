@@ -5,12 +5,23 @@ import pandas as pd
 import app_web.logically.datasource as data
 import random
 import os.path, time
+import sys
 
-# load a watchlist
-wl = data.getWatchlist() # load default watchlist
-symbols = wl.index.tolist()
-symbol=random.choice(symbols) # select a symbol randomly from list of symbols 
-print ("Symbol:",symbol )
+# get all the arguments from commandline 
+list_of_arguments = sys.argv
+
+symbol = None 
+
+## if symbol provided in arg use that else select a random symbol from watchlist
+if len(list_of_arguments) > 1 : 
+    symbol = list_of_arguments[1]
+    print(f"Symbol: {list_of_arguments[1]}") 
+else: 
+    # load a watchlist
+    wl = data.getWatchlist(verbose=True) # load default watchlist
+    symbols = wl.index.tolist()
+    symbol=random.choice(symbols) # select a symbol randomly from list of symbols 
+    print ("Symbol:",symbol, " (Random from watchlist)" )
 
 
 print ("Timeframe : 1D")

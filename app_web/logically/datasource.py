@@ -1043,7 +1043,7 @@ def sanitizeWatchlist (watchlistName=None, oldDays=5, persist=False) :
     if persist : saveWatchlist(watchlist=watchlist, watchlistName=watchlistName)
 
 
-def getWatchlist (watchlistName=None, interval='1H') :
+def getWatchlist (watchlistName=None, interval='1H', verbose=False) :
     symbols = None
 
     if not watchlistName :
@@ -1056,7 +1056,7 @@ def getWatchlist (watchlistName=None, interval='1H') :
         watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
     except : 
         watchlist = createWatchlist(watchlistName='delistedWatchList.pickle', symbols=['MIK'])
-
+    if verbose: print (f"Watchlist : {watchlistName}")
     return watchlist
 
 
