@@ -156,9 +156,9 @@ zarchive/
 # data files 
 *.zip
 *.tar
+*.gz
 *.tar.gz
 *.tgz
-*.gz
 *.log
 *.pickle
 
