@@ -148,7 +148,7 @@ cython_debug/
 
 # database/  # modified 07232021: allow database structure to commit - not the pickles though 
 zarchive/
-database_1/
+# database_1/
 
 # temp files 
 *.swp
