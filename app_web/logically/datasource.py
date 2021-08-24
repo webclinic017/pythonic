@@ -759,7 +759,7 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
     watchlist = getWatchlist(watchlistName) # defaults to default watclist
 
     # get symbol list from watchlist 
-    symbolslist = watchlist.TICK.to_list() [:10] # debug
+    symbolslist = watchlist.TICK.to_list() # [:10] # debug
 
     symArray = list(chunks (symbolslist, chunksize))  # generate a list of symbol list of length 25 each
     # print ( symArray)
