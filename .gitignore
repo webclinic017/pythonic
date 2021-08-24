@@ -148,7 +148,6 @@ cython_debug/
 
 # database/  # modified 07232021: allow database structure to commit - not the pickles though 
 zarchive/
-# database_1/
 
 # temp files 
 *.swp
@@ -159,11 +158,11 @@ zarchive/
 *.tar
 *.tar.gz
 *.tgz
+*.gz
 *.log
 *.pickle
 
 pandas_ta/
-
 # includes
 !commit.sh
 !WatchList*.pickle
