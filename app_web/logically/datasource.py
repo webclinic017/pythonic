@@ -565,11 +565,14 @@ def fulldownloadlastEODData (symbol='SPY', interval='1H', persist=True) : # only
 
 ########################    METHODS FOR EOD DATABASE UPDATE    ###########################
 
-def updateDataEODAll (watchlistName=None, persist=True, chunksize=25) :
+def updateDataEODAll (watchlistName=None, persist=False, chunksize=25) :
     """ Update database end of day (EOD) data for
     default (all): 1H, 1D, 4H, 5m intervals unless specified
     persists (to disk) : False (default)
     """
+
+    if not persist : print ("Persist is FALSE. Data will not be saved")
+    
     for interval in ['1D', '1H', '5m'] :
         updateDataEOD (watchlistName=watchlistName, interval=interval, persist=persist, chunksize=chunksize)
 
@@ -655,10 +658,10 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
             print ("DB outdated. Starting Download....")
 
             # start bulk download using yf
-            if interval == '5m' :
-                download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
-            else:
-                download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker",prepost=False)
+            # if interval == '5m' :
+            #     download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, group_by="Ticker")
+            # else:
+            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker",prepost=False)
             
             multi = True # if multiple symbols were downloaded: multilevel DF 
             if len (symbols) <= 1: multi = False 
@@ -678,7 +681,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
                             d.drop(d[(d.index.hour ==16) & (d.index.minute == 0)].index, inplace=True)
 
                         ## print how many rows downloaded per symbol
-                        print (f"Downloaded {symbol}, {d.shape} RowsxCols ")
+                        print (f"Downloaded {symbol}, {d.shape} RowsxCols, interval {interval}")
 
                         # Append to the existing dataframe
                         dfdata = pd.concat( [dfdata, d]) 
@@ -700,11 +703,14 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
 
 
 
-def forceUpdateDataAll (numdays=None, watchlistName=None, persist=True, chunksize=25) :
+def forceUpdateDataAll (numdays=None, watchlistName=None, persist=False, chunksize=25) :
     """ Update database end of day (EOD) data for
     default (all): 1H, 1D, 4H, 5m intervals unless specified
     persists (to disk) : False (default)
     """
+
+    if not persist : print ("Persist is FALSE. Data will not be saved")
+
     for interval in ['1D', '1H', '5m'] :
         forceUpdateData (numdays=numdays, watchlistName=watchlistName, interval=interval, persist=persist, chunksize=chunksize)
 
@@ -753,7 +759,7 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
     watchlist = getWatchlist(watchlistName) # defaults to default watclist
 
     # get symbol list from watchlist 
-    symbolslist = watchlist.TICK.to_list() # [:10] # debug
+    symbolslist = watchlist.TICK.to_list() [:10] # debug
 
     symArray = list(chunks (symbolslist, chunksize))  # generate a list of symbol list of length 25 each
     # print ( symArray)
@@ -786,10 +792,8 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
         ## !Note: done use lastBusinessDate as 'end' date for yfinance.download param 
 
         # start bulk download using yf
-        if interval == '5m' :
-            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
-        else:
-            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker",prepost=False)
+
+        download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker",prepost=False)
         
         multi = True # if multiple symbols were downloaded: multilevel DF 
         if len (symbols) <= 1: multi = False 
@@ -808,7 +812,7 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
                     if yinterval=='5m': ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
                         d.drop(d[(d.index.hour ==16) & (d.index.minute == 0)].index, inplace=True)
                     
-                    print (f"Downloaded {symbol}, {d.shape} RowsxCols ")
+                    print (f"Downloaded {symbol}, {d.shape} RowsxCols, interval {yinterval}")
 
                     # Append to the existing dataframe
                     dfdata = pd.concat( [dfdata, d]) 
