@@ -620,11 +620,18 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
     symArray = list(chunks (symbolslist, chunksize))  # generate a list of symbol list of length 25 each
     # print ( symArray)
 
-    # find last business day
-    nyseCal = mcal.get_calendar('NYSE')
-    cal = nyseCal.schedule(start_date= datetime.today() - timedelta(days=10), end_date=datetime.today())
-    lastBusiness = cal.iloc[-1].market_close.tz_localize(None).to_pydatetime().date()
+    # get Last business date (Close): if market is open now, use previous day close
+    lastBusiness, isMarketOpen = getLastBusinessDate()
 
+    # add check: if open: download till last business; if closed : download till tomorrow
+    if isMarketOpen :
+        # end is (yesterday) last business: for yfinance its today()
+        end = datetime.today().date() 
+
+    else : # if market is closed both pre and post 
+        # end is day+1 (tomorrow) : today() + 1
+        end = datetime.today().date() + timedelta(days=1)
+    
     for symbols in symArray : # symArray[:1]
         download = None
         print (f"##\t\t Updating {symbols}")
@@ -632,14 +639,19 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
         # find the start date : this is the min of last updated 'end.1H' for eg. columns
         minDate = watchlist.loc[symbols]['end.'+interval].min()
         maxDate = watchlist.loc[symbols]['end.'+interval].max()
+
         start = minDate.date() - timedelta(days=1)
-        end = datetime.today().date() + timedelta(days=1)
+
+
         # end = maxDate.date() + timedelta(days=5)
         print (f"Dates : min {minDate}, max {maxDate} ## Last Business {lastBusiness}")
         print ( f"Watchlist start={start} end={end}, interval: {interval}")
 
-        # determine if ther is a need to update
+        # determine if there is a need to update
+        ## !Note: done use lastBusinessDate as 'end' date for yfinance.download param 
+        ## yfinance used last close as 
         if minDate.date() < lastBusiness : ## Update if data us outdated
+            
             print ("DB outdated. Starting Download....")
 
             # start bulk download using yf
@@ -664,7 +676,10 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
                         d = fix_timezone(d) # extract Df from download and fixtimezone
                         if yinterval=='5m': ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
                             d.drop(d[(d.index.hour ==16) & (d.index.minute == 0)].index, inplace=True)
-                        
+
+                        ## print how many rows downloaded per symbol
+                        print (f"Downloaded {symbol}, {d.shape} RowsxCols ")
+
                         # Append to the existing dataframe
                         dfdata = pd.concat( [dfdata, d]) 
                         dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
@@ -681,8 +696,135 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
             print (f"DB already upto date | End Date {minDate.date()}. Skipping")
             # load symbols to dict 
             
-
     return ddr  ## return dict of DFs
+
+
+
+def forceUpdateDataAll (numdays=None, watchlistName=None, persist=True, chunksize=25) :
+    """ Update database end of day (EOD) data for
+    default (all): 1H, 1D, 4H, 5m intervals unless specified
+    persists (to disk) : False (default)
+    """
+    for interval in ['1D', '1H', '5m'] :
+        forceUpdateData (numdays=numdays, watchlistName=watchlistName, interval=interval, persist=persist, chunksize=chunksize)
+
+    # Update data for interval = '4H'
+    # get the latest updated watchlist
+    watchlist = getWatchlist(watchlistName) # defaults to default watclist
+
+    # sort by time lastupdated and then generate list: to improve performance
+    symbolslist = watchlist.TICK.to_list()
+    # for symbol in symbolslist : 
+    #     gen4HdataFromPickle(symbol=symbol, persist=True)
+
+    print ( "**********     Data Update Complete.   ************" )
+    
+    updateWatchlistLastUpdated(watchlistName=watchlistName) # Update watchlist before sanitizing
+
+    sanitizeWatchlist(watchlistName=watchlistName, persist=persist)
+
+
+def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=False, chunksize=25) :
+    """ Update database end of day (EOD) data and returns dict {symbol: DF} 
+        default : 1H interval unless specified
+        persists (to disk) : False (default)
+    """
+
+    print (f"\n\n ------------ STARTING DOWNLOAD FOR interval = {interval} ------------")
+
+    updateWatchlistLastUpdated(watchlistName) # update entire watchlist first
+
+    symbols = None
+    dfdata = None
+    ddr = {}
+
+    # select interval text for pickle names based on interval text alternatives
+    interval = finterval.get(interval, None)
+    if interval == None :
+        print (f"Bad interval {interval}")
+        return None
+
+    # select interval and period limits for yf download
+    yinterval, yperiod = dinterval.get(interval, None)
+    if yinterval == None : return None
+
+
+    # get the latest updated watchlist
+    watchlist = getWatchlist(watchlistName) # defaults to default watclist
+
+    # get symbol list from watchlist 
+    symbolslist = watchlist.TICK.to_list() # [:10] # debug
+
+    symArray = list(chunks (symbolslist, chunksize))  # generate a list of symbol list of length 25 each
+    # print ( symArray)
+
+    # get Last business date (Close): if market is open now, use previous day close
+    lastBusiness, isMarketOpen = getLastBusinessDate()
+
+    # add check: if open: download till last business; if closed : download till tomorrow
+    if isMarketOpen :
+        print ("CANT FORCE UPDATE DURING MARKET OPEN. WAIT FOR CLOSE.")
+        return
+    
+    # define start, end; if both None then yperiod = max value 
+    start = None
+    end = None
+    if isinstance(numdays, int): 
+        start = datetime.today() - timedelta(days=numdays)
+        end = datetime.today()
+        print (f"Start {start} , End {end} ")
+        print (f"Force Update period={numdays} days, interval={interval} :: Starting Download....")
+
+    else: 
+        print (f"Force Update period={yperiod} (Max Limit), interval={interval}:: Starting Download....")
+
+    for symbols in symArray : # symArray[:1]
+        download = None
+        print (f"##\t\t Updating {symbols}")
+
+        # determine if there is a need to update
+        ## !Note: done use lastBusinessDate as 'end' date for yfinance.download param 
+
+        # start bulk download using yf
+        if interval == '5m' :
+            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker")
+        else:
+            download = yf.download(tickers=symbols, interval=yinterval, period=yperiod, start=start, end=end, group_by="Ticker",prepost=False)
+        
+        multi = True # if multiple symbols were downloaded: multilevel DF 
+        if len (symbols) <= 1: multi = False 
+
+        ## Update all the pickles
+        for symbol in symbols :
+            try :
+                dfdata = getDataFromPickle(symbol, interval=interval)
+                d = None 
+                if multi : 
+                    d = download[symbol].dropna() ## drop na from extracted df
+                else: 
+                    d = download.dropna()
+                if len (d) > 0 :
+                    d = fix_timezone(d) # extract Df from download and fixtimezone
+                    if yinterval=='5m': ## drop last row if it contains 16:00 hr data with 0 volume for 5m.
+                        d.drop(d[(d.index.hour ==16) & (d.index.minute == 0)].index, inplace=True)
+                    
+                    print (f"Downloaded {symbol}, {d.shape} RowsxCols ")
+
+                    # Append to the existing dataframe
+                    dfdata = pd.concat( [dfdata, d]) 
+                    dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
+                    # append to local dict # debug only
+                    ddr[symbol] = dfdata.sort_index()  ## ! Sort index before assignment 
+
+                    # Write to disk as pickle
+                    flink = TICKDATA + symbol+'.'+interval+'.pickle'
+                    if persist : pd.to_pickle(dfdata, flink)
+            except:
+                print (f"Error processing {symbol} {interval}")
+                pass        
+            
+    return ddr  ## return dict of DFs
+
 
 def force_sort_index_all (persist=False, verbose=False) : 
     """Force Sort by index and remove duplicates by index
@@ -1152,3 +1294,35 @@ def fix_timezone (dfdata) : # for a single DF : dfdata
 def analyseDatabaseIntegrity () :
     pass
 
+
+### Method to get last Close of Business Date 
+import pandas_market_calendars as mcal
+from datetime import datetime, time, timedelta
+import  pytz
+
+def getLastBusinessDate () : 
+    eastern = pytz.timezone('US/Eastern')
+    nyseCal = mcal.get_calendar('NYSE')
+    cal = nyseCal.schedule(start_date= datetime.today() - timedelta(days=10), end_date=datetime.today())
+
+    # Check if market is open 
+    nytime = datetime.today().now(eastern)
+    lastOpen = cal.iloc[-1].market_open.tz_convert(eastern)
+    lastClose =  cal.iloc[-1].market_close.tz_convert(eastern)
+    print (f"Last Open: {lastOpen}, Last Close {lastClose} | time now {nytime}")
+
+    isMarketOpen= False
+
+    if nytime > lastClose : # Market is closed  
+        lastBusinessDate = cal.iloc[-1].market_close.tz_localize(None).to_pydatetime().date()
+        print (f"Market is Closed. Last business date: {lastBusinessDate}") 
+        isMarketOpen= False
+
+    else: # Market is open ; use 2nd last close from mcal
+        lastBusinessDate = cal.iloc[-2].market_close.tz_localize(None).to_pydatetime().date()
+        print (f"Market is Open. Last business (Previous Close): {lastBusinessDate}") 
+        isMarketOpen= True
+    
+    # print ( lastBusinessDate, isMarketOpen )
+
+    return lastBusinessDate, isMarketOpen
