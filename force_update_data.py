@@ -21,7 +21,11 @@ import os.path, time
 ## Force Update all previous data to MAX downloadable values : numdays=None flag 
 data.forceUpdateDataAll(numdays=None, watchlistName="WatchListLive.pickle", persist=True)
 
+<<<<<<< HEAD
 # ## This will likely fail to download all at once for full database 
+=======
+# ## This will likely fail to download all at once
+>>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
 # data.forceUpdateDataAll(numdays=None, watchlistName="WatchListDBFull.pickle", persist=True)
 
 ## debug only 

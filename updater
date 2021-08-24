@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 #!/usr/bin/env bash
 
+=======
+#! /bin/bash
+>>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
 source /home/towshif/venv38/bin/activate
 # virtualenv is now active.
 # cd /home/towshif/code/python/pythonic
@@ -9,7 +13,11 @@ echo "Environment : " $(which python ) $(python -V)
 
 ## cd to directory and run script 
 cd /home/towshif/code/python/pythonic/app_web/logically
+<<<<<<< HEAD
 # python EODUpdater.py
+=======
+python EODUpdater.py
+>>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
 
 exit
 

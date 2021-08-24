@@ -5,7 +5,10 @@ https://github.com/krazykoder/pythonic
 
 
 ###### Update 8/18/20 
+<<<<<<< HEAD
 ```
+=======
+>>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
 (venv38) ~/code/python/pythonic$ git pull
 remote: Enumerating objects: 41, done.
 remote: Counting objects: 100% (33/33), done.
@@ -40,4 +43,7 @@ Fast-forward
  create mode 100644 database/olddata/README.md
 (venv38) ~/code/python/pythonic$ pwd
 
+<<<<<<< HEAD
 ```
+=======
+>>>>>>> 21244ef8590e412290cdb068ba2ec7cb08030ee9
