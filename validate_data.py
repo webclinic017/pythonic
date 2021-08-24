@@ -1,7 +1,7 @@
 """
 Script to Validate entire database.
-All pickles will be rewritten. Backup data before use.
-Use this with caution. This action cannot be reversed.
+Includes repetitions and extended hours.
+Expected values. 
 """
 
 import pandas as pd
@@ -10,8 +10,16 @@ import app_web.logically.datasource as data
 import random
 import os.path, time
 
-# data.force_sort_index_all(persist=True)
-
+## following define # entries per day 
+cinterval = {
+    "1D"    : 1,
+    "1d"    : 1,
+    "1h"    : 7,
+    "1H"    : 7,
+    "4H"    : 2,
+    "4h"    : 2,
+    "5m"    : 78,
+}
 
 ### check for data consistency
 watchlist = data.getWatchlist('WatchListLive.pickle') # defaults to default watclist
@@ -30,6 +38,8 @@ for interval in  ['1D', '1H', '5m', '4h'] :
     
     print ("\n#############")
     print (f"{interval} Analysis ::::  Found {len(outlierlist)} outliers")
+    print ("Expected count/day = ", cinterval.get(interval, None)) # expected count 
+    
     print (outlierlist)
 
 ## Debug 

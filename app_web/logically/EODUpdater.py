@@ -24,7 +24,7 @@ data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25) #defau
 
 data.updateDataEODAll() # default watchlist 
 
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+# data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
 
 
 
