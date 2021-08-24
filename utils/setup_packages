@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+
+source /home/towshif/venv38/bin/activate
+# virtualenv is now active.
+# cd /home/towshif/code/python/pythonic
+
+cd /home/towshif/code/python/pythonic/app_web/logically
+
+# update pandas packages :: python 3.8 only 
+pip install --upgrade pip pandas pandas_ta pandas_market_calendars yfinance termcolor scipy seaborn matplotlib
+
+## print some details : I am inside venv
+pip list | grep pandas
+echo "Environment : " $(which python ) $(python -V)

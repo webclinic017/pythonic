@@ -3,6 +3,10 @@ source /home/towshif/venv38/bin/activate
 # virtualenv is now active.
 # cd /home/towshif/code/python/pythonic
 
+## however just to make sure print it 
+echo "Environment : " $(which python ) $(python -V)
+
+## cd to directory and run script 
 cd /home/towshif/code/python/pythonic/app_web/logically
 python EODUpdater.py
 
