@@ -20,11 +20,11 @@ data.updateWatchlistLastUpdated(watchlistName='WatchListLive.pickle')
 data.updateWatchlistLastUpdated() # DEFAULT watchlist 
 
 ##############################
-data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=100, persist=True) #default chunksize=25
+data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25, persist=True) #default chunksize=25
 
 data.updateDataEODAll(chunksize=100, persist=True) # default watchlist 
 
-# data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
 
 
 

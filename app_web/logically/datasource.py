@@ -647,7 +647,7 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
         minDate = watchlist.loc[symbols]['end.'+interval].min()
         maxDate = watchlist.loc[symbols]['end.'+interval].max()
 
-        start = minDate.date() - timedelta(days=1)
+        start = minDate.date() - timedelta(days=5)
 
 
         # end = maxDate.date() + timedelta(days=5)
