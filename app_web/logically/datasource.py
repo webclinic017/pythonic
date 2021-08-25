@@ -593,7 +593,7 @@ def updateDataEODAll (watchlistName=None, persist=False, chunksize=25) :
 
     updateWatchlistLastUpdated(watchlistName=watchlistName) # Update watchlist before sanitizing
 
-    sanitizeWatchlist(watchlistName=watchlistName, persist=persist)
+    sanitizeWatchlist(watchlistName=watchlistName, persist=persist) ## Some problems with this one
 
 
 def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=25) :
@@ -1029,7 +1029,7 @@ def getLiveData (symbol='^GSPC', interval='1H', dates=None, bars=None, period=No
 
 ########################    METHODS FOR WATCHLIST MANAGEMENT    ###########################
 
-def sanitizeWatchlist (watchlistName=None, oldDays=5, persist=False) :
+def sanitizeWatchlist (watchlistName=None, oldDays=10, persist=False) :
     """ Removes symbols which are not updated beyond 5 days
     """
 
