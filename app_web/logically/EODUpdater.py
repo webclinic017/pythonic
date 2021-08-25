@@ -9,9 +9,9 @@ import datasource as data
 #####################Yahoo finance API TEST ######
 
 # test yf libs => functional 
-print(yf.download(tickers='SPY', interval='1h', period='200d').tail(5))  ## check additional
-print(yf.download(tickers='SPY', interval='1WK', period='200d').tail(5)) ## check additional
-print(yf.download(tickers='SPY', interval='5m', period='10d').tail(5))  ## check additional
+print(yf.download(tickers='SPY', interval='1h', period='2d'))  ## check additional
+print(yf.download(tickers='SPY', interval='1WK', period='1d').tail(8)) ## check additional
+print(yf.download(tickers='SPY', interval='5m', period='1d').tail(8))  ## check additional
 
 
 ### First Update all watchlist 
@@ -20,9 +20,9 @@ data.updateWatchlistLastUpdated(watchlistName='WatchListLive.pickle')
 data.updateWatchlistLastUpdated() # DEFAULT watchlist 
 
 ##############################
-data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25) #default chunksize=25
+data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=100, persist=True) #default chunksize=25
 
-data.updateDataEODAll() # default watchlist 
+data.updateDataEODAll(chunksize=100, persist=True) # default watchlist 
 
 # data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
 

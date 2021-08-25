@@ -88,7 +88,7 @@ yf.download(tickers='SPY', interval='1h', start=start, end=end,  group_by="Ticke
 # this will download till last tick current day if market it open
 end = datetime.today().date()  + timedelta(days=1)
 print (f"Start {start} , End {end} || datetime.today().date()  + timedelta(days=1)")
-yf.download(tickers='SPY', interval='1h', start=start, end=end,  group_by="Ticker").tail(5)
+yf.download(tickers='SPY', interval='1h', start=start, end=end,  group_by="Ticker").tail(22)
 
 # this will download till 2nd last close of business (useless)> yahoo downloads till end-1 day
 end = lastBusinessClose
@@ -122,8 +122,8 @@ yf.download(tickers='AMD', interval='5m', period='60d', group_by="Ticker") #, pr
 
 ## both start, end if present then will bypass period 
 yf.download(tickers='SPY', interval='1h', period = '5d', start=None, end=None, group_by="Ticker")
-yf.download(tickers='SPY', interval='5m', period = '1d', start=None, end=None, group_by="Ticker")
-
+yf.download(tickers='NFLX', interval='5m', period = '1d', start=None, end=None, group_by="Ticker")
+yf.download(tickers='NFLX', interval='1h', period = '60d', start=None, end=None, group_by="Ticker")
 
 ## end main logic 
 
@@ -144,3 +144,37 @@ yf.download(tickers='SPY', interval='5m', period = '1d', start=None, end=None, g
 pp = data.forceUpdateDataAll(numdays=None, watchlistName="WatchListLive.pickle",persist=False)
 
 pp = data.forceUpdateData(numdays=None, watchlistName="WatchListLive.pickle", interval='5m')
+
+sList = ['NFLX', 'NVDA', 'ONEQ', 'PTON', 'QQQ', 'SAIA', 'SBUX', 'SKX', 'SPCE', 'TSLA', 'UAL', 'URI', 'VDE', 'ZM', 'LPX', 'SNBR', 'UCTT', 'WSM', 'APPS', 'HZO', 'WAL', 'COWN', 'DHI', 'ARCB', 'UFPI']
+
+
+download = yf.download(tickers=sList, interval='1d', period = '60d', start=None, end=None, group_by="Ticker", prepost=False)
+download['QQQ']
+
+dfdata = data.getDataFromPickle('NFLX', interval='5m')
+dfdata = data.getDataFromPickle('MU', interval='1h')
+dfdata = data.getDataFromPickle('AMRK', interval='1h')
+download = yf.download(tickers='AMRK', interval='1h', period = '60d', start=None, end=None, group_by="Ticker", prepost=False)
+
+
+dfdata
+d = download['NFLX'].dropna()
+d
+d = data.fix_timezone(d)
+d
+d.drop(d[(d.index.hour >=16) & (d.index.minute >= 0)].index, inplace=True)
+d
+
+d[(d.index.hour <=9) & (d.index.minute <30)] # filter Pre
+d[(d.index.hour >=16) & (d.index.minute >= 0)] # filter Post
+
+# print (f"Downloaded {symbol}, {d.shape} RowsxCols, interval {yinterval}")
+
+# Append to the existing dataframe
+dfdata = pd.concat( [dfdata, d])
+dfdata
+dfdata = dfdata[~dfdata.index.duplicated(keep='last')] # remove duplicated by index
+dfdata.tail(60)
+# append to local dict # debug only
+r = dfdata.sort_index()  #
+r

@@ -7,6 +7,7 @@ Expected values.
 import pandas as pd
 from datetime import date
 import app_web.logically.datasource as data
+# import datasource as data
 import random
 import os.path, time
 
@@ -21,6 +22,7 @@ cinterval = {
     "5m"    : 78,
 }
 
+
 ### check for data consistency
 watchlist = data.getWatchlist('WatchListLive.pickle') # defaults to default watchlist
 symbolslist = watchlist.TICK.to_list()
@@ -30,17 +32,21 @@ print ("\n*************     DATA HEALTH ANALYSIS        ****************")
 
 for interval in  ['1D', '1H', '5m', '4h'] : 
     outlierlist = []
-    for symbol in symbolslist:
+    for symbol in symbolslist : #[:-2]:
         dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read 
 
         outlierData = data.dataConsistencyCheck(dfdata, interval, verbose=False).loc[str(date.today().year):]
-        if len(outlierData) >0 : outlierlist.append(symbol)
+        if len(outlierData) >0 : outlierlist.append((symbol,outlierData.iloc[-1].Open, outlierData.iloc[-1:].index[0].strftime("%m/%d/%y")))
+        # print (outlierData)
     
     print ("\n#############")
     print (f"{interval} Analysis ::::  Found {len(outlierlist)} outliers")
     print ("Expected count/day = ", cinterval.get(interval, None)) # expected count 
 
     print (outlierlist)
+
+
+# outlierData.iloc[-1:].index[0].strftime("%m/%d/%y %H:%M")
 
 ## Debug 
 # date.today().year   

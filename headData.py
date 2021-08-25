@@ -25,22 +25,22 @@ else:
 
 
 print ("Timeframe : 1D")
-d = data.getDataFromPickle(symbol, interval='1D').tail(3)
+d = data.getDataFromPickle(symbol, interval='1D').head(3)
 c1D = d.iloc[-1].Close
 print (d)
 
 print ("Timeframe : 4H")
-d = data.getDataFromPickle(symbol, interval='4H').tail(6)
+d = data.getDataFromPickle(symbol, interval='4H').head(6)
 c4H = d.iloc[-1].Close
 print (d)
 
 print ("Timeframe : 1H")
-d = data.getDataFromPickle(symbol, interval='1H').tail(9)
+d = data.getDataFromPickle(symbol, interval='1H').head(9)
 c1H = d.iloc[-1].Close
 print (d)
 
 print ("Timeframe : 5m")
-d = data.getDataFromPickle(symbol, interval='5m').tail(5)
+d = data.getDataFromPickle(symbol, interval='5m').head(5)
 c5m = d.iloc[-1].Close
 print (d)
 

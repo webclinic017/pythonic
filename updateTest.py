@@ -25,27 +25,16 @@ else:
 
 
 print ("Timeframe : 1D")
-d = data.getDataFromPickle(symbol, interval='1D').tail(3)
-c1D = d.iloc[-1].Close
-print (d)
-
-print ("Timeframe : 4H")
-d = data.getDataFromPickle(symbol, interval='4H').tail(6)
-c4H = d.iloc[-1].Close
+d = data.updateDataEOD(interval='1D', persist=False)
 print (d)
 
 print ("Timeframe : 1H")
-d = data.getDataFromPickle(symbol, interval='1H').tail(9)
-c1H = d.iloc[-1].Close
+d = data.updateDataEOD(interval='1H', persist=False)
 print (d)
 
 print ("Timeframe : 5m")
-d = data.getDataFromPickle(symbol, interval='5m').tail(5)
-c5m = d.iloc[-1].Close
+d = data.updateDataEOD(interval='5m', persist=False)
 print (d)
-
-print ("**** Comparing Close Data ****")
-print (f'Close [\n1D : {c1D}\n4H : {c4H}\n1H : {c1H}\n5m : {c5m}]')
 
 # print ("**** Last Modified date ****")
 fname = "/home/towshif/code/python/pythonic/database/data/SPY.1H.pickle"
