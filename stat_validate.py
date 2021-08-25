@@ -22,6 +22,7 @@ if len(list_of_arguments) > 1 :
     print(f"Symbol: {list_of_arguments[1]}")
 
 else:
+    print("*** No Argument provided. Pass Symbol as arg : stat_validate.py SPY")
     # load a watchlist
     wl = data.getWatchlist(verbose=True) # load default watchlist
     symbols = wl.index.tolist()
@@ -50,15 +51,20 @@ cinterval = {
 print ("\n*************     DATA HEALTH ANALYSIS        ****************")
 
 for interval in  ['1D', '1H', '5m'] :
-	dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read
-	outlierData = data.dataConsistencyCheck(dfdata, interval, verbose=True).loc[str(date.today().year):]
-	# if len(outlierData) >0 : outlierlist.append((symbol,outlierData.iloc[-1].Open, outlierData.iloc[-1:].index[0].strftime("%m/%d/%y")))
-    # print (outlierData)
+    print ("\n#############")
+    print (f"{interval} Analysis ::	{symbol}")
+    # print ("Expected count/day = ", cinterval.get(interval, None)) # expected count
 
-	print ("\n#############")
-	print (f"{interval} Analysis ::	{symbol}")
-	print (outlierData)
-	print ("Expected count/day = ", cinterval.get(interval, None)) # expected count
+
+    dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read
+    if dfdata is None : exit(0) 
+    outlierData = data.dataConsistencyCheck(dfdata, interval, verbose=True).loc[str(date.today().year):]
+
+    if len(outlierData) >0 : 
+        print ("Current Year: ", len(outlierData))
+
+    # print (outlierData)
+    # print ("Outliers\n", outlierData)
 
     # print (outlierlist)
 

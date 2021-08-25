@@ -449,12 +449,12 @@ def dataConsistencyCheck (dfdata=None, interval=None, verbose=True) :
         print (f"Error in Data ")
         pass
 
-    flist = anal.loc[anal['Open'].isin(uniqlist)] # print the unique days
+    outlierDF = anal.loc[anal['Open'].isin(uniqlist)] # print the unique days
     if verbose :
-        if len(flist) >0 : print (f"Found outlier data in df", flist)
+        if len(outlierDF) >0 : print (f"Found outlier data in df\n", outlierDF)
         else: print (f"Data consistent.")
 
-    return flist
+    return outlierDF
 
 
 ########################    METHODS FOR EOD DATABASE UPDATE    ###########################

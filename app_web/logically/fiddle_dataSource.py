@@ -167,8 +167,12 @@ data.getWatchlist(watchlistName='WatchListDBFull.pickle')
 
 w = data.getWatchlist(watchlistName="WatchListDBFull.pickle")
 w
-w.loc['MIK']
+w.loc['MIK'] # not in database
 w.loc['SPY']
+
+interval = '1H'
+dfdata = data.getDataFromPickle('SPY',interval)
+
 # uniquelist
 uniquelist = w['end.1H'].unique()
 uniquelist
