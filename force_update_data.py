@@ -19,7 +19,7 @@ import os.path, time
 
 
 ## Force Update all previous data to MAX downloadable values : numdays=None flag 
-data.forceUpdateDataAll(numdays=None, watchlistName="WatchListLive.pickle", persist=True)
+data.forceUpdateDataAll(numdays=None, watchlistName="WatchListLive.pickle", persist=True, chunksize=150)
 
 # ## This will likely fail to download all at once
 # data.forceUpdateDataAll(numdays=None, watchlistName="WatchListDBFull.pickle", persist=True)
