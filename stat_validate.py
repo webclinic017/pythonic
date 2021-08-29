@@ -55,9 +55,9 @@ for interval in  ['1D', '1H', '5m'] :
     print (f"{interval} Analysis ::	{symbol}")
     # print ("Expected count/day = ", cinterval.get(interval, None)) # expected count
 
-
     dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read
     if dfdata is None : exit(0) 
+
     outlierData = data.dataConsistencyCheck(dfdata, interval, verbose=True).loc[str(date.today().year):]
 
     if len(outlierData) >0 : 

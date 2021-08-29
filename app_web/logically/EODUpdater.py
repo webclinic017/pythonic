@@ -24,7 +24,7 @@ data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25, persis
 
 data.updateDataEODAll(chunksize=100, persist=True) # default watchlist 
 
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100)
+data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100, persist=True) ## update all database
 
 
 
