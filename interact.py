@@ -138,7 +138,7 @@ inputDate =  {
 
 
 def scrollArray (orderlist = None) : 
-    if not orderlist: 
+    if orderlist is None: 
         return ["Next", "Prev", "Date", "Back"]
     else: 
         return orderlist; 
@@ -397,12 +397,13 @@ def browseData () :
         if myscroll.get("user_option") == "Next":
             print (dfdata.loc[searchdate])
             lastSelected = "Next"
-            scrollArray(["Next", "Prev", "Date", "Back"])
+            selectNext["choices"] = ["Next", "Prev", "Date", "Back"]
+            # scrollArray(["Next", "Prev", "Date", "Back"])
 
         elif  myscroll.get("user_option") == "Prev":
             print (dfdata.loc[searchdate])
             lastSelected = "Prev"
-            scrollArray([ "Prev", "Next", "Date", "Back"])
+            selectNext["choices"] = [ "Prev", "Next", "Date", "Back"]
 
         elif  myscroll.get("user_option") == "Back":
             break
