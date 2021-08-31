@@ -136,13 +136,20 @@ inputDate =  {
         "filter": lambda val: str(val).upper()
     }
 
+
+def scrollArray (orderlist = None) : 
+    if not orderlist: 
+        return ["Next", "Prev", "Date", "Back"]
+    else: 
+        return orderlist; 
+
+
 selectNext = {
         'type': 'list',
         'name': 'user_option',
         'message': '#####      Welcome to Pythonic Data Viewer     ####',
-        'choices': ["Next", "Prev", "Date", "Back"]
+        'choices': scrollArray() # dynamic list update 
 }
-
 
 selectInterval = {
         'type': 'list',
@@ -373,12 +380,33 @@ def browseData () :
     # get date starting
     dfdata = ddr[interval][symbol] # selected dataframe 
 
-    searchdate = prompt.prompt(inputDate, style=custom_style_1).get("date")
+    # searchdate = prompt.prompt(inputDate, style=custom_style_1).get("date")
 
-    print (dfdata.loc[searchdate])
+    # print (dfdata.loc[searchdate])
+
+    searchdate = "2021-08-11"
 
     # while loop to Next(-->) (Default), Prev (<--), Back [X]
     # add selectable prev date next date or 
+    lastSelected = None
+    
+    while True:
+
+        myscroll = prompt.prompt(selectNext, style=custom_style_2)
+
+        if myscroll.get("user_option") == "Next":
+            print (dfdata.loc[searchdate])
+            lastSelected = "Next"
+            scrollArray(["Next", "Prev", "Date", "Back"])
+
+        elif  myscroll.get("user_option") == "Prev":
+            print (dfdata.loc[searchdate])
+            lastSelected = "Prev"
+            scrollArray([ "Prev", "Next", "Date", "Back"])
+
+        elif  myscroll.get("user_option") == "Back":
+            break
+    
 
     return
 
