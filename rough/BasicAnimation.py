@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import yfinance as yf
-from market_profile import MarketProfile
+from market_profile import MarketProfile # pip install marketprofile
 
 ## Class to simulate getting more data from API:
 

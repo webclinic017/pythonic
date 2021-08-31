@@ -1,3 +1,4 @@
+from datetime import datetime
 from os import error
 from PyInquirer import prompt
 # from examples import custom_style_1, custom_style_2
@@ -52,7 +53,6 @@ class NumberValidator(Validator):
             raise ValidationError(message="Please enter a number",
                                   cursor_position=len(document.text))
 
-
 class StringValidator(Validator):
 
     def validate(self, document):
@@ -68,11 +68,10 @@ class DateValidator(Validator):
 
     def validate(self, document):
         try:
-            sym = str(document.text)
+            sym = datetime.strptime(str(document.text), '%Y-%m-%d')
         except ValueError:
-            raise ValidationError(message="Please enter a Symbol",
+            raise ValidationError(message="Incorrect data format, should be YYYY-MM-DD",
                                   cursor_position=len(document.text))
-
 
 mainMenuChoice = [
     {
@@ -93,34 +92,22 @@ mainMenuChoice = [
     },
 ]
 
-inputs = [
-    {
+inputs = {
         'type': "input",
-        "name": "symbol",
-        "message": "Enter the symbol name:",
-        "validate": StringValidator,
-        "filter": lambda val: str(val).upper()
-    },
-
-    {
-        'type': "input",
-        "name": "b",
-        "message": "Enter the second number",
+        "name": "integer",
+        "message": "Enter step size (number)",
         "validate": NumberValidator,
-        "filter": lambda val: str(val).upper()
-    }
-]
+        "filter": lambda val: int(val)
+}
 
-confirmations = [
-    {
+confirmations = {
         'type': 'confirm',
         'message': 'Do you want to exit?[default Enter]',
         'name': 'exit',
         'default': True,
-    },
-]
+}
 
-inputText= {
+inputSymbol= {
         'type': "input",
         "name": "symbol",
         "message": "Enter symbol name : ",
@@ -138,8 +125,9 @@ inputDate =  {
 
 
 def scrollArray (orderlist = None) : 
+    # https://github.com/CITGuru/PyInquirer/issues/69
     if orderlist is None: 
-        return ["Next", "Prev", "Date", "Back"]
+        return ["Next", "Prev", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
     else: 
         return orderlist; 
 
@@ -147,15 +135,15 @@ def scrollArray (orderlist = None) :
 selectNext = {
         'type': 'list',
         'name': 'user_option',
-        'message': '#####      Welcome to Pythonic Data Viewer     ####',
+        'message': '',
         'choices': scrollArray() # dynamic list update 
 }
 
 selectInterval = {
         'type': 'list',
         'name': 'user_option',
-        'message': '#####      Welcome to Pythonic Data Viewer     ####',
-        'choices': ["1D", "1H", "4H", "5m"]
+        'message': '#####      SELECT INTERVAL    ####',
+        'choices': ["1H", "4H", "1D", "5m"]
     },
 
 
@@ -166,7 +154,7 @@ def getTwoInputs():
     return a, b
 
 def getSymbolInputs():
-    answers = prompt.prompt(inputText, style=custom_style_1)
+    answers = prompt.prompt(inputSymbol, style=custom_style_1)
     return answers.get("symbol")
 
 def validateData() :
@@ -375,7 +363,7 @@ def browseSymbols () :
 def browseData () :
 
     # get symbol
-    symbol = prompt.prompt(inputText, style=custom_style_1).get("symbol")
+    symbol = prompt.prompt(inputSymbol, style=custom_style_1).get("symbol")
     interval = prompt.prompt(selectInterval, style=custom_style_1).get("user_option")
     # get date starting
     dfdata = ddr[interval][symbol] # selected dataframe 
@@ -389,21 +377,86 @@ def browseData () :
     # while loop to Next(-->) (Default), Prev (<--), Back [X]
     # add selectable prev date next date or 
     lastSelected = None
+
+    locator = len(dfdata)
+    try : 
+        # this will return right bound of the slice
+        locator = dfdata.index.get_slice_bound(searchdate, side='right')
+    except: 
+        # this will return array (get_loc); use last element
+        locator = dfdata.index.get_loc(searchdate, method='nearest')[-1]
+        pass
+
+    pacer = 7  # default 
+
+    # print df default first 
+    print(chr(27) + "[2J") # clear screen in python3 
+    print (dfdata.iloc[locator:locator+pacer])
     
     while True:
 
         myscroll = prompt.prompt(selectNext, style=custom_style_2)
 
         if myscroll.get("user_option") == "Next":
-            print (dfdata.loc[searchdate])
+            try: 
+                print(symbol, interval, 'step:', pacer)
+                print (dfdata.iloc[locator:locator+pacer])
+                locator = locator+pacer
+            except: pass
+
             lastSelected = "Next"
-            selectNext["choices"] = ["Next", "Prev", "Date", "Back"]
+            selectNext["choices"] = ["Next", "Prev", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
             # scrollArray(["Next", "Prev", "Date", "Back"])
 
         elif  myscroll.get("user_option") == "Prev":
-            print (dfdata.loc[searchdate])
+            try: 
+                print(symbol, interval, 'step:', pacer)
+                print (dfdata.iloc[locator-pacer:locator])
+                locator = locator-pacer
+            except: pass
+            
             lastSelected = "Prev"
-            selectNext["choices"] = [ "Prev", "Next", "Date", "Back"]
+            selectNext["choices"] = ["Prev", "Next", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
+        
+        elif  myscroll.get("user_option") == "Last":
+            try: 
+                print(symbol, interval, 'step:', pacer)                
+                locator = len(dfdata)
+                print (dfdata.iloc[locator-pacer:locator])
+            except : pass
+
+        elif  myscroll.get("user_option") == "Date":
+            try: 
+                print(symbol, interval, 'step:', pacer)
+                searchdate = prompt.prompt(inputDate, style=custom_style_1).get("date")
+                locator = dfdata.index.get_slice_bound(searchdate, side='right')
+                print (dfdata.iloc[locator-pacer:locator])
+            except : pass
+
+        elif  myscroll.get("user_option") == "Symbol":
+            try: 
+                symbol = prompt.prompt(inputSymbol, style=custom_style_1).get("symbol")
+                dfdata = ddr[interval][symbol] # selected dataframe 
+                locator = dfdata.index.get_slice_bound(searchdate, side='right')
+            except : pass
+
+        elif  myscroll.get("user_option") == "Interval":
+            try: 
+                interval = prompt.prompt(selectInterval, style=custom_style_1).get("user_option")
+                dfdata = ddr[interval][symbol] # selected dataframe 
+                locator = dfdata.index.get_slice_bound(searchdate, side='right')
+            except : pass
+
+        elif  myscroll.get("user_option") == "Step":
+            try: 
+                pacer = prompt.prompt(inputs, style=custom_style_1).get("integer")
+                print (dfdata.iloc[locator-pacer:locator])
+
+            except : pass
+
+        elif  myscroll.get("user_option") == "Clear":
+            print(chr(27) + "[2J") # clear screen in python3 
+             
 
         elif  myscroll.get("user_option") == "Back":
             break

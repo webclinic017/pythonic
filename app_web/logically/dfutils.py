@@ -38,8 +38,9 @@ def showColumns (df, startswith=None, endswith=None) :
         return df[cols]
 
 
+tcolor = {'grey':'grey','red':'red','green':'green','yellow':'yellow','blue':'blue','magenta':'magenta','cyan':'cyan','white':'white','default':'green'}
 
-def printInColor(mytext="Hello Test!") : 
+def printInColor(mytext="Hello Test!", color=None) : 
     # https://pypi.org/project/termcolor/
     # text: grey,red,green,yellow,blue,magenta,cyan,white
     # Attributes: bold,dark,underline,blink,reverse,concealed
@@ -49,7 +50,8 @@ def printInColor(mytext="Hello Test!") :
     from termcolor import colored, cprint
 
     # text = colored(mytext, 'green', attrs=['reverse', 'blink'])
-    text = colored(mytext, 'green', attrs=['bold'])
+    if not color : color=tcolor['default']
+    text = colored(mytext, color, attrs=['bold'])
     print(text)
     # cprint(mytext, 'blue', 'on_yellow')
 
