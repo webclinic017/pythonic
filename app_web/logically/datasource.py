@@ -1210,6 +1210,40 @@ def loadDatatoMemory (watchlistName=None, interval='1H', filter=None, randomize=
     return ddr, symbols
 
 
+def loadDatatoMemoryOptimize (watchlistName=None, interval='1H', filter=None, randomize=False, symbols=None) :
+    """Reads all pickles to memory and return dictionary {symbol: dataframe}
+    defaults: interval = 1H
+    """
+
+    if watchlistName is None:
+        # read default watchlist
+        # read watchlist
+        watchlistName = 'WatchListDB.pickle'  # initialize
+    print (f"Reading watchlist {watchlistName}")
+
+    if symbols is None:
+        watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
+        if filter is None :
+            symbols = watchlist.TICK.to_list()
+        else :
+            if randomize :
+                from random import sample
+                symbols = sample(watchlist.TICK.to_list(), filter) # random sample `filter` items from the TICK list
+
+            else:
+                symbols = watchlist.TICK.to_list() [:filter]
+
+    ddr = {} # define empty
+    for symbol in symbols:  # load all data to memory
+        try :
+            ddr[symbol] = reduce_mem_usage(getDataFromPickle(symbol=symbol, interval=interval).dropna())
+        except :
+            print (f"Error reading symbolo {symbol}")
+            pass
+
+    return ddr, symbols
+
+
 ## new watchlist
 def createWatchlist (watchlistName='DefaultWatchlist.pickle', symbols= None) :
     watchlist = pd.DataFrame(columns=['TICK', 'info' ])
@@ -1348,3 +1382,45 @@ def getLastBusinessDate () :
     # print ( lastBusinessDate, isMarketOpen )
 
     return lastBusinessDate, isMarketOpen
+
+
+# https://www.mikulskibartosz.name/how-to-reduce-memory-usage-in-pandas/
+# 70% compression with smaller datatypes
+
+def reduce_mem_usage(df, verbose=False):
+
+    if verbose:
+        start_mem = df.memory_usage().sum() / 1024**2
+        print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
+    
+    for col in df.columns:
+        col_type = df[col].dtype
+        
+        if col_type != object:
+            c_min = df[col].min()
+            c_max = df[col].max()
+            if str(col_type)[:3] == 'int':
+                if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
+                    df[col] = df[col].astype(np.int8)
+                elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+                    df[col] = df[col].astype(np.int16)
+                elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
+                    df[col] = df[col].astype(np.int32)
+                elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
+                    df[col] = df[col].astype(np.int64)  
+            else:
+                if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+                    df[col] = df[col].astype(np.float16)
+                elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+        else:
+            df[col] = df[col].astype('category')
+
+    if verbose: 
+        end_mem = df.memory_usage().sum() / 1024**2
+        print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
+        print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
+    
+    return df
