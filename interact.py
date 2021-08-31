@@ -64,18 +64,26 @@ class StringValidator(Validator):
         except ValueError:
             raise ValidationError(message="Please enter a Symbol",
                                   cursor_position=len(document.text))
+class DateValidator(Validator):
 
+    def validate(self, document):
+        try:
+            sym = str(document.text)
+        except ValueError:
+            raise ValidationError(message="Please enter a Symbol",
+                                  cursor_position=len(document.text))
 
 
 mainMenuChoice = [
     {
         'type': 'list',
         'name': 'user_option',
-        'message': '#####      Welcome to Pythonic Data Viewer     ####',
+        'message': '---------------  Welcome to Pythonic Data Viewer  ---------------',
         'choices': [
             "Tail Data",
             "Head Data",
             "Symbols",
+            "Browse Data",
             "Clear",
             "Stats Validate",
             "Validate All Data",
@@ -112,15 +120,37 @@ confirmations = [
     },
 ]
 
-inputSymbol= [
-    {
+inputText= {
         'type': "input",
         "name": "symbol",
         "message": "Enter symbol name : ",
         "validate": StringValidator,
         "filter": lambda val: str(val).upper()
+    }
+
+inputDate =  {
+        'type': "input",
+        "name": "date",
+        "message": "Enter Date format:'2021-05-02' : ",
+        "validate": DateValidator,
+        "filter": lambda val: str(val).upper()
+    }
+
+selectNext = {
+        'type': 'list',
+        'name': 'user_option',
+        'message': '#####      Welcome to Pythonic Data Viewer     ####',
+        'choices': ["Next", "Prev", "Date", "Back"]
+}
+
+
+selectInterval = {
+        'type': 'list',
+        'name': 'user_option',
+        'message': '#####      Welcome to Pythonic Data Viewer     ####',
+        'choices': ["1D", "1H", "4H", "5m"]
     },
-]
+
 
 def getTwoInputs():
     answers = prompt.prompt(inputs, style=custom_style_1)
@@ -129,7 +159,7 @@ def getTwoInputs():
     return a, b
 
 def getSymbolInputs():
-    answers = prompt.prompt(inputSymbol, style=custom_style_1)
+    answers = prompt.prompt(inputText, style=custom_style_1)
     return answers.get("symbol")
 
 def validateData() :
@@ -327,18 +357,30 @@ def readData() :
     print ("Reading data from pickles")
 
 
-def browseData () :
+def browseSymbols () :
     print (symbols)
     print ("# Symbols 1D:", len(list(ddr['1D'].keys())))
     print ("# Symbols 1H:", len(list(ddr['1H'].keys())))
     print ("# Symbols 5m:", len(list(ddr['5m'].keys())))
     print ("# Symbols 4H:", len(list(ddr['4H'].keys())))
-    # get symbol
-    # symbol = getSymbolInputs() # now you have symbol
 
+
+def browseData () :
+
+    # get symbol
+    symbol = prompt.prompt(inputText, style=custom_style_1).get("symbol")
+    interval = prompt.prompt(selectInterval, style=custom_style_1).get("user_option")
     # get date starting
+    dfdata = ddr[interval][symbol] # selected dataframe 
+
+    searchdate = prompt.prompt(inputDate, style=custom_style_1).get("date")
+
+    print (dfdata.loc[searchdate])
 
     # while loop to Next(-->) (Default), Prev (<--), Back [X]
+    # add selectable prev date next date or 
+
+    return
 
 
 def main():
@@ -363,14 +405,19 @@ def main():
 
         elif answers.get("user_option") == "Symbols":
             try :
-                browseData()
+                browseSymbols()
                 # consolidateData()
             except: pass
 
         elif answers.get("user_option") == "Clear":
             try :
-                print(chr(27) + "[2J")
-                # consolidateData()
+                print(chr(27) + "[2J") # in python3 
+                # https://stackoverflow.com/questions/2084508/clear-terminal-in-python                
+            except: pass
+
+        elif answers.get("user_option") == "Browse Data":
+            # symbol = getSymbolInputs()
+            try: browseData()
             except: pass
 
         elif answers.get("user_option") == "Tail Data":
