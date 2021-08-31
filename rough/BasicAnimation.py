@@ -41,13 +41,13 @@ dfdata = yf.download(tickers=symbol, start=sd, end=ed, interval="60m")
 
 df = dfdata.copy()
 
-
 rtapi = RealTimeAPI(df) # pass a dataframe with OHLCV data in Yahoo format 
 
 resample_map ={'Open' :'first',
                'High' :'max'  ,
                'Low'  :'min'  ,
                'Close':'last' }
+
 resample_period = '15T'
 
 df = rtapi.initial_fetch()
@@ -89,3 +89,4 @@ mpf.show()
 #########  SAVE AS GIF with imagemagik 
 # anim.save('../../files/animation.gif', writer='imagemagick', fps=60)
 # Image(url='../../../animation.gif')
+#  

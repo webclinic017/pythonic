@@ -127,7 +127,7 @@ inputDate =  {
 def scrollArray (orderlist = None) : 
     # https://github.com/CITGuru/PyInquirer/issues/69
     if orderlist is None: 
-        return ["Next", "Prev", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
+        return ["Next", "Prev", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
     else: 
         return orderlist; 
 
@@ -292,6 +292,54 @@ def getHeadTail(symbol=None, tail=True) :
     # print("Created: %s" % time.ctime(os.path.getctime(fname)))
     print ()
 
+def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) : 
+    from market_profile import MarketProfile
+    import pandas as pd
+    from datetime import datetime, timedelta
+    
+    # nbins = 20          # only 20 bins 
+
+    ## filter data based on criteria - days, ticks etc 
+    df3 = None 
+    if not rowPointer: 
+        df3 = dfdata[-last:] # last 700 tick 
+    else: 
+        dfdata.iloc[rowPointer]
+
+    # iloc[locator-pacer:locator]     
+    # df3 = dfdata[-100:] 
+
+    mx = df3[["Open", "Close"]].max().max()
+    mi = df3[["Open", "Close"]].min().max()
+
+    tick_size = (mx-mi)/nbins
+
+    print (f"mx:{mx} mi:{mi}, tick_ize:{tick_size}")
+    
+    # tick_size = 10 #  round(2.0*(df3['Open'][0]/100))/10
+    mp = MarketProfile(df3, tick_size=tick_size, open_range_size=pd.to_timedelta('10 minutes'), initial_balance_delta=pd.to_timedelta('60 minutes'), mode='vol')
+    mp_slice = mp[0:len(df3.index)]
+
+    # valArea = mp_slice.value_area
+    val=mp_slice.value_area[0]
+    vah=mp_slice.value_area[1]
+    poc=mp_slice.poc_price
+    data = mp_slice.profile
+    volNodes = mp_slice.high_value_nodes
+
+    print (f"Length {last}, Range[] , date [{df3.index[0]}, {df3.index[-1]}]")
+    print (f"POC: {poc} \n Value Nodes {volNodes}")
+    
+    # print (data)
+    # data.plot(kind='barh', width=1.0, zorder=2)
+
+    # mp = MarketProfile(dfdata[-700:])
+    # mp_slice = mp[0:-1]
+    # mp_slice.profile.plot(kind='barh', width=1.0, zorder=2)
+
+    return 
+
+
 def consolidateData():
     import pandas as pd
     from datetime import date
@@ -405,7 +453,7 @@ def browseData () :
             except: pass
 
     
-            selectNext["choices"] = ["Next", "Prev", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
+            selectNext["choices"] = ["Next", "Prev", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
             # scrollArray(["Next", "Prev", "Date", "Back"])
 
         elif  myscroll.get("user_option") == "Prev":
@@ -416,7 +464,7 @@ def browseData () :
             except: pass
             
     
-            selectNext["choices"] = ["Prev", "Next", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
+            selectNext["choices"] = ["Prev", "Next", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
         
         elif  myscroll.get("user_option") == "Last":
             try: 
@@ -451,9 +499,13 @@ def browseData () :
             try: 
                 pacer = prompt.prompt(inputs, style=custom_style_1).get("integer")
                 print (dfdata.iloc[locator-pacer:locator])
+            except : pass
+        elif  myscroll.get("user_option") == "Market Profile":
+            try: 
+                generateMarketProfile(dfdata, last=100)
+                # print (dfdata.iloc[locator-pacer:locator])
 
             except : pass
-
         elif  myscroll.get("user_option") == "Clear":
             print(chr(27) + "[2J") # clear screen in python3 
              
