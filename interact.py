@@ -76,6 +76,7 @@ mainMenuChoice = [
             "Tail Data",
             "Head Data",
             "Symbols",
+            "Clear",
             "Stats Validate",
             "Validate All Data",
             "Consolidate/Update",
@@ -363,6 +364,12 @@ def main():
         elif answers.get("user_option") == "Symbols":
             try :
                 browseData()
+                # consolidateData()
+            except: pass
+
+        elif answers.get("user_option") == "Clear":
+            try :
+                print(chr(27) + "[2J")
                 # consolidateData()
             except: pass
 
