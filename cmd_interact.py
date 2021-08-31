@@ -259,12 +259,13 @@ def consolidateData():
     pd.to_pickle(ddr['1D'], flink)
 
     flink = DATAROOT + 'dfdata5m.pickle'
-    pd.to_pickle(ddr['4H'], flink)
+    pd.to_pickle(ddr['5m'], flink)
 
 def readData() :
     import pandas as pd
     from datetime import date
     import app_web.logically.datasource as data
+    import os
 
     # Define some dicts
     global ddr, symbols
@@ -273,6 +274,9 @@ def readData() :
     # read data from pickle first : dict {}
     DATAROOT    = '/home/towshif/code/python/pythonic/database/'
     flink = DATAROOT + 'dfdata4H.pickle'
+
+    if not os.path.exists(flink) : consolidateData() # update the pickles
+
     ddr['4H'] = pd.read_pickle(flink)
 
     flink = DATAROOT + 'dfdata1H.pickle'
@@ -287,9 +291,12 @@ def readData() :
     symbols = list(ddr['1D'].keys()) # all the symbols
 
 
-
 def browseData () :
     print (symbols)
+    print (len(list(ddr['1D'].keys())))
+    print (len(list(ddr['1H'].keys())))
+    print (len(list(ddr['5m'].keys())))
+    print (len(list(ddr['4H'].keys())))
     # get symbol
     # symbol = getSymbolInputs() # now you have symbol
 
