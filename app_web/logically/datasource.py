@@ -1185,7 +1185,7 @@ def loadDatatoMemory (watchlistName=None, interval='1H', filter=None, randomize=
         # read default watchlist
         # read watchlist
         watchlistName = 'WatchListDB.pickle'  # initialize
-    print (f"Reading watchlist {watchlistName}")
+    print (f"Reading watchlist {watchlistName} for interval {interval}")
 
     if symbols is None:
         watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
@@ -1204,7 +1204,7 @@ def loadDatatoMemory (watchlistName=None, interval='1H', filter=None, randomize=
         try :
             ddr[symbol] = getDataFromPickle(symbol=symbol, interval=interval).dropna()
         except :
-            print (f"Error reading symbolo {symbol}")
+            print (f"Error reading symbol {symbol}")
             pass
 
     return ddr, symbols
@@ -1219,7 +1219,7 @@ def loadDatatoMemoryOptimize (watchlistName=None, interval='1H', filter=None, ra
         # read default watchlist
         # read watchlist
         watchlistName = 'WatchListDB.pickle'  # initialize
-    print (f"Reading watchlist {watchlistName}")
+    print (f"Reading watchlist {watchlistName} for interval {interval}")
 
     if symbols is None:
         watchlist = pd.read_pickle(DATAROOT + watchlistName ) # read file
@@ -1238,7 +1238,7 @@ def loadDatatoMemoryOptimize (watchlistName=None, interval='1H', filter=None, ra
         try :
             ddr[symbol] = reduce_mem_usage(getDataFromPickle(symbol=symbol, interval=interval).dropna())
         except :
-            print (f"Error reading symbolo {symbol}")
+            print (f"Error reading symbol {symbol}")
             pass
 
     return ddr, symbols
