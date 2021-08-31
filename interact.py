@@ -372,26 +372,26 @@ def browseData () :
 
     # print (dfdata.loc[searchdate])
 
-    searchdate = "2021-08-11"
 
     # while loop to Next(-->) (Default), Prev (<--), Back [X]
     # add selectable prev date next date or 
-    lastSelected = None
 
     locator = len(dfdata)
-    try : 
-        # this will return right bound of the slice
-        locator = dfdata.index.get_slice_bound(searchdate, side='right')
-    except: 
-        # this will return array (get_loc); use last element
-        locator = dfdata.index.get_loc(searchdate, method='nearest')[-1]
-        pass
+    
+    searchdate = "2021-08-11"
+    # try : 
+    #     # this will return right bound of the slice
+    #     locator = dfdata.index.get_slice_bound(searchdate, side='right')
+    # except: 
+    #     # this will return array (get_loc); use last element
+    #     locator = dfdata.index.get_loc(searchdate, method='nearest')[-1]
+    #     pass
 
     pacer = 7  # default 
 
     # print df default first 
     print(chr(27) + "[2J") # clear screen in python3 
-    print (dfdata.iloc[locator:locator+pacer])
+    print (dfdata.iloc[locator-pacer:locator])
     
     while True:
 
@@ -404,18 +404,18 @@ def browseData () :
                 locator = locator+pacer
             except: pass
 
-            lastSelected = "Next"
+    
             selectNext["choices"] = ["Next", "Prev", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
             # scrollArray(["Next", "Prev", "Date", "Back"])
 
         elif  myscroll.get("user_option") == "Prev":
             try: 
-                print(symbol, interval, 'step:', pacer)
-                print (dfdata.iloc[locator-pacer:locator])
+                print(symbol, interval, 'step:', pacer, '(reverse sorted)')
+                print (dfdata.iloc[locator-pacer:locator][::-1])
                 locator = locator-pacer
             except: pass
             
-            lastSelected = "Prev"
+    
             selectNext["choices"] = ["Prev", "Next", "Last", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
         
         elif  myscroll.get("user_option") == "Last":
