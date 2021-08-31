@@ -1,7 +1,43 @@
 from os import error
 from PyInquirer import prompt
-from examples import custom_style_2
+# from examples import custom_style_1, custom_style_2
 from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.styles import Style
+
+
+## STYLES NOT WORKING with PyInquirer style_from_dict AS DESIGNED IN PYTHON 3 
+# from PyInquirer import style_from_dict
+custom_style_1 = Style.from_dict({
+    "separator": '#cc5454',
+    "questionmark": '#673ab7 bold',
+    "selected": '#cc5454',  # default
+    "pointer": '#673ab7 bold',
+    "instruction": '',  # default
+   "answer": '#f44336 bold',
+    "question": '',
+})
+
+custom_style_2 = Style.from_dict({
+    "separator": '#6C6C6C',
+    "questionmark": '#FF9D00 bold',
+    "selected": '#5F819D', # '#cc5454',
+    "pointer": '#FF9D00 bold',
+    "instruction": '',  # default
+    "answer": '#5F819D bold',
+    "question": '',
+})
+
+custom_style_3 = Style.from_dict({
+    "questionmark": '#E91E63 bold',
+    "selected": '#673AB7 bold',
+    "instruction": '',  # default
+    "answer": '#2196f3 bold',
+    "question": '',
+})
+
+########### END STYLES
+
+
 
 # Some placeholders
 # Define some dicts
@@ -86,13 +122,13 @@ inputSymbol= [
 ]
 
 def getTwoInputs():
-    answers = prompt.prompt(inputs, style=custom_style_2)
+    answers = prompt.prompt(inputs, style=custom_style_1)
     a = answers.get("a")
     b = answers.get("b")
     return a, b
 
 def getSymbolInputs():
-    answers = prompt.prompt(inputSymbol, style=custom_style_2)
+    answers = prompt.prompt(inputSymbol, style=custom_style_1)
     return answers.get("symbol")
 
 def validateData() :
@@ -138,8 +174,6 @@ def validateData() :
         print ("Expected count/day = ", cinterval.get(interval, None)) # expected count
 
         print (outlierlist)
-
-
 
 def statsValidate(symbol = None) :
 
@@ -289,14 +323,15 @@ def readData() :
     ddr['5m'] = pd.read_pickle(flink)
 
     symbols = list(ddr['1D'].keys()) # all the symbols
+    print ("Reading data from pickles")
 
 
 def browseData () :
     print (symbols)
-    print (len(list(ddr['1D'].keys())))
-    print (len(list(ddr['1H'].keys())))
-    print (len(list(ddr['5m'].keys())))
-    print (len(list(ddr['4H'].keys())))
+    print ("# Symbols 1D:", len(list(ddr['1D'].keys())))
+    print ("# Symbols 1H:", len(list(ddr['1H'].keys())))
+    print ("# Symbols 5m:", len(list(ddr['5m'].keys())))
+    print ("# Symbols 4H:", len(list(ddr['4H'].keys())))
     # get symbol
     # symbol = getSymbolInputs() # now you have symbol
 
@@ -313,7 +348,7 @@ def main():
         answers = prompt.prompt(mainMenuChoice, style=custom_style_2)
 
         if answers.get("user_option") == "quit":
-            answers = prompt.prompt(confirmations, style=custom_style_2)
+            answers = prompt.prompt(confirmations, style=custom_style_1)
             if answers.get("exit") :
                 break
 
@@ -354,3 +389,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
