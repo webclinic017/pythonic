@@ -89,6 +89,7 @@ mainMenuChoice = [
             "Stats Validate",
             "Validate All Data",
             "Consolidate/Update",
+            "Data Update",
             "quit"
         ]
     },
@@ -294,7 +295,12 @@ def getHeadTail(symbol=None, tail=True) :
     # print("Created: %s" % time.ctime(os.path.getctime(fname)))
     print ()
 
-def tprint(labels, values, **kwargs):
+
+## terminal graohing function using `termgraph` lib
+def terminalBarChart (labels, values, **kwargs):
+    """ Requires pip install termgraph 
+        labels, values for barchart 
+    """
     from termgraph.termgraph import chart
 
     args = {
@@ -311,7 +317,10 @@ def tprint(labels, values, **kwargs):
     data = [[x] for x in values]
     chart(colors=[], data=data, args=args, labels=labels)
 
+
 def plot_terminal(profile_labels, profile_prices) :
+    """pip install termplotlib
+    """
     import termplotlib as tpl
     
     ## barchart
@@ -329,6 +338,11 @@ def plot_terminal(profile_labels, profile_prices) :
 
 
 def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) : 
+    """ dfdata = datafram containing yfinance DFs 
+        last : -last rows from rowPointer
+        nbins: number of price buckets / bins of histogram 
+        rowPounter: points to last row number from which `-last` will be counter; 
+    """
     from market_profile import MarketProfile
     import pandas as pd
     from datetime import datetime, timedelta
@@ -340,19 +354,25 @@ def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) :
     if not rowPointer: 
         df3 = dfdata[-last:] # last 700 tick 
     else: 
-        dfdata.iloc[rowPointer]
+        df3 = dfdata.iloc[rowPointer-last :rowPointer]
 
     # iloc[locator-pacer:locator]     
     # df3 = dfdata[-100:] 
 
+    #############   CODE FOR MARKET PROFILE GENERATION      #########
+
+    # find max and min for price range for chart/histogram 
     mx = df3[["Open", "Close"]].max().max()
     mi = df3[["Open", "Close"]].min().max()
 
+    # What should be tickSize for a default nbin = 20 
     tick_size = (mx-mi)/nbins
 
-    print (f"mx:{mx} mi:{mi}, tick_ize:{tick_size}")
+    print (f"mx:{mx} mi:{mi}, tick_ize:{tick_size}") # debug 
     
     # tick_size = 10 #  round(2.0*(df3['Open'][0]/100))/10
+
+    #### Generate market profile object 
     mp = MarketProfile(df3, tick_size=tick_size, open_range_size=pd.to_timedelta('10 minutes'), initial_balance_delta=pd.to_timedelta('60 minutes'), mode='vol')
     mp_slice = mp[0:len(df3.index)]
 
@@ -363,18 +383,29 @@ def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) :
     data = mp_slice.profile
     volNodes = mp_slice.high_value_nodes
 
+    ###############     Done market profile gen #############################
+
     print (f"Length {last}, Range[] , date [{df3.index[0]}, {df3.index[-1]}]")
     print (f"POC: {poc}")
     # \n Value Nodes {volNodes}")
     # print (f'Profile: {data}')
 
-    plabels = list(data.index)
-    profile_prices = [str(x) for x in plabels]
-    profile_nodes = list(data.values)
+    ###############     CHARTING HISTOGRAM / BAR chart ##############
+
+    # generate bin-labels and counts
+    plabels = list(data.index)[::-1]
+    profile_prices = [str(round(x,2)) for x in plabels]
+    profile_nodes = list(data.values)[::-1]
     # print (profile_prices)
     # print (profile_nodes)
 
-    tprint(labels=profile_prices, values=profile_nodes, format="{:<5.0f}")
+    ### Chart `tprint` func
+    terminalBarChart(labels=profile_prices, values=profile_nodes, format="{:<5.0f}")
+    print (f"Last: {df3.index[-1]}")
+    
+    ##############  END CHARTING  ####################
+
+
     # from termgraph import Data, BarChart, Args, Colors
     # data = Data(data=[[765, 787], [781, 769]], labels=["6th G", "7th G"], categories=["Boys", "Girls"])
     # chart = BarChart(data, Args(title="Total Marks Per Class", colors=[Colors.Red, Colors.Magenta], space_between=True))
@@ -394,6 +425,16 @@ def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) :
 
     return 
 
+
+def updateData () : 
+    import sys
+    sys.path.append('./app_web/logically') # use to append lib path
+
+    import app_web.logically.EODUpdater as eod
+    
+    print ("Updating data")
+    return 
+    
 
 def consolidateData():
     import pandas as pd
@@ -479,7 +520,7 @@ def browseData () :
     # while loop to Next(-->) (Default), Prev (<--), Back [X]
     # add selectable prev date next date or 
 
-    locator = len(dfdata)
+    locator = len(dfdata)-1
     
     searchdate = "2021-08-11"
     # try : 
@@ -490,42 +531,81 @@ def browseData () :
     #     locator = dfdata.index.get_loc(searchdate, method='nearest')[-1]
     #     pass
 
-    pacer = 7  # default 
+    sinterval = {"1D": 45,"1H": 210,"4H": 90,"5m":  2340} # short interval 30 days 
+    linterval = {"1D": 130,"1H": 780,"4H": 260,"5m":  10140} # long interval 6 months
+    pinterval = {"1D": 130,"1H": 780,"4H": 260,"5m":  10140} # pacer length
 
+    pacer = 7  # default 
+    
     # print df default first 
     print(chr(27) + "[2J") # clear screen in python3 
+
+    # default print 
     print (dfdata.iloc[locator-pacer:locator])
+    last = sinterval[interval]
+    generateMarketProfile(dfdata, last=last, rowPointer=locator)
+    print(symbol, interval, 'range:', last)
     
     while True:
 
+        try: 
+            searchdate = dfdata.index[locator].strftime('%Y-%m-%d') # update date at locator 
+        except:
+            traceback.print_exc()
+            pass
+
+        # sub-menu selection 
         myscroll = prompt.prompt(selectNext, style=custom_style_2)
 
         if myscroll.get("user_option") == "Next":
             try: 
-                print(symbol, interval, 'step:', pacer)
-                print (dfdata.iloc[locator:locator+pacer])
-                locator = locator+pacer
-            except: pass
+                locator = locator+pacer # need locator update 
 
-    
+                print(chr(27) + "[2J") # clear screen in python3 
+
+                print(symbol, interval, 'step:', pacer)
+                print (dfdata.iloc[locator-pacer:locator])
+                # last = 100 
+                last = sinterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
+
+
+            except:
+                traceback.print_exc()
+                pass
+   
             selectNext["choices"] = ["Next", "Prev", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
             # scrollArray(["Next", "Prev", "Date", "Back"])
 
         elif  myscroll.get("user_option") == "Prev":
             try: 
+                locator = locator-pacer # need locator after 
+
+                print(chr(27) + "[2J") # clear screen in python3 
+
                 print(symbol, interval, 'step:', pacer, '(reverse sorted)')
                 print (dfdata.iloc[locator-pacer:locator][::-1])
-                locator = locator-pacer
-            except: pass
+                # last = 100 
+                last = sinterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
+
+            except:
+                traceback.print_exc()
+                pass
             
-    
             selectNext["choices"] = ["Prev", "Next", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
         
         elif  myscroll.get("user_option") == "Last":
             try: 
                 print(symbol, interval, 'step:', pacer)                
-                locator = len(dfdata)
+                locator = len(dfdata)-1
                 print (dfdata.iloc[locator-pacer:locator])
+                # last = 100 
+                last = sinterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
             except : pass
 
         elif  myscroll.get("user_option") == "Date":
@@ -534,13 +614,23 @@ def browseData () :
                 searchdate = prompt.prompt(inputDate, style=custom_style_1).get("date")
                 locator = dfdata.index.get_slice_bound(searchdate, side='right')
                 print (dfdata.iloc[locator-pacer:locator])
+                last = sinterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
+
             except : pass
 
         elif  myscroll.get("user_option") == "Symbol":
             try: 
                 symbol = prompt.prompt(inputSymbol, style=custom_style_1).get("symbol")
                 dfdata = ddr[interval][symbol] # selected dataframe 
+                print (f"Searching date {searchdate} ")
                 locator = dfdata.index.get_slice_bound(searchdate, side='right')
+                print (dfdata.iloc[locator-pacer:locator])
+                last = sinterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
+
             except : pass
 
         elif  myscroll.get("user_option") == "Interval":
@@ -548,16 +638,26 @@ def browseData () :
                 interval = prompt.prompt(selectInterval, style=custom_style_1).get("user_option")
                 dfdata = ddr[interval][symbol] # selected dataframe 
                 locator = dfdata.index.get_slice_bound(searchdate, side='right')
+                print (dfdata.iloc[locator-pacer:locator])
+                last = sinterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
+
             except : pass
 
         elif  myscroll.get("user_option") == "Step":
             try: 
                 pacer = prompt.prompt(inputs, style=custom_style_1).get("integer")
                 print (dfdata.iloc[locator-pacer:locator])
+                
             except : pass
+
         elif  myscroll.get("user_option") == "Market Profile":
             try: 
-                generateMarketProfile(dfdata, last=100)
+                last = linterval[interval]
+                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                print(symbol, interval, 'range:', last)
+                # generateMarketProfile(dfdata, last=100)
                 # print (dfdata.iloc[locator-pacer:locator])
 
             except: 
@@ -570,6 +670,9 @@ def browseData () :
         elif  myscroll.get("user_option") == "Back":
             break
     
+    # dfdata = ddr['5m']['AMD']
+    # dfdata.index[-1].strftime('%Y-%m-%d')
+
     return
 
 
@@ -592,6 +695,11 @@ def main():
         elif answers.get("user_option") == "Consolidate/Update":
             try : consolidateData()
             except: pass
+        elif answers.get("user_option") == "Data Update":
+            try : updateData()
+            except: 
+                traceback.print_exc()
+                pass
 
         elif answers.get("user_option") == "Symbols":
             try :
