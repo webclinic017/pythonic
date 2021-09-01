@@ -1,5 +1,7 @@
 from datetime import datetime
 from os import error
+# import module
+import traceback
 from PyInquirer import prompt
 # from examples import custom_style_1, custom_style_2
 from prompt_toolkit.validation import Validator, ValidationError
@@ -292,6 +294,40 @@ def getHeadTail(symbol=None, tail=True) :
     # print("Created: %s" % time.ctime(os.path.getctime(fname)))
     print ()
 
+def tprint(labels, values, **kwargs):
+    from termgraph.termgraph import chart
+
+    args = {
+        "stacked": False,
+        "width": 50,
+        "no_labels": False,
+        "format": "{:<5.2f}",
+        "suffix": "",
+        "vertical": False,
+        "histogram": False,
+        "no_values": False,
+    }
+    args.update(kwargs)
+    data = [[x] for x in values]
+    chart(colors=[], data=data, args=args, labels=labels)
+
+def plot_terminal(profile_labels, profile_prices) :
+    import termplotlib as tpl
+    
+    ## barchart
+    fig = tpl.figure()
+    
+    # fig.barh([3, 10, 5, 2], ["Cats", "Dogs", "Cows", "Geese"], force_ascii=False)
+    fig.barh(profile_prices, profile_labels, force_ascii=False)    
+    fig.show()
+
+    # ## v histogram 
+    # fig = tpl.figure()
+    # # fig.hist(counts, bin_edges, orientation="horizontal", force_ascii=False)
+    # fig.hist(profile_prices, profile_labels, orientation="horizontal", force_ascii=False)
+    # fig.show()
+
+
 def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) : 
     from market_profile import MarketProfile
     import pandas as pd
@@ -328,7 +364,26 @@ def generateMarketProfile (dfdata=None, last=100 , nbins=20, rowPointer=None) :
     volNodes = mp_slice.high_value_nodes
 
     print (f"Length {last}, Range[] , date [{df3.index[0]}, {df3.index[-1]}]")
-    print (f"POC: {poc} \n Value Nodes {volNodes}")
+    print (f"POC: {poc}")
+    # \n Value Nodes {volNodes}")
+    # print (f'Profile: {data}')
+
+    plabels = list(data.index)
+    profile_prices = [str(x) for x in plabels]
+    profile_nodes = list(data.values)
+    # print (profile_prices)
+    # print (profile_nodes)
+
+    tprint(labels=profile_prices, values=profile_nodes, format="{:<5.0f}")
+    # from termgraph import Data, BarChart, Args, Colors
+    # data = Data(data=[[765, 787], [781, 769]], labels=["6th G", "7th G"], categories=["Boys", "Girls"])
+    # chart = BarChart(data, Args(title="Total Marks Per Class", colors=[Colors.Red, Colors.Magenta], space_between=True))
+    # chart.draw()
+
+    # # plot_terminal (np.array(plabels), np.array(profile_nodes))
+    # import numpy as np 
+    # plot_terminal (profile_prices, np.array(profile_nodes))
+    
     
     # print (data)
     # data.plot(kind='barh', width=1.0, zorder=2)
@@ -505,7 +560,9 @@ def browseData () :
                 generateMarketProfile(dfdata, last=100)
                 # print (dfdata.iloc[locator-pacer:locator])
 
-            except : pass
+            except: 
+                traceback.print_exc()
+                pass
         elif  myscroll.get("user_option") == "Clear":
             print(chr(27) + "[2J") # clear screen in python3 
              
@@ -513,7 +570,6 @@ def browseData () :
         elif  myscroll.get("user_option") == "Back":
             break
     
-
     return
 
 

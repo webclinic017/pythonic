@@ -5,6 +5,7 @@
 
 import yfinance as yf
 import datasource as data
+from datetime import datetime, time
 
 #####################Yahoo finance API TEST ######
 
@@ -23,12 +24,16 @@ data.updateWatchlistLastUpdated() # DEFAULT watchlist
 ## Defaults
 # chunksize=25, persist=False
 
+# keep chunksize low (25 count) for consistency of downloads. 
 data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25, persist=True) #default chunksize=25
 
-data.updateDataEODAll(chunksize=100, persist=True) # default watchlist
+data.updateDataEODAll(chunksize=25, persist=True) # default watchlist
 
-data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100, persist=True) ## update all database
-
+if time(0,0,0) <datetime.now().time() < time(4,0,0) : # if b.w midnight 00 AM to 4 AM
+    print ("Scheduled full database download")
+    data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100, persist=True) ## update all database
+else: 
+    print ("Not downloading full. [outside download time range 0AM-4AM]")
 
 
 #################################
