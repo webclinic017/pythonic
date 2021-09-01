@@ -73,6 +73,7 @@ def plotfig():
     if 'bars' not in request.args and nbar== None: 
         nbar= 50
     nbar = -1*int(nbar)
+    symbol = str(symbol).upper()
     # Generate the figure from Algo return 
     fig = algo1.AlgoImage(symbol=symbol, interval=interval, bars=(nbar, None), full= True if -nbar>200 else False)
 

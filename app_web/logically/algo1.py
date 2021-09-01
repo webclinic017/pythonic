@@ -114,8 +114,8 @@ def addIndicators(df):
     # Exit Chandelier (based on FINTA)
     chandelier = ft.TA.CHANDELIER(df, long_period=15, short_period=15)
     df['chxLong'], df['chxShort'] = chandelier['Long.'], chandelier['Short.']
-    df['chxLong'] = np.where(df['chxLong'] >= df['close'], np.NaN, df['chxLong'])
-    df['chxShort']= np.where(df['chxShort'] < df['close'], np.NaN, df['chxShort'])
+    df['chxLong'] = np.where(df['chxLong'] >= df['Close'], np.NaN, df['chxLong'])
+    df['chxShort']= np.where(df['chxShort'] < df['Close'], np.NaN, df['chxShort'])
     df['signal_sChandelier'] = np.where(df['chxShort'] > 0, -1, 1) # first hint of red
     # df['signal_chandelierL'] = np.where(df['chxLong'] > 0, 1, -1)
 
@@ -146,7 +146,7 @@ def addIndicators(df):
 
     ## SAR based on Finta SAR 
     sar = df['SAR'] = ft.TA.SAR(df)    
-    df['signal_sSAR'] = np.where (df['SAR']<df['low'], 1, -1)
+    df['signal_sSAR'] = np.where (df['SAR']<df['Low'], 1, -1)
 
 
     # add HA_Color to signal -1 0 +1 
@@ -191,11 +191,11 @@ def long_signal_entry(signal_series, df, secondary=False):
     if signal_series.isnull().values.all() or (1 not in list(signal_series))  : return [] 
 
     signal   = []
-    yrange = max(df['high']) - min(df['low'])
+    yrange = max(df['High']) - min(df['Low'])
     offset = yrange * 0.10  # 2% of range
     for date,value in signal_series.iteritems():
         if value == 1: # buy
-            signal.append(df.loc[date].low - factor* offset ) # Put ^ marker below lows 
+            signal.append(df.loc[date].Low - factor* offset ) # Put ^ marker below lows 
         else:
             signal.append(np.nan)
     return signal
@@ -207,11 +207,11 @@ def long_signal_exit(signal_series, df, secondary=False):
     if signal_series.isnull().values.all() or (-1 not in list(signal_series)) : return [] 
 
     signal   = []
-    yrange = max(df['high']) - min(df['low'])
+    yrange = max(df['High']) - min(df['Low'])
     offset = yrange * 0.10  # 2% of range    
     for date,value in signal_series.iteritems():
         if value == -1: # exit
-            signal.append(df.loc[date].high + factor * offset) # Put 'v' marker above highs 
+            signal.append(df.loc[date].High + factor * offset) # Put 'v' marker above highs 
         else:
             signal.append(np.nan)
     return signal
@@ -223,15 +223,15 @@ def get_reversals(signal_series, df):
 
     signal   = []
     markercolor = []
-    yrange = max(df['high']) - min(df['low'])
+    yrange = max(df['High']) - min(df['Low'])
     offset = yrange * 0.10  # 2% of range
     for date,value in signal_series.iteritems():
         if value == -9: # reversal bear
-            signal.append(df.loc[date].high + 1.5 *offset ) # Put o marker above highs 2x 
+            signal.append(df.loc[date].High + 1.5 *offset ) # Put o marker above highs 2x 
             markercolor.append('red')
         
         elif value == 9: # reversal bull
-            signal.append(df.loc[date].high + 1.5* offset ) # Put o marker above highs 1x
+            signal.append(df.loc[date].High + 1.5* offset ) # Put o marker above highs 1x
             markercolor.append('green')
         else:
             signal.append(np.nan)
@@ -248,7 +248,7 @@ def get_sessions_long(analysisDF, df):
     df['ReturnPlaceholder'] = np.nan
     df['ReturnMarker'] = None
 
-    yrange = max(df['high']) - min(df['low'])
+    yrange = max(df['High']) - min(df['Low'])
     # offset = yrange * 0.10  # 2% of range    
 
     print ('received range', df.index[0], df.index[-1])
@@ -263,8 +263,8 @@ def get_sessions_long(analysisDF, df):
         # print (en,ex,ret)
 
         if ( en>=dfRange[0] and ex<=dfRange[1]): 
-            pmax = max( df[en : ex].high )
-            pmin = min( df[en : ex].low )
+            pmax = max( df[en : ex].High )
+            pmin = min( df[en : ex].Low )
 
             # value = pmax + 0.1 * ( pmax - pmin) # 10% above high to low range 
             value = pmax + yrange*0.05 # 10% offset
@@ -461,7 +461,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
             mpf.make_addplot(data[2], secondary_y=False, type="bar", color="red", alpha=alpha[2], panel=1, ylim=ylim),
             mpf.make_addplot(data[3], secondary_y=False, type="bar", color="yellow", alpha=alpha[3], panel=1, ylim=ylim),
             
-            # mpf.make_addplot(mpfdf['close'], color="black", panel=1),
+            # mpf.make_addplot(mpfdf['Close'], color="black", panel=1),
             mpf.make_addplot(data[4], secondary_y=False, color="green",alpha=alpha[4], panel=1, ylim=ylim, width=2),
             mpf.make_addplot(data[5], secondary_y=False, color="red", alpha=alpha[5],  panel=1, ylim=ylim, width=2)
     ]
@@ -488,9 +488,9 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     # mpf.make_addplot(mpfdf['squeeze_off'].apply(lambda x: -2 if x==0 else None), scatter=True,markersize=10,marker='o', color="lime",  panel=1),   
     
 
-    # mpf.make_addplot(long_signal_entry(mpfdf[signal], mpfdf.low), type='scatter', color='purple', markersize=15, marker='^'),
+    # mpf.make_addplot(long_signal_entry(mpfdf[signal], mpfdf.Low), type='scatter', color='purple', markersize=15, marker='^'),
     # # add long exit 
-    # mpf.make_addplot(long_signal_exit(mpfdf[signal], mpfdf.high), type='scatter', color='magenta', markersize=15, marker='v'), 
+    # mpf.make_addplot(long_signal_exit(mpfdf[signal], mpfdf.High), type='scatter', color='magenta', markersize=15, marker='v'), 
 
 
 
@@ -551,7 +551,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
         # If HA HeikinAski Charts Enabled ; else remove section
         ## Generate the HA columns and rename to OHLC
         final_df = mpfdf[['HA_open', 'HA_high', 'HA_low', 'HA_close']].copy()
-        final_df.columns = ['open', 'high', 'low', 'close']
+        final_df.columns = ['Open', 'High', 'Low', 'Close']
         # mpf.plot(df2, type='candle', style='yahoo')
 
 
@@ -570,11 +570,11 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
 
     # fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True, alines=dict(alines=seq_of_points, colors=seq_colors, linewidths=2,))
     
-    # yrange = max(mpfdf['high']) - min(mpfdf['low'])
+    # yrange = max(mpfdf['High']) - min(mpfdf['Low'])
     # offset = yrange * 0.02  # 2% of range
     
     # fig, axlist = mpf.plot(final_df, type=ctype, addplot=apsq, figscale=1, figratio=(15,8),title= symbol+'\nTTM-Squeeze: '+ interval, style='yahoo', volume=False, panel_ratios=(6,2), datetime_format=' %b-%d',xrotation=90, returnfig=True, ) 
-    ## tight_layout=Truex, ylim = ( min(mpfdf['low'] - + yrange * 0.1), max(mpfdf['high']) + yrange * 0.1)
+    ## tight_layout=Truex, ylim = ( min(mpfdf['Low'] - + yrange * 0.1), max(mpfdf['High']) + yrange * 0.1)
 
     # Add Algo Panel # if addAlgo=True and AnalysisDF is not None 
     # kwargs=dict(title)
@@ -590,7 +590,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
     
     # print (axlist)
     ax1 = axlist[1]  # Panel 0 
-    # ax1.set_ylim( max(mpfdf['high']) + yrange * 0.1, min(mpfdf['low'] - + yrange * 0.1))
+    # ax1.set_ylim( max(mpfdf['High']) + yrange * 0.1, min(mpfdf['Low'] - + yrange * 0.1))
     ax2 = axlist[2]  # Panel 2
 
     ##>>>>>>>>>>>>>>>     Ytick Markers for Algo Names      #########################
@@ -652,7 +652,7 @@ def plotAll (df, symbol="SPY", interval="4H", start=-100, end=None, ctype='candl
 
     # mpf.plot(mpfdf, type='candle', figscale=1, style='blueskies')
     # plt.show()
-    # print (df[-1:][['open', 'high', 'low', 'close']])
+    # print (df[-1:][['Open', 'High', 'Low', 'Close']])
     print ( "Done")
 
     return fig
@@ -679,7 +679,7 @@ def runTest(symbol="SPY", interval="4H", bars=(-700, None)):
     plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval, header='Live')
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
-    print (df[-1:][['open', 'high', 'low', 'close']])
+    print (df[-1:][['Open', 'High', 'Low', 'Close']])
         # yf.Ticker(symbol).get
 
 ###########################  BACK TEST  ###########################
@@ -692,7 +692,7 @@ def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
 
     sessionpoints = np.where((df.signal == 1) | ( df.signal==-1))
     # sessionpoints = df.loc[(df.signal == 1) | ( df.signal==-1)]
-    ## check df consistency: df.iloc[sessionpoints][['signal', 'close']]
+    ## check df consistency: df.iloc[sessionpoints][['signal', 'Close']]
 
     in_sessionLong = False; 
     start_long = None
@@ -703,7 +703,7 @@ def BackTester_Long (dfr, signal_col): # Entry +1 : Exit -1 ; Hold = 0 or None
     analysisDF = pd.DataFrame(columns = ['En', 'Ex', 'EnPrice','ExPrice', 'ReturnPer' ])
 
     for item in sessionpoints[0] : 
-        close_price = df.iloc[item].close
+        close_price = df.iloc[item].Close
         signal = df.iloc[item].signal
         if (not in_sessionLong) and signal == 1: 
             in_sessionLong = True
@@ -762,7 +762,7 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
     # trade_Identifier = 'signalxTrade_StackEMA'
 
     if full :  # full page image # ~200KB 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].Close))
         #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
 
     elif mini : # recommend 50 bars max 
@@ -770,12 +770,12 @@ def AlgoImage(symbol="SPY", interval="4H", bars=(-700, None), full=False, mini=F
 
 
     else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].Close))
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
     print (f'Done plotting {symbol}')
 
-    # print (df[-1:][['open', 'high', 'low', 'close']])
+    # print (df[-1:][['Open', 'High', 'Low', 'Close']])
         # yf.Ticker(symbol).get
     return fig
 
@@ -799,7 +799,7 @@ def AlgoImage2( df , symbol="SPY", interval="4H", bars=(-200, None), full=False,
     # trade_Identifier = 'signalxTrade_StackEMA'
 
     if full :  # full page image # ~200KB 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].close))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(16,8),panel_ratios=(8,2,4), figscale=1.6, scale_padding=dict(left=.05,right=0.7, top=0.3, bottom=0.6), header="\n"+ str(df[-1:].iloc[0].Close))
         #fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, figratio=(28,8),panel_ratios=(6,2,4), figscale=1)
 
     elif mini : # recommend 50 bars max 
@@ -807,12 +807,12 @@ def AlgoImage2( df , symbol="SPY", interval="4H", bars=(-200, None), full=False,
 
 
     else: # miniimage ~ 100kb # Medium image : recommend 150 bars max 
-        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].close))
+        fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal=trade_Identifier, symbol=symbol, interval=interval, header="\n"+ str(df[-1:].iloc[0].Close))
     # plotAll (df, start=-450, end=-300, ctype='ohlc', ha=False)
 
     print (f'Done plotting {symbol}')
 
-    # print (df[-1:][['open', 'high', 'low', 'close']])
+    # print (df[-1:][['Open', 'High', 'Low', 'Close']])
         # yf.Ticker(symbol).get
     return fig
 
@@ -828,7 +828,7 @@ def algo0 (df):
     df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(1) == 1) ) , 'signalxTrade_StackEMA'] = -1 
     # df.loc [ ((df['signal_StackEMA'] == 0) & (df['signal_StackEMA'].shift(2) == 1) & (df['signal_StackEMA'].shift(1) == 0)) , 'signal'] = -1 
     ## See results: 
-    df[ (df['signalxTrade_StackEMA'] == 1) | (df['signalxTrade_StackEMA'] == -1)] [['signalxTrade_StackEMA', 'close']]
+    df[ (df['signalxTrade_StackEMA'] == 1) | (df['signalxTrade_StackEMA'] == -1)] [['signalxTrade_StackEMA', 'Close']]
     
     
     # df['signal'] =   ((df['signal_StackEMA'] == 1) & (df['signal_StackEMA'].shift(2) == 0) & (df['signal_StackEMA'].shift(1) == 1)) # return on DF bool 
@@ -926,7 +926,7 @@ def testme():
     fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_SQTest', symbol=symbol, interval=interval)
     # fig.show()
 
-    df[['open', 'close']].tail(20)
+    df[['Open', 'Close']].tail(20)
     # fig = plotAll (df, start= s, end= e, ctype='ohlc', ha=True, signal='signalxTrade_StackEMA', symbol=symbol, interval=interval)
     # fig.show()
 
