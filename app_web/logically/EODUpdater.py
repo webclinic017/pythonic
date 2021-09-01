@@ -29,6 +29,9 @@ data.updateDataEODAll(watchlistName='WatchListLive.pickle', chunksize=25, persis
 
 data.updateDataEODAll(chunksize=25, persist=True) # default watchlist
 
+## Consolidate first 
+data.consolidateData()
+
 if time(0,0,0) <datetime.now().time() < time(4,0,0) : # if b.w midnight 00 AM to 4 AM
     print ("Scheduled full database download")
     data.updateDataEODAll(watchlistName='WatchListDBFull.pickle', chunksize=100, persist=True) ## update all database

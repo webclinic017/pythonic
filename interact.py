@@ -541,10 +541,12 @@ def browseData () :
     print(chr(27) + "[2J") # clear screen in python3 
 
     # default print 
-    print (dfdata.iloc[locator-pacer:locator])
-    last = sinterval[interval]
-    generateMarketProfile(dfdata, last=last, rowPointer=locator)
-    print(symbol, interval, 'range:', last)
+    try: 
+        print (dfdata.iloc[locator-pacer:locator])
+        last = sinterval[interval]
+        generateMarketProfile(dfdata, last=last, rowPointer=locator)
+        print(symbol, interval, 'range:', last)
+    except: pass
     
     while True:
 

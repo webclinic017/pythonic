@@ -975,7 +975,34 @@ def generateResampledData (symbol=None, interval='4H', frominterval='1H', persis
     return dfdata
 
 
+def consolidateData():
+    """Consolidate all DFs in to single pickles
+    """
+    ddr = {} # assign a dict 
 
+    # load all data to dict;
+    ddr['4H'], _ = loadDatatoMemoryOptimize(interval='4H') # 3-5MB
+    ddr['1H'], _ = loadDatatoMemoryOptimize(interval='1H') # 12-20MB
+    ddr['1D'], _ = loadDatatoMemoryOptimize(interval='1D') # 12-20MB
+    ddr['5m'], _ = loadDatatoMemoryOptimize(interval='5m') # 3-10MB
+
+    flink = DATAROOT + 'dfdata4H.pickle'
+    pd.to_pickle(ddr['4H'], flink)
+    print (f"Written '4H' into 'dfdata4H.pickle' ")
+
+    flink = DATAROOT + 'dfdata1H.pickle'
+    pd.to_pickle(ddr['1H'], flink)
+    print (f"Written '1H' into 'dfdata1H.pickle' ")
+
+    flink = DATAROOT + 'dfdata1D.pickle'
+    pd.to_pickle(ddr['1D'], flink)
+    print (f"Written '1D' into 'dfdata1D.pickle' ")
+
+    flink = DATAROOT + 'dfdata5m.pickle'
+    pd.to_pickle(ddr['5m'], flink)
+    print (f"Written '5m' into 'dfdata5m.pickle' ")
+
+    print ("Consolidation complete.")
 
 ###########################################################################################
 
