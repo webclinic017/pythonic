@@ -634,6 +634,8 @@ def updateDataEOD (watchlistName=None, interval='1H', persist=False, chunksize=2
     if isMarketOpen :
         # end is (yesterday) last business: for yfinance its today()
         end = datetime.today().date()
+        persist = False        
+        print ("Persist is FALSE. Data will not be saved")
 
     else : # if market is closed both pre and post
         # end is day+1 (tomorrow) : today() + 1
@@ -779,6 +781,7 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
     # add check: if open: download till last business; if closed : download till tomorrow
     if isMarketOpen :
         print ("CANT FORCE UPDATE DURING MARKET OPEN. WAIT FOR CLOSE.")
+        persist = False        
         return
 
     # define start, end; if both None then yperiod = max value
@@ -786,7 +789,9 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
     end = None
     if isinstance(numdays, int):
         start = datetime.today() - timedelta(days=numdays)
-        end = datetime.today()
+        # end = datetime.today()
+        end = datetime.today().date() + timedelta(days=1)
+
         print (f"Start {start} , End {end} ")
         print (f"Force Update period={numdays} days, interval={interval} :: Starting Download....")
 
@@ -811,8 +816,16 @@ def forceUpdateData (numdays=None,watchlistName=None, interval='1H', persist=Fal
 
         ## Update all the pickles
         for symbol in symbols :
+            
+            
             try :
                 dfdata = getDataFromPickle(symbol, interval=interval)
+                try : # drop all entris from today IF ANY 
+                    todayString = datetime.today().date().strftime('%Y-%m-%d')
+                    dfdata.drop(dfdata.loc[todayString], inplace=True)
+                except: 
+                    pass
+                
                 d = None
                 if multi :
                     d = download[symbol].dropna() ## drop na from extracted df

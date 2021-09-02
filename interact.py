@@ -117,6 +117,14 @@ inputSymbol= {
         "validate": StringValidator,
         "filter": lambda val: str(val).upper()
     }
+inputSymbolDefault= {
+        'type': "input",
+        "name": "symbol",
+        "message": "Enter symbol name : ",
+        "default": "SPY",
+        "validate": StringValidator,
+        "filter": lambda val: str(val).upper()
+}
 
 inputDate =  {
         'type': "input",
@@ -130,7 +138,7 @@ inputDate =  {
 def scrollArray (orderlist = None) : 
     # https://github.com/CITGuru/PyInquirer/issues/69
     if orderlist is None: 
-        return ["Next", "Prev", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
+        return ["Prev", "Next", "Last","Market Profile", "Date", "Symbol", "Interval", "Step", "Clear", "Back"]
     else: 
         return orderlist; 
 
@@ -467,7 +475,7 @@ def consolidateData():
 
 def readData() :
     import pandas as pd
-    from datetime import date
+    from datetime import date, datetime
     import app_web.logically.datasource as data
     import os
 
@@ -507,8 +515,14 @@ def browseSymbols () :
 def browseData () :
 
     # get symbol
-    symbol = prompt.prompt(inputSymbol, style=custom_style_1).get("symbol")
+    symbol = prompt.prompt(inputSymbolDefault, style=custom_style_1).get("symbol") #default SPY
     interval = prompt.prompt(selectInterval, style=custom_style_1).get("user_option")
+    confirm = confirmations.copy()
+    confirm['message'] = "Disable profile charts (default YES)]"
+    answer = prompt.prompt(confirm, style=custom_style_1)
+    mkpf = not answer.get("exit")
+    print ("MKPF = ", mkpf )
+    
     # get date starting
     dfdata = ddr[interval][symbol] # selected dataframe 
 
@@ -544,7 +558,7 @@ def browseData () :
     try: 
         print (dfdata.iloc[locator-pacer:locator])
         last = sinterval[interval]
-        generateMarketProfile(dfdata, last=last, rowPointer=locator)
+        if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
         print(symbol, interval, 'range:', last)
     except: pass
     
@@ -563,13 +577,13 @@ def browseData () :
             try: 
                 locator = locator+pacer # need locator update 
 
-                print(chr(27) + "[2J") # clear screen in python3 
+                if mkpf: print(chr(27) + "[2J") # clear screen in python3 
 
                 print(symbol, interval, 'step:', pacer)
                 print (dfdata.iloc[locator-pacer:locator])
                 # last = 100 
                 last = sinterval[interval]
-                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
                 print(symbol, interval, 'range:', last)
 
 
@@ -584,13 +598,13 @@ def browseData () :
             try: 
                 locator = locator-pacer # need locator after 
 
-                print(chr(27) + "[2J") # clear screen in python3 
+                if mkpf: print(chr(27) + "[2J") # clear screen in python3 
 
                 print(symbol, interval, 'step:', pacer, '(reverse sorted)')
                 print (dfdata.iloc[locator-pacer:locator][::-1])
                 # last = 100 
                 last = sinterval[interval]
-                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
                 print(symbol, interval, 'range:', last)
 
             except:
@@ -606,7 +620,7 @@ def browseData () :
                 print (dfdata.iloc[locator-pacer:locator])
                 # last = 100 
                 last = sinterval[interval]
-                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
                 print(symbol, interval, 'range:', last)
             except : pass
 
@@ -617,7 +631,7 @@ def browseData () :
                 locator = dfdata.index.get_slice_bound(searchdate, side='right')
                 print (dfdata.iloc[locator-pacer:locator])
                 last = sinterval[interval]
-                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
                 print(symbol, interval, 'range:', last)
 
             except : pass
@@ -630,7 +644,7 @@ def browseData () :
                 locator = dfdata.index.get_slice_bound(searchdate, side='right')
                 print (dfdata.iloc[locator-pacer:locator])
                 last = sinterval[interval]
-                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
                 print(symbol, interval, 'range:', last)
 
             except : pass
@@ -642,7 +656,7 @@ def browseData () :
                 locator = dfdata.index.get_slice_bound(searchdate, side='right')
                 print (dfdata.iloc[locator-pacer:locator])
                 last = sinterval[interval]
-                generateMarketProfile(dfdata, last=last, rowPointer=locator)
+                if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
                 print(symbol, interval, 'range:', last)
 
             except : pass
@@ -721,17 +735,17 @@ def main():
             except: pass
 
         elif answers.get("user_option") == "Tail Data":
-            symbol = getSymbolInputs()
+            symbol = prompt.prompt(inputSymbolDefault, style=custom_style_1).get("symbol")
             try: getHeadTail(symbol=symbol, tail=True)
             except: pass
 
         elif answers.get("user_option") == "Head Data":
-            symbol = getSymbolInputs()
+            symbol = prompt.prompt(inputSymbolDefault, style=custom_style_1).get("symbol")
             try: getHeadTail(symbol=symbol, tail=False)
             except: pass
 
         elif answers.get("user_option") == "Stats Validate":
-            symbol = getSymbolInputs()
+            symbol = prompt.prompt(inputSymbolDefault, style=custom_style_1).get("symbol")
             try: statsValidate(symbol=symbol)
             except: pass
 
