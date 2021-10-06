@@ -12,23 +12,23 @@ import os.path, time
 
 
 # ##  Agenda
-# force Update to max allowed download limits 
+# force Update to max allowed download limits
 # Update Daily close to [1H, 5m] close
-# remove after and pre hours is any (need to think how to do this)  
-# remove duplicates Resort database by index    
+# remove after and pre hours is any (need to think how to do this)
+# remove duplicates Resort database by index
 
 
-## Force Update all previous data to MAX downloadable values : numdays=None flag 
+## Force Update all previous data to MAX downloadable values : numdays=None flag
 data.forceUpdateDataAll(numdays=None, watchlistName="WatchListLive.pickle", persist=True, chunksize=150)
 
 # ## This will likely fail to download all at once
 # data.forceUpdateDataAll(numdays=None, watchlistName="WatchListDBFull.pickle", persist=True)
 
-## debug only 
+## debug only
 # pp = data.forceUpdateDataAll(numdays=4, watchlistName="WatchListLive.pickle",persist=False)
 # pp = data.forceUpdateData(numdays=2, watchlistName="WatchListLive.pickle", interval='5m')
 
-# ## Generate 4H data 
+# ## Generate 4H data
 # watchlist = data.getWatchlist(watchlistName="WatchListLive.pickle") # defaults to default watclist
 # symbolslist = watchlist.TICK.to_list()
 # for symbol in symbolslist :

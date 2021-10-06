@@ -570,7 +570,7 @@ def browseData () :
         last = sinterval[interval]
         if mkpf: generateMarketProfile(dfdata, last=last, rowPointer=locator)
         print(symbol, interval, 'range:', last, f"date [{dfdata.index[locator-1-last]}, {dfdata.index[locator-1]}]")
-    except: 
+    except:
         traceback.print_exc()
         pass
 
@@ -591,7 +591,7 @@ def browseData () :
             try:
                 # locator = locator+pacer
                 locator = locator+pacer if locator+pacer <= len(dfdata) else locator # need locator update
-                
+
                 if mkpf: print(chr(27) + "[2J") # clear screen in python3
 
                 print(symbol, interval, 'step:', pacer)
@@ -657,7 +657,7 @@ def browseData () :
                 symbol = prompt.prompt(inputSymbol, style=custom_style_1).get("symbol")
                 dfdata = ddr[interval][symbol] # selected dataframe
                 print (f"Searching date {searchdate} ")
-                
+
                 try : locator = dfdata.index.get_slice_bound(searchdate, side='right')
                 except: locator = dfdata.index.get_loc(searchdate, method='nearest')[-1]; pass
 

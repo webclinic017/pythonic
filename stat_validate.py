@@ -1,7 +1,7 @@
 """
 Script to Validate entire database.
 Includes repetitions and extended hours.
-Expected values. 
+Expected values.
 """
 
 import pandas as pd
@@ -56,11 +56,11 @@ for interval in  ['1D', '1H', '5m'] :
     # print ("Expected count/day = ", cinterval.get(interval, None)) # expected count
 
     dfdata = data.getDataFromPickle(symbol=symbol, interval=interval) # read
-    if dfdata is None : exit(0) 
+    if dfdata is None : exit(0)
 
     outlierData = data.dataConsistencyCheck(dfdata, interval, verbose=True).loc[str(date.today().year):]
 
-    if len(outlierData) >0 : 
+    if len(outlierData) >0 :
         print ("Current Year: ", len(outlierData))
 
     # print (outlierData)
@@ -80,7 +80,7 @@ for interval in  ['1D', '1H', '5m'] :
 
 
 
-# # test 
+# # test
 
 # symbols = ['SPT', 'LB', 'SPY', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MRO', 'M', 'MAC', 'MTB', 'LYB', 'L', 'LMT', 'LKQ', 'LNC', 'LLY', 'LEG', 'LH', 'KR', 'KHC', 'KSS', 'KMI', 'MET', 'MTD', 'MGM', 'MCHP', 'NUE', 'NRG', 'NCLH', 'NOC', 'NTRS', 'NSC', 'JWN', 'NI', 'NKE', 'NLSN', 'NEE', 'NWS', 'NWSA', 'NEM', 'NWL', 'NTAP', 'NAVI', 'NOV', 'NDAQ', 'MSI', 'MOS', 'MS', 'MCO', 'MNST', 'MON', 'MDLZ', 'TAP', 'MHK', 'MAA', 'KIM', 'KMB', 'KEY', 'K', 'HPE', 'HES', 'HSY', 'HSIC', 'HP', 'HCA', 'HAS', 'HIG', 'HOG', 'HBI', 'HAL', 'GWW', 'GT', 'GS', 'GPN', 'GILD', 'GPC', 'GM', 'GIS', 'GE', 'GD', 'IT', 'GRMN', 'GPS', 'FCX', 'BEN', 'FBHS', 'FTV', 'F', 'HLT', 'ORLY', 'HOLX']
 
