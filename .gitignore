@@ -168,6 +168,6 @@ pandas_ta/
 !commit.sh
 !WatchList*.pickle
 !delistedWatchList.pickle
-
+!ddr.pickle
 
 
