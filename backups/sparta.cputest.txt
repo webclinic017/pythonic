@@ -1,0 +1,62 @@
+Reading data from pickles complete. 100 loaded.
+Interval: 4H, rows : (1672, 5)
+Interval: 1D, rows : (7213, 6)
+Interval: 1H, rows : (5828, 6)
+Interval: 5m, rows : (12870, 6)
+25
+Generic consumer: Threads started ......
+Staring CPU bound tasks with 25 process workers.
+###############################################
+Received dict_keys(['NKE', 'IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AMZN', 'INTC', 'SPXU', 'CLX', 'GOOG', 'AAL', 'DAL', 'AMD', 'MSFT', 'SPXS', 'FB', 'WGO', 'MU', 'LRCX', 'SPY', 'BAC', 'KLAC', 'PTON', 'NVDA', 'NFLX', 'SAIA', 'SPCE', 'QQQ', 'ONEQ', 'SKX', 'ZM', 'SBUX', 'TSLA', 'LPX', 'UAL', 'UCTT', 'UFPI', 'SNBR', 'WSM', 'URI', 'HZO', 'APPS', 'VDE', 'WAL', 'DHI', 'ARCB', 'COWN', 'TFII', 'ABG', 'LGIH', 'LAD', 'KIRK', 'LOB', 'LOW', 'CALX', 'AVNW', 'TPX', 'LEN', 'USAK', 'CENTA', 'HZNP', 'TBBK', 'GROW', 'HIBB', 'AMRK', 'SYNA', 'CCS', 'MHO', 'IDT', 'KLIC', 'GSL', 'AOUT', 'KBH', 'SCVL', 'BGFV', 'MDC', 'UNFI', 'SLM', 'CUBI', 'HTH', 'HIMX', 'ACLS', 'RCII', 'GPI', 'AGCO', 'TRQ', 'HVT', '^DJI', 'ODFL', 'DAC', 'ICHR', '^VIX', '^NDX', 'OMI', '^GSPC', 'GE']) 
+Dict Count =100
+Locking thread. [ Compute process count 100 ], inderval=4H
+Finished in  23.5067 seconds
+
+-----------------------------------------------------
+Waiting for Queue ......
+[1m[32m
+Compute Queue Process Complete. 
+Unlocked thread. => QSIZE: 0 [0m
+AlgoDF Count 100 | interval 4H 
+dict_keys(['MRNA', 'IVV', 'SPY', 'NKE', 'WGO', 'COST', 'FB', 'BA', 'GOOG', 'AMD', 'MU', 'AAPL', 'JNUG', 'CLX', 'AMZN', 'INTC', 'SPXS', 'AAL', 'DAL', 'SPXU', 'MSFT', 'BAC', 'DIS', 'LRCX', 'AMAT', 'PTON', 'SPCE', 'ZM', 'KLAC', 'NVDA', 'NFLX', 'TSLA', 'APPS', 'SNBR', 'SBUX', 'ONEQ', 'SKX', 'LPX', 'URI', 'QQQ', 'WSM', 'SAIA', 'UFPI', 'UAL', 'VDE', 'DHI', 'UCTT', 'ARCB', 'WAL', 'HZO', 'TFII', 'COWN', 'AOUT', 'ABG', 'LGIH', 'CCS', 'USAK', 'LAD', 'AVNW', 'LOW', 'TBBK', 'AMRK', 'LOB', 'KIRK', 'GROW', 'TPX', 'CALX', 'HIBB', 'HZNP', 'LEN', 'CENTA', 'KLIC', 'SYNA', 'MHO', 'GSL', 'IDT', 'SCVL', 'KBH', 'UNFI', 'BGFV', 'TRQ', 'MDC', 'SLM', 'CUBI', 'AGCO', 'HTH', 'HIMX', 'RCII', 'GPI', 'ACLS', '^VIX', 'ODFL', '^DJI', 'GE', 'HVT', 'ICHR', 'OMI', 'DAC', '^GSPC', '^NDX'])
+###############################################
+Received dict_keys(['NKE', 'IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AMZN', 'INTC', 'SPXU', 'CLX', 'GOOG', 'AAL', 'DAL', 'AMD', 'MSFT', 'SPXS', 'FB', 'WGO', 'MU', 'LRCX', 'SPY', 'BAC', 'KLAC', 'PTON', 'NVDA', 'NFLX', 'SAIA', 'SPCE', 'QQQ', 'ONEQ', 'SKX', 'ZM', 'SBUX', 'TSLA', 'LPX', 'UAL', 'UCTT', 'UFPI', 'SNBR', 'WSM', 'URI', 'HZO', 'APPS', 'VDE', 'WAL', 'DHI', 'ARCB', 'COWN', 'TFII', 'ABG', 'LGIH', 'LAD', 'KIRK', 'LOB', 'LOW', 'CALX', 'AVNW', 'TPX', 'LEN', 'USAK', 'CENTA', 'HZNP', 'TBBK', 'GROW', 'HIBB', 'AMRK', 'SYNA', 'CCS', 'MHO', 'IDT', 'KLIC', 'GSL', 'AOUT', 'KBH', 'SCVL', 'BGFV', 'MDC', 'UNFI', 'SLM', 'CUBI', 'HTH', 'HIMX', 'ACLS', 'RCII', 'GPI', 'AGCO', 'TRQ', 'HVT', '^DJI', 'ODFL', 'DAC', 'ICHR', '^VIX', '^NDX', 'OMI', '^GSPC', 'GE']) 
+Dict Count =100
+Locking thread. [ Compute process count 100 ], inderval=1D
+Finished in  80.9263 seconds
+
+-----------------------------------------------------
+Waiting for Queue ......
+[1m[32m
+Compute Queue Process Complete. 
+Unlocked thread. => QSIZE: 0 [0m
+AlgoDF Count 100 | interval 1D 
+dict_keys(['MRNA', 'JNUG', 'FB', 'PTON', 'SPXU', 'SPXS', 'DAL', 'AAL', 'GOOG', 'SPCE', 'IVV', 'ZM', 'AMZN', 'SPY', 'NFLX', 'SAIA', 'TSLA', 'NVDA', 'ONEQ', 'MU', 'COST', 'MSFT', 'LRCX', 'QQQ', 'AAPL', 'AMAT', 'NKE', 'DIS', 'WGO', 'AMD', 'INTC', 'CLX', 'BAC', 'BA', 'SKX', 'KLAC', 'UAL', 'LOB', 'LGIH', 'UCTT', 'SBUX', 'APPS', 'CALX', 'VDE', 'WAL', 'COWN', 'TFII', 'SNBR', 'URI', 'HZO', 'KIRK', 'ABG', 'UFPI', 'HZNP', 'TPX', 'AOUT', 'AMRK', 'CCS', 'CENTA', 'LAD', 'LPX', 'DHI', 'ARCB', 'TBBK', 'WSM', 'CUBI', 'GSL', 'AVNW', 'SYNA', 'USAK', 'IDT', 'HIBB', 'LOW', 'BGFV', 'HIMX', 'HTH', 'ICHR', 'GROW', 'MHO', 'LEN', 'UNFI', 'ACLS', 'SCVL', 'TRQ', 'DAC', 'GPI', 'KBH', 'RCII', 'KLIC', 'SLM', 'AGCO', 'MDC', 'ODFL', 'HVT', '^NDX', 'OMI', '^GSPC', 'GE', '^DJI', '^VIX'])
+###############################################
+Received dict_keys(['NKE', 'IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AMZN', 'INTC', 'SPXU', 'CLX', 'GOOG', 'AAL', 'DAL', 'AMD', 'MSFT', 'SPXS', 'FB', 'WGO', 'MU', 'LRCX', 'SPY', 'BAC', 'KLAC', 'PTON', 'NVDA', 'NFLX', 'SAIA', 'SPCE', 'QQQ', 'ONEQ', 'SKX', 'ZM', 'SBUX', 'TSLA', 'LPX', 'UAL', 'UCTT', 'UFPI', 'SNBR', 'WSM', 'URI', 'HZO', 'APPS', 'VDE', 'WAL', 'DHI', 'ARCB', 'COWN', 'TFII', 'ABG', 'LGIH', 'LAD', 'KIRK', 'LOB', 'LOW', 'CALX', 'AVNW', 'TPX', 'LEN', 'USAK', 'CENTA', 'HZNP', 'TBBK', 'GROW', 'HIBB', 'AMRK', 'SYNA', 'CCS', 'MHO', 'IDT', 'KLIC', 'GSL', 'AOUT', 'KBH', 'SCVL', 'BGFV', 'MDC', 'UNFI', 'SLM', 'CUBI', 'HTH', 'HIMX', 'ACLS', 'RCII', 'GPI', 'AGCO', 'TRQ', 'HVT', '^DJI', 'ODFL', 'DAC', 'ICHR', '^VIX', '^NDX', 'OMI', '^GSPC', 'GE']) 
+Dict Count =100
+Locking thread. [ Compute process count 100 ], inderval=1H
+Finished in  72.8444 seconds
+
+-----------------------------------------------------
+Waiting for Queue ......
+[1m[32m
+Compute Queue Process Complete. 
+Unlocked thread. => QSIZE: 0 [0m
+AlgoDF Count 100 | interval 1H 
+dict_keys(['MRNA', 'JNUG', 'INTC', 'BAC', 'LRCX', 'SPXU', 'WGO', 'IVV', 'SPXS', 'GOOG', 'COST', 'NKE', 'MSFT', 'CLX', 'SPY', 'FB', 'AAPL', 'AMD', 'AMZN', 'AMAT', 'MU', 'DIS', 'AAL', 'BA', 'DAL', 'SPCE', 'PTON', 'ZM', 'KLAC', 'NFLX', 'NVDA', 'SAIA', 'LPX', 'WSM', 'ONEQ', 'UCTT', 'UAL', 'QQQ', 'VDE', 'SKX', 'UFPI', 'SNBR', 'URI', 'APPS', 'WAL', 'TSLA', 'DHI', 'ARCB', 'SBUX', 'HZO', 'TFII', 'AOUT', 'COWN', 'ABG', 'LGIH', 'AMRK', 'AVNW', 'TPX', 'USAK', 'LAD', 'LOW', 'KIRK', 'MHO', 'GROW', 'LEN', 'TBBK', 'LOB', 'GSL', 'CENTA', 'HZNP', 'HIBB', 'SYNA', 'CCS', 'CALX', 'IDT', 'KLIC', 'KBH', 'SCVL', 'BGFV', 'MDC', 'SLM', 'UNFI', 'CUBI', 'HTH', 'RCII', 'HIMX', 'ACLS', '^VIX', 'AGCO', 'HVT', 'ICHR', '^DJI', 'GPI', 'DAC', 'ODFL', 'OMI', 'TRQ', '^GSPC', 'GE', '^NDX'])
+###############################################
+Received dict_keys(['NKE', 'IVV', 'COST', 'AMAT', 'JNUG', 'AAPL', 'DIS', 'BA', 'MRNA', 'AMZN', 'INTC', 'SPXU', 'CLX', 'GOOG', 'AAL', 'DAL', 'AMD', 'MSFT', 'SPXS', 'FB', 'WGO', 'MU', 'LRCX', 'SPY', 'BAC', 'KLAC', 'PTON', 'NVDA', 'NFLX', 'SAIA', 'SPCE', 'QQQ', 'ONEQ', 'SKX', 'ZM', 'SBUX', 'TSLA', 'LPX', 'UAL', 'UCTT', 'UFPI', 'SNBR', 'WSM', 'URI', 'HZO', 'APPS', 'VDE', 'WAL', 'DHI', 'ARCB', 'COWN', 'TFII', 'ABG', 'LGIH', 'LAD', 'KIRK', 'LOB', 'LOW', 'CALX', 'AVNW', 'TPX', 'LEN', 'USAK', 'CENTA', 'HZNP', 'TBBK', 'GROW', 'HIBB', 'AMRK', 'SYNA', 'CCS', 'MHO', 'IDT', 'KLIC', 'GSL', 'AOUT', 'KBH', 'SCVL', 'BGFV', 'MDC', 'UNFI', 'SLM', 'CUBI', 'HTH', 'HIMX', 'ACLS', 'RCII', 'GPI', 'AGCO', 'TRQ', 'HVT', '^DJI', 'ODFL', 'DAC', 'ICHR', '^VIX', '^NDX', 'OMI', '^GSPC', 'GE']) 
+Dict Count =100
+Locking thread. [ Compute process count 100 ], inderval=5m
+Finished in  80.3261 seconds
+
+-----------------------------------------------------
+Waiting for Queue ......
+[1m[32m
+Compute Queue Process Complete. 
+Unlocked thread. => QSIZE: 0 [0m
+AlgoDF Count 100 | interval 5m 
+dict_keys(['MRNA', 'JNUG', 'FB', 'PTON', 'SPXU', 'SPXS', 'DAL', 'AAL', 'GOOG', 'SPCE', 'IVV', 'ZM', 'AMZN', 'SPY', 'NFLX', 'SAIA', 'NVDA', 'TSLA', 'COST', 'MSFT', 'ONEQ', 'MU', 'BA', 'LRCX', 'QQQ', 'AMAT', 'CLX', 'INTC', 'NKE', 'AMD', 'DIS', 'BAC', 'AAPL', 'SKX', 'WGO', 'KLAC', 'UAL', 'LOB', 'LGIH', 'UCTT', 'APPS', 'SBUX', 'CALX', 'WAL', 'COWN', 'VDE', 'TFII', 'SNBR', 'URI', 'KIRK', 'ABG', 'HZO', 'UFPI', 'HZNP', 'TPX', 'AOUT', 'AMRK', 'CCS', 'CENTA', 'LAD', 'LPX', 'DHI', 'ARCB', 'TBBK', 'WSM', 'GSL', 'CUBI', 'SYNA', 'AVNW', 'USAK', 'HIBB', 'IDT', 'BGFV', 'LOW', 'HIMX', 'ICHR', 'HTH', 'GROW', 'MHO', 'LEN', 'ACLS', 'UNFI', 'SCVL', 'TRQ', 'DAC', 'GPI', 'RCII', 'KBH', 'KLIC', 'AGCO', 'SLM', 'MDC', 'ODFL', 'HVT', '^NDX', '^GSPC', 'GE', 'OMI', '^DJI', '^VIX'])
+		Thread Quit Triggered. Job ID: END.
+		Quitting Consumer thread....
