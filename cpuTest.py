@@ -19,7 +19,7 @@ def consolidateDataforCPUTest():
     from datetime import date
     import app_web.logically.datasource as data
 
-    DATAROOT    = '/home/towshif/code/python/pythonic/database/'
+    DATAROOT    = './database/'
 
     # Define some dicts
     global ddr, symbols
@@ -61,7 +61,7 @@ def readDataforCPUTest() :
     ddr = {} # assign a dict
 
     # read data from pickle first : dict {}
-    DATAROOT    = '/home/towshif/code/python/pythonic/database/'
+    DATAROOT    = './database/'
     flink = DATAROOT + 'ddr.pickle'
 
     if not os.path.exists(flink) : 
